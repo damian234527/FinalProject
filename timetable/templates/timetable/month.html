@@ -1,0 +1,40 @@
+{% extends "base_template.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+<h1>Current Month</h1>
+<table>
+    <tr>
+        <th>Mon</th>
+        <th>Tue</th>
+        <th>Wed</th>
+        <th>Thu</th>
+        <th>Fri</th>
+        <th>Sat</th>
+        <th>Sun</th>
+    </tr>
+    {% for week in this_month %}
+        {% if forloop.counter0 == this_week_number %}
+        <tr bgcolor="lime">
+            {% for day in week %}
+                {% if day == today %}
+                    <td bgcolor="yellow">{{ day }}</td>
+                {% else %}
+                    <td>{{ day }}</td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% else %}
+            {% for day in week %}
+                <td>{{ day }}</td>
+            {% endfor %}
+        </tr>
+        {% endif %}
+    {% endfor %}
+</table>
+<form action="import/" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Import .ics file">
+</form>
+{% endblock %}

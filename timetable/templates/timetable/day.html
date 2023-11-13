@@ -1,0 +1,19 @@
+{% extends "base_template.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+<h1>Current Day</h1>
+<table>
+    <tr>
+        <th>Today</th>
+    </tr>
+    <tr>
+                <td>{{ today }}</td>
+    </tr>
+</table>
+<form action="import/" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Import .ics file">
+</form>
+{% endblock %}
