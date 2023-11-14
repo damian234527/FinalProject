@@ -43,4 +43,13 @@ def week(request):
                                                    "today": day})
 
 def day(request):
-    return render(request, "timetable/day.html", {"today": day})
+    time_array = [None] * 64
+    time_earliest_start = 800
+    start_time = 800
+    end_time = 1200
+    description = "Testy planu dnia"
+    time_to_index_conversion = (((start_time - time_earliest_start) // 100 * 60) + (start_time % 100)) // 15
+    time_array[time_to_index_conversion] = [start_time, end_time, description]
+
+    return render(request, "timetable/day.html", {"today": day,
+                                                  "time_array": time_array})
