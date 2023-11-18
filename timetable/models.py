@@ -1,13 +1,6 @@
 from django.db import models
-
+from authentication.models import Student
 # Create your models here.
-
-
-class Student(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    student_mail = models.CharField(max_length=100)
-    description = models.CharField(max_length=255)
 
 
 class Timetable(models.Model):

@@ -3,211 +3,31 @@
 
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
-<h1>Current Day</h1>
-<table>
-    <tr>
-        <th>Time</th>
-        <th>Activity</th>
-    </tr>
-    <tr>
-                <td>{{ "8:00" }}</td>
-                <td>{{ time_array.0.2 }}</td>
-    </tr>
-    <tr>
-                <td>{{ "8:15" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "8:30" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "8:45" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "9:00" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "9:15" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "9:30" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "9:45" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "10:00" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "10:15" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "10:30" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "10:45" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "11:00" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "11:15" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "11:30" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "11:45" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "12:00" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "12:15" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "12:30" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "12:45" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "13:00" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "13:15" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "13:30" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "13:45" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "14:00" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "14:15" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "14:30" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "14:45" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "15:00" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "15:15" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "15:30" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "15:45" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "16:00" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "16:15" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "16:30" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "16:45" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "17:00" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "17:15" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "17:30" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "17:45" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "18:00" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "18:15" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "18:30" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "18:45" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "19:00" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "19:15" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "19:30" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "19:45" }}</td>
-                <td>{{ today }}</td>
-    </tr>
-    <tr>
-                <td>{{ "20:00" }}</td>
-                <td>{{ today }}</td>
-    </tr>
+<h1>Timetable</h1>
+<h2>{{ today }}.{{month}}.{{year}}</h2>
+<div class="schedule">
 
+  <h3 class="time-slot">8:00am</h3>
+  <div class="session session-1 track-1">
+    <h4 class="session-title"><a href="#">Session Title</a></h4>
+    <span class="session-time">8:00am - 9:00am</span>
+    <span class="session-track">Track 1</span>
+    <span class="session-presenter">Presenter Name</span>
+  </div>
+  <!-- Sessions 2, 3, 4 -->
 
-</table>
+  <h3 class="time-slot">9:00am</h3>
+  <div class="session session-5 track-1">
+    <h4 class="session-title"><a href="#">Session Title</a></h4>
+    <span class="session-time">9:00am - 10:00am</span>
+    <span class="session-track">Track 1</span>
+    <span class="session-presenter">Presenter Name</span>
+  </div>
+  <!-- Sessions 6, 7, 8 -->
+
+  <!-- etc... -->
+
+</div> <!-- end .schedule -->
 <form action="import/" method="post">
     {% csrf_token %}
     <input type="submit" value="Import .ics file">

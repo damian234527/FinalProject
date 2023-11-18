@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "home.apps.HomeConfig",
+    "authentication.apps.AuthenticationConfig",
     "timetable.apps.TimetableConfig",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -91,6 +92,8 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
+
+AUTH_USER_MODEL = "authentication.Student"
 
 AUTH_PASSWORD_VALIDATORS = [
     {

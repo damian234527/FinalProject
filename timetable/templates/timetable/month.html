@@ -27,7 +27,13 @@
         </tr>
         {% else %}
             {% for day in week %}
-                <td>{{ day }}</td>
+                {% if forloop.parentloop.first and day > 7 %}
+                    <td bgcolor="lightgray">{{ day }}</td>
+                {% elif forloop.parentloop.last and day < 7 %}
+                    <td bgcolor="lightgray">{{ day }}</td>
+                {% else %}
+                    <td>{{ day }}</td>
+                {% endif %}
             {% endfor %}
         </tr>
         {% endif %}
