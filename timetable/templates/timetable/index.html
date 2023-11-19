@@ -4,15 +4,15 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
 <h1>Select mode</h1>
-<form action="month/" method="post">
+<form action="{% url 'timetable:month' %}" method="post">
     {% csrf_token %}
     <input type="submit" value="Monthly display">
 </form>
-<form action="week/" method="post">
+<form action="{% url 'timetable:week' %}" method="post">
     {% csrf_token %}
     <input type="submit" value="Weekly display">
 </form>
-<form action="day/" method="post">
+<form action="{% url 'timetable:day' %}" method="post">
     {% csrf_token %}
     <input type="submit" value="Daily display">
 </form>

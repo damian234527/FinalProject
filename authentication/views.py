@@ -6,7 +6,7 @@ from .models import Student
 from .forms import CreateNewAccountForm, LoginForm
 # from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
-
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def register(request):
@@ -15,7 +15,7 @@ def register(request):
         if create_new_user_form.is_valid():
             # create_new_user_form
             messages.success(request, ".ics file uploaded successfully.")
-            return redirect("/")
+            return redirect("main_page")
             # messages.error(request, f"An error occurred while uploading the file: {str(upload_error)}.")
     else:
         create_new_user_form = CreateNewAccountForm()
@@ -46,8 +46,8 @@ def log_in(request):
         context = {"form": LoginForm()}
         return render(request, "authentication/login.html",context)
 
-
+@login_required
 def log_out(request):
     if request.user.is_authenticated:
         logout(request)
-        return redirect("/")
+        return redirect("main_page")

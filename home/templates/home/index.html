@@ -3,30 +3,11 @@
 
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
-<h1>Current Month</h1>
-<table>
-    <tr>
-        <th>Mon</th>
-        <th>Tue</th>
-        <th>Wed</th>
-        <th>Thu</th>
-        <th>Fri</th>
-        <th>Sat</th>
-        <th>Sun</th>
-    </tr>
-    {% for week in calendar %}
-    <tr>
-        {% for day in week %}
-            {% if day == 0 %}
-                <td></td>
-            {% else %}
-                <td>{{ day }}</td>
-            {% endif %}
-        {% endfor %}
-    </tr>
-    {% endfor %}
-</table>
-<form action="import/" method="post">
+<h1>Main Page</h1>
+  <button hx-get="{% url 'timetable:month' %}" hx-swap="innerHTML">
+    Show current month
+  </button>
+<form action="{% url 'home:import_ics_file' %}" method="post">
     {% csrf_token %}
     <input type="submit" value="Import .ics file">
 </form>

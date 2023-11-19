@@ -1,6 +1,6 @@
 import calendar
 from datetime import datetime
-
+from django.urls import reverse
 from django.shortcuts import render
 
 # calendar for current month
@@ -32,10 +32,12 @@ def index(request):
 
 
 def month(request):
+    month_name = calendar.month_name[current_month]
     return render(request, "timetable/month.html", {"this_month": calendar_current_month,
                                                     "this_week": calendar_current_week,
                                                     "this_week_number": week_number,
-                                                    "today": current_day})
+                                                    "today": current_day,
+                                                    "month_name": month_name})
 
 def week(request):
     return render(request, "timetable/week.html", {"this_week": calendar_current_week,
