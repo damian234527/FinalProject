@@ -3,7 +3,7 @@ from django.contrib import messages
 from datetime import datetime
 from dateutil.parser import parse
 from .models import Student
-from .forms import CreateNewAccountForm, LoginForm
+from .forms import NewAccountRegistrationForm, NewAccountProfileForm, LoginForm
 # from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -11,43 +11,68 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 def register(request):
     if request.method == "POST":
-        create_new_user_form = CreateNewAccountForm(request.POST)
-        if create_new_user_form.is_valid():
-            # create_new_user_form
-            messages.success(request, ".ics file uploaded successfully.")
-            return redirect("main_page")
-            # messages.error(request, f"An error occurred while uploading the file: {str(upload_error)}.")
-    else:
-        create_new_user_form = CreateNewAccountForm()
+        create_new_user_form = NewAccountRegistrationForm(request.POST)
+        new_user_profile_form = NewAccountProfileForm(request.POST)
 
-    return render(request, "authentication/register.html", {"form": create_new_user_form})
+        # Checking if passwords match
+        if create_new_user_form.is_valid() and new_user_profile_form.is_valid():
+            password = create_new_user_form.cleaned_data["password1"]
+            password_confirmation = request.POST['password2']
+            if password != password_confirmation:
+                messages.error(request, 'Passwords do not match.')
+                return redirect('authentication:register')
+
+            # Checking if student mail is in polsl.pl domain
+            student_mail = new_user_profile_form.cleaned_data.get("student_mail", "")
+            if student_mail and not student_mail.endswith("polsl.pl"):
+                messages.error(request, "Student mail must be in polsl.pl domain.")
+                return redirect("authentication:register")
+
+            #Creating new user
+            user = create_new_user_form.save(commit=False)
+            user.set_password(password)
+            user.save()
+
+            #Creating student profile
+            student = new_user_profile_form.save(commit=False)
+            student.user = user
+            student.save()
+
+            messages.success(request, "Registration completed. You can now log in.")
+            return redirect("authentication:log_in")
+
+    else:
+        create_new_user_form = NewAccountRegistrationForm()
+        new_user_profile_form = NewAccountProfileForm()
+
+    return render(request, "authentication/register.html", {"registration_form": create_new_user_form,
+                                                            "profile_form": new_user_profile_form})
 
 def log_in(request):
     if request.user.is_authenticated:
-        return redirect("")
+        return redirect("home:page")
     if request.method == "POST":
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            user = authenticate(
-                request,
-                username=form.cleaned_data.get("username"),
-                password=form.cleaned_data.get("password")
-            )
+        login_form = LoginForm(request.POST)
+
+        if login_form.is_valid():
+            user = authenticate(request,
+                                username=login_form.cleaned_data.get("username"),
+                                password=login_form.cleaned_data.get("password"))
+
             if user is not None:
                 login(request, user)
-                return redirect("view_news")
+                messages.success(request, "Logged in successfully")
+                return redirect("home:page")
             else:
-                context = {"form": form}
-                return render(request, "authentication/login.html",context)
-        else:
-            context = {"form": form}
-            return render(request, "authentication/login.html",context)
+                messages.error(request, "Invalid username or password.")
     else:
-        context = {"form": LoginForm()}
-        return render(request, "authentication/login.html",context)
+        login_form = LoginForm()
 
-@login_required
+    return render(request, "authentication/login.html", {"login_form": login_form})
+
+
 def log_out(request):
     if request.user.is_authenticated:
         logout(request)
-        return redirect("main_page")
+        messages.success(request, "Logged out successfully")
+        return redirect("home:page")
