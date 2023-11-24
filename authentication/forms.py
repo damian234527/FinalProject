@@ -6,7 +6,7 @@ class NewAccountRegistrationForm(UserCreationForm):
 
     class Meta:
         model = Student
-        fields = ["username", "email"]
+        fields = ["username", "email", "password1", "password2", "first_name", "last_name", "student_mail", "profile_description"]
 
 class NewAccountProfileForm(forms.ModelForm):
 

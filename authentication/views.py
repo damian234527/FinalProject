@@ -12,18 +12,17 @@ from django.contrib.auth.decorators import login_required
 def register(request):
     if request.method == "POST":
         create_new_user_form = NewAccountRegistrationForm(request.POST)
-        new_user_profile_form = NewAccountProfileForm(request.POST)
 
         # Checking if passwords match
-        if create_new_user_form.is_valid() and new_user_profile_form.is_valid():
+        if create_new_user_form.is_valid():
             password = create_new_user_form.cleaned_data["password1"]
-            password_confirmation = request.POST['password2']
+            password_confirmation = create_new_user_form.cleaned_data["password2"]
             if password != password_confirmation:
                 messages.error(request, 'Passwords do not match.')
                 return redirect('authentication:register')
 
             # Checking if student mail is in polsl.pl domain
-            student_mail = new_user_profile_form.cleaned_data.get("student_mail", "")
+            student_mail = create_new_user_form.cleaned_data.get("student_mail", "")
             if student_mail and not student_mail.endswith("polsl.pl"):
                 messages.error(request, "Student mail must be in polsl.pl domain.")
                 return redirect("authentication:register")
@@ -32,11 +31,6 @@ def register(request):
             user = create_new_user_form.save(commit=False)
             user.set_password(password)
             user.save()
-
-            #Creating student profile
-            student = new_user_profile_form.save(commit=False)
-            student.user = user
-            student.save()
 
             messages.success(request, "Registration completed. You can now log in.")
             return redirect("authentication:log_in")

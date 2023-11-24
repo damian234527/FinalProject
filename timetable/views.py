@@ -3,6 +3,36 @@ from datetime import datetime
 from django.urls import reverse
 from django.shortcuts import render
 
+
+def get_month_calendar(year, month):
+    calendar_month = calendar.monthcalendar(year, month)
+    calendar_last_month_last_week = calendar.monthcalendar(year, month - 1)[-1]
+    next_month_days_iterator = 1
+
+    for i, day_month in enumerate(calendar_month[0]):
+        if day_month == 0:
+            calendar_month[0][i] = calendar_last_month_last_week[i]
+
+    for i, day_month in enumerate(calendar_month[-1]):
+        if day_month == 0:
+            calendar_month[-1][i] = next_month_days_iterator
+            next_month_days_iterator += 1
+
+    return calendar_month
+
+def display_month(request, year, month):
+    # Convert year and month to integers
+    year = int(year)
+    month = int(month)
+
+    # Get the month calendar for the specified year and month
+    calendar_month = get_month_calendar(year, month)
+    month_name = calendar.month_name[month]
+
+    return render(request, "timetable/month.html", {"this_month": calendar_month,
+                                                    "month_name": month_name,
+                                                    "year": year})
+
 # calendar for current month
 now = datetime.now()
 current_year, current_month, current_day = now.year, now.month, now.day

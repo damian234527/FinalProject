@@ -37,6 +37,9 @@
         </ul>
     </div>
     <div class="container mt-4">
+        {% if user.is_authenticated %}
+            <p>Hi, {{user.username}} </p>
+        {% endif %}
         {% block content %}{% endblock %}
     </div>
 </body>
