@@ -79,10 +79,16 @@ def day(request):
     start_time = 800
     end_time = 1200
     description = ["Jerzy Respondek", "830", "lab"]
-    time_to_index_conversion = (((start_time - time_earliest_start) // 100 * 60) + (start_time % 100)) // 15
-    time_array[time_to_index_conversion] = [start_time, end_time, description]
+    activity = {"start_time": start_time, "end_time": end_time, "description": description}
+    activities = []
+    activities.append(activity)
+    timetable_times = range(800, 2100, 100)
+    # time_to_index_conversion = (((start_time - time_earliest_start) // 100 * 60) + (start_time % 100)) // 15
+    # time_array[time_to_index_conversion] = [start_time, end_time, description]
 
     return render(request, "timetable/day.html", {"today": current_day,
-                                                  "time_array": time_array,
+                                                  #"time_array": time_array,
+                                                  "activities": activities,
                                                   "month": current_month,
-                                                  "year": current_year})
+                                                  "year": current_year,
+                                                  "timetable_times": timetable_times})

@@ -3,10 +3,12 @@
 <script src="{% static 'htmx.min.js' %}" defer></script>
 <html lang="en">
 <head>
-<title>{% block title %}Django laboratories{% endblock %}</title>
-  {% load bootstrap5 %}
-  {% bootstrap_css %}
-  {% bootstrap_javascript %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Django laboratories{% endblock %}</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">

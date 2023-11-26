@@ -1,0 +1,30 @@
+{% extends "base_template.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+<h1>Timetable</h1>
+<h2>{{ today }}.{{ month }}.{{ year }}</h2>
+<div class="schedule">
+ {{ activity }}
+    <table border="1">
+        <tr>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Description</th>
+        </tr>
+        {% for activity in activities %}
+        <tr>
+            <td>{{ activity.0 }}</td>
+            <td>{{ activity.1 }}</td>
+            <td>{{ activity.2 }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+<form action="import/" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Import .ics file">
+</form>
+{% endblock %}

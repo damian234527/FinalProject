@@ -1,34 +1,69 @@
-{% extends "base_template.html" %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
 
-{% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
-<h1>Timetable</h1>
-<h2>{{ today }}.{{ month }}.{{ year }}</h2>
-<div class="schedule">
-  <h3 class="time-slot">8:00am</h3>
-  <div class="session session-1 track-1">
-    <h4 class="session-title"><a href="#">Session Title</a></h4>
-    <span class="session-time">8:00am - 9:00am</span>
-    <span class="session-track">Track 1</span>
-    <span class="session-presenter">Presenter Name</span>
-  </div>
-  <!-- Sessions 2, 3, 4 -->
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
 
-  <h3 class="time-slot">9:00am</h3>
-  <div class="session session-5 track-1">
-    <h4 class="session-title"><a href="#">Session Title</a></h4>
-    <span class="session-time">9:00am - 10:00am</span>
-    <span class="session-track">Track 1</span>
-    <span class="session-presenter">Presenter Name</span>
-  </div>
-  <!-- Sessions 6, 7, 8 -->
+        .timetable-cell {
+            position: relative;
+            height: 110px; /* Set the height of each cell */
+        }
+        .timetable-activity-cell {
+            background-color: #3498db;
+            position: relative;
+            height: 110px; /* Set the height of each cell */
+        }
+        .activity {
+            position: center;
+            background-color: #3498db;
+            color: #fff;
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Timetable - {{ today }}.{{ month }}.{{ year }}</h1>
+    <table>
+        <tr>
+            <th>Time</th>
+            <th>Activities</th>
+        </tr>
+        {% for time in timetable_times %}
+            <tr>
+                <td>{{ time }}</td>
+                {% for activity in activities %}
+                {% if time >= activity.start_time and time < activity.end_time %}
+                <td class="timetable-activity-cell">
+                    <div class="activity">
+                        {% if time == activity.start_time %}
+                            <p>{{ activity.description.0 }}</p>
+                            <p>{{ activity.description.1 }}</p>
+                            <p>{{ activity.description.2 }}</p>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <td class="timetable-cell">
+                {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
 
-  <!-- etc... -->
 
-</div> <!-- end .schedule -->
-<form action="import/" method="post">
-    {% csrf_token %}
-    <input type="submit" value="Import .ics file">
-</form>
-{% endblock %}
