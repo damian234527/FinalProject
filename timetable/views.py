@@ -4,6 +4,12 @@ from django.urls import reverse
 from django.shortcuts import render
 
 
+def get_timetable():
+    return 1
+
+def select_timetable():
+    return 1
+
 def get_month_calendar(year, month):
     calendar_month = calendar.monthcalendar(year, month)
     calendar_last_month_last_week = calendar.monthcalendar(year, month - 1)[-1]

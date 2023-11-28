@@ -18,8 +18,8 @@ def register(request):
             password = create_new_user_form.cleaned_data["password1"]
             password_confirmation = create_new_user_form.cleaned_data["password2"]
             if password != password_confirmation:
-                messages.error(request, 'Passwords do not match.')
-                return redirect('authentication:register')
+                messages.error(request, "Passwords do not match.")
+                return redirect("authentication:register")
 
             # Checking if student mail is in polsl.pl domain
             student_mail = create_new_user_form.cleaned_data.get("student_mail", "")

@@ -24,33 +24,18 @@ def upload_new_timetable(request):
         upload_new_timetable_form = ICSFileUploadForm(request.POST, request.FILES)
         if upload_new_timetable_form.is_valid():
             ics_file = upload_new_timetable_form.cleaned_data["ics_file"] # normalizes input to be always consistent
-            uploaded_filename = ics_file.name
-            timetable_name = request.POST.get("timetable_name", uploaded_filename)
-            timetable, created = Timetable.objects.get_or_create(name=timetable_name)
+            #timetable_name = request.POST.get("timetable_name", uploaded_filename)
+            timetable_name = upload_new_timetable_form.cleaned_data["timetable_name"]
+            if timetable_name == "":
+                uploaded_filename = ics_file.name
+                timetable_name = uploaded_filename
+            success, message = Timetable.import_timetable(ics_file, timetable_name)
 
-            try:
-                imported_calendar = icalendar.Calendar.from_ical(ics_file.read())
-                for activity in imported_calendar.walk("vevent"):
-                    time_start = activity.get("dtstart").dt
-                    time_end = activity.get("dtend").dt
-                    description = activity.get("summary")
-
-                    # edit
-                    time_duration = placeholder_value #CHANGE
-                    course = placeholder_value #CHANGE
-                    activity_type = placeholder_value
-
-                    Activity.objects.create(time_start=time_start,
-                                            time_end=time_end,
-                                            description=description,
-                                            time_duration=time_duration,
-                                            timetable=timetable,
-                                            course=course,
-                                            activity_type=activity_type)
-                messages.success(request, ".ics file uploaded successfully.")
-                return redirect("timetable")
-            except Exception as upload_error:
-                messages.error(request, f"An error occurred while uploading the file: {str(upload_error)}.")
+            if success:
+                messages.success(request, message)
+                return redirect("timetable:main")
+            else:
+                messages.error(request, message)
     else:
         upload_new_timetable_form = ICSFileUploadForm()
 
