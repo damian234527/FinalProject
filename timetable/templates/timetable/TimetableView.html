@@ -1,0 +1,11 @@
+{% extends "base_template.html" %}
+{% load static %}
+
+{% block content %}
+  <h2>Timetables</h2>
+  <ul>
+    {% for timetable in available_timetables_list %}
+      <li><a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a></li>
+    {% endfor %}
+  </ul>
+{% endblock %}

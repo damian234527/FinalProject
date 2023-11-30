@@ -1,14 +1,16 @@
 import calendar
 from datetime import datetime
 from django.urls import reverse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from .models import Timetable
+from django.views import generic
 
-
-def get_timetable():
-    return 1
-
-def select_timetable():
-    return 1
+class TimetableView(generic.ListView):
+    template_name = "timetable/TimetableView.html"
+    context_object_name = "available_timetables_list"
+    model = Timetable
+    def get_timetables(self):
+        return Timetable.objects.all()
 
 def get_month_calendar(year, month):
     calendar_month = calendar.monthcalendar(year, month)
@@ -63,8 +65,9 @@ if current_day > calendar_current_month[week_number][0] + 6:
 calendar_current_week = calendar_current_month[week_number]
 
 # Create your views here.
-def index(request):
-    return render(request, "timetable/index.html")
+def timetable_details(request, timetable_id):
+    timetable = get_object_or_404(Timetable, pk=timetable_id)
+    return render(request, "timetable/timetable_details.html")
 
 
 def month(request):

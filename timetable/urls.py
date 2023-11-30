@@ -1,11 +1,12 @@
 from django.urls import path
-from .views import index, month, week, day, display_month
+from . import views
 
 app_name = "timetable"
 urlpatterns = [
-    path("timetable/", index, name="main"),
-    path("timetable/month/<int:year>/<int:month>/", display_month, name="display_month"),
-    path("timetable/month/", month, name="month"),
-    path("timetable/week/", week, name="week"),
-    path("timetable/day/", day, name="day"),
+    path("timetable/", views.TimetableView.as_view(), name="main"),
+    path("timetable/<int:timetable_id>/", views.timetable_details, name="details"),
+    path("timetable/<int:timetable_id>/month/<int:year>/<int:month>/", views.display_month, name="display_month"),
+    path("timetable/<int:timetable_id>/month/", views.month, name="month"),
+    path("timetable/<int:timetable_id>/week/", views.week, name="week"),
+    path("timetable/<int:timetable_id>/day/", views.day, name="day"),
 ]

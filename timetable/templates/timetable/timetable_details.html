@@ -1,0 +1,19 @@
+{% extends "base_template.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+<h1>Select mode</h1>
+<form action="{% url 'timetable:main' %}" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Monthly display">
+</form>
+<form action="{% url 'timetable:main' %}" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Weekly display">
+</form>
+<form action="{% url 'timetable:main' %}" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Daily display">
+</form>
+{% endblock %}

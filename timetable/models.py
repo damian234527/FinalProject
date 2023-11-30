@@ -14,6 +14,10 @@ def create_acronym(string):
 class Timetable(models.Model):
     timetable_name = models.CharField(max_length=255)
     author = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return self.timetable_name
+
     @classmethod
     def import_timetable(cls, ics_file, timetable_name=None):
         try:
