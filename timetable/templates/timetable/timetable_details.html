@@ -4,15 +4,15 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
 <h1>Select mode</h1>
-<form action="{% url 'timetable:main' %}" method="post">
+<form action="{% url 'timetable:display_current_month' timetable_id %}" method="post">
     {% csrf_token %}
     <input type="submit" value="Monthly display">
 </form>
-<form action="{% url 'timetable:main' %}" method="post">
+<form action="{% url 'timetable:display_week' timetable_id 2023 50 %}" method="post">
     {% csrf_token %}
     <input type="submit" value="Weekly display">
 </form>
-<form action="{% url 'timetable:main' %}" method="post">
+<form action="{% url 'timetable:display_day' timetable_id 2023 12 3 %}" method="post">
     {% csrf_token %}
     <input type="submit" value="Daily display">
 </form>

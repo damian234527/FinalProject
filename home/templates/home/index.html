@@ -4,7 +4,7 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
 <h1>Main Page</h1>
-  <button hx-get="{% url 'timetable:month' %}" hx-swap="innerHTML">
+  <button hx-get="{% url 'timetable:display_current_month' 4 %}" hx-swap="innerHTML">
     Show current month
   </button>
 <form action="{% url 'home:import_ics_file' %}" method="post">
