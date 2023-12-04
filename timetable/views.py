@@ -19,33 +19,40 @@ class TimetableDetailsView(generic.DetailView):
     def get_specific_timetable(timetable_id):
         return Timetable.objects.filter(pk=timetable_id)
 
-def get_specific_month_calendar(self, year, month):
+def get_month_calendar(year, month):
     calendar_month = calendar.monthcalendar(year, month)
     calendar_last_month_last_week = calendar.monthcalendar(year, month - 1)[-1]
     next_month_days_iterator = 1
-
     for i, day_month in enumerate(calendar_month[0]):
         if day_month == 0:
             calendar_month[0][i] = calendar_last_month_last_week[i]
-
     for i, day_month in enumerate(calendar_month[-1]):
         if day_month == 0:
             calendar_month[-1][i] = next_month_days_iterator
             next_month_days_iterator += 1
-
     return calendar_month
 
 def display_month(request, timetable_id, year=None, month=None):
+    current_date = datetime.now()
+    current_month = False
     if year == None and month == None:
-        current_date = datetime.now()
         year = current_date.year
         month = current_date.month
+        current_month = True
     # Get the month calendar for the specified year and month
     calendar_month = get_month_calendar(year, month)
     month_name = calendar.month_name[month]
 
+    if current_month or (month == current_date.month and year == current_date.year):
+        day = current_date.day
+        week_number = day // 7
+        if day > calendar_month[week_number][0] + 6 or calendar_month[week_number][6] < day:
+            week_number += 1
+        #current_week = calendar_month[week_number]
+
     return render(request, "timetable/month.html",
                   {"this_month": calendar_month,
+                   "this_week": week_number,
                    "timetable_id": timetable_id,
                    "month_name": month_name,
                    "year": year})
@@ -56,12 +63,17 @@ def display_week(request, timetable_id, year=None, week=None):
         year = current_date.year
         week = current_date.isocalendar()[1]
     start_date = datetime(year, 1, 1)
-    days_to_add = (week - 1) * 7 - start_date.weekday()
+    if start_date.weekday() <= 3:
+        days_to_add = (week - 1) * 7 - start_date.weekday()
+    else:
+        days_to_add = week * 7 - start_date.weekday()
+
     first_day_of_week = start_date + timedelta(days=days_to_add)
     calendar_week = [(first_day_of_week + timedelta(days=i)).day for i in range(7)]
 
     return render(request, "timetable/week.html",
                   {"this_week": calendar_week,
+                   "timetable_id": timetable_id,
                    "week_number": week,
                    "year": year})
 
@@ -74,25 +86,18 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
     month_name = calendar.month_name[month]
     return render(request, "timetable/day.html", {
                                                     "month_name": month_name,
+                                                    "timetable_id": timetable_id,
                                                     "month": month,
                                                     "day": day,
                                                     "year": year})
 
-def get_month_calendar(year, month):
-    calendar_month = calendar.monthcalendar(year, month)
-    calendar_last_month_last_week = calendar.monthcalendar(year, month - 1)[-1]
-    next_month_days_iterator = 1
+def timetable_details(request, timetable_id):
+    timetable = get_object_or_404(Timetable, pk=timetable_id)
+    return render(request, "timetable/timetable_details.html", {"timetable_id": timetable_id})
 
-    for i, day_month in enumerate(calendar_month[0]):
-        if day_month == 0:
-            calendar_month[0][i] = calendar_last_month_last_week[i]
 
-    for i, day_month in enumerate(calendar_month[-1]):
-        if day_month == 0:
-            calendar_month[-1][i] = next_month_days_iterator
-            next_month_days_iterator += 1
 
-    return calendar_month
+"""
 # calendar for current month
 now = datetime.now()
 current_year, current_month, current_day = now.year, now.month, now.day
@@ -115,12 +120,6 @@ week_number = current_day // 7
 if current_day > calendar_current_month[week_number][0] + 6:
     week_number += 1
 calendar_current_week = calendar_current_month[week_number]
-
-# Create your views here.
-def timetable_details(request, timetable_id):
-    timetable = get_object_or_404(Timetable, pk=timetable_id)
-    return render(request, "timetable/timetable_details.html", {"timetable_id": timetable_id})
-
 
 def month(request):
     month_name = calendar.month_name[current_month]
@@ -153,3 +152,4 @@ def day(request):
                                                   "month": current_month,
                                                   "year": current_year,
                                                   "timetable_times": timetable_times})
+"""

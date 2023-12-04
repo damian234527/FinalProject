@@ -15,7 +15,7 @@
         <th>Sun</th>
     </tr>
     {% for week in this_month %}
-        {% if forloop.counter0 == this_week_number %}
+        {% if forloop.counter0 == this_week %}
         <tr bgcolor="lime">
             {% for day in week %}
                 {% if day == today %}
