@@ -104,12 +104,18 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
         month = current_date.month
         day = current_date.day
     month_name = calendar.month_name[month]
+    timetable_times = ["800","815"]
+    day_date = datetime(year, month, day).date()
+    day_activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__date = day_date) | Q(time_end__date = day_date)))
     return render(request, "timetable/day.html", {
-                                                    "month_name": month_name,
-                                                    "timetable_id": timetable_id,
-                                                    "month": month,
-                                                    "day": day,
-                                                    "year": year})
+                                                                "activities": day_activities,
+                                                                "timetable_times": timetable_times,
+                                                                "month_name": month_name,
+                                                                "timetable_id": timetable_id,
+                                                                "month": month,
+                                                                "day": day,
+                                                                "year": year,
+                                                                "date":day_date})
 
 def timetable_details(request, timetable_id):
     timetable = get_object_or_404(Timetable, pk=timetable_id)
