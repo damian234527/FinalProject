@@ -2,7 +2,8 @@ import calendar
 from datetime import datetime, timedelta
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404
-from .models import Timetable
+from django.db.models import Q
+from .models import Timetable, Activity
 from django.views import generic
 
 
@@ -42,7 +43,26 @@ def display_month(request, timetable_id, year=None, month=None):
     # Get the month calendar for the specified year and month
     calendar_month = get_month_calendar(year, month)
     month_name = calendar.month_name[month]
+    first_day = calendar_month[0][0]
+    last_day = calendar_month[-1][-1]
+    if first_day > 7:
+        if month == 1:
+            start_date = datetime.date(year-1, month-1, first_day)
+        else:
+            start_date = datetime.date(year, month-1, first_day)
+    else:
+        start_date = datetime.date(year, month, first_day)
 
+    if last_day <= 7:
+        if month == 12:
+            end_date = datetime.date(year+1, 1, last_day)
+        else:
+            end_date = datetime.date(year, month+1, last_day)
+    else:
+        end_date = datetime.date(year, month, last_day)
+    month_activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__range = [start_date, end_date]) | Q(time_end__range = [start_date, end_date])))
+
+    #For setting current week
     if current_month or (month == current_date.month and year == current_date.year):
         day = current_date.day
         week_number = day // 7
