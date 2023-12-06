@@ -1,5 +1,5 @@
 import calendar
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
@@ -47,19 +47,19 @@ def display_month(request, timetable_id, year=None, month=None):
     last_day = calendar_month[-1][-1]
     if first_day > 7:
         if month == 1:
-            start_date = datetime.date(year-1, month-1, first_day)
+            start_date = datetime(year-1, month-1, first_day).date()
         else:
-            start_date = datetime.date(year, month-1, first_day)
+            start_date = datetime(year, month-1, first_day).date()
     else:
-        start_date = datetime.date(year, month, first_day)
+        start_date = datetime(year, month, first_day).date()
 
     if last_day <= 7:
         if month == 12:
-            end_date = datetime.date(year+1, 1, last_day)
+            end_date = datetime(year+1, 1, last_day).date()
         else:
-            end_date = datetime.date(year, month+1, last_day)
+            end_date = datetime(year, month+1, last_day).date()
     else:
-        end_date = datetime.date(year, month, last_day)
+        end_date = datetime(year, month, last_day).date()
     month_activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__range = [start_date, end_date]) | Q(time_end__range = [start_date, end_date])))
 
     #For setting current week
@@ -75,6 +75,7 @@ def display_month(request, timetable_id, year=None, month=None):
                    "this_week": week_number,
                    "timetable_id": timetable_id,
                    "month_name": month_name,
+                   "month": month,
                    "year": year})
 
 def display_week(request, timetable_id, year=None, week=None):
@@ -104,7 +105,13 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
         month = current_date.month
         day = current_date.day
     month_name = calendar.month_name[month]
-    timetable_times = ["800","815"]
+    timetable_times = [None] * 64
+    i = 0
+    for hours in range(8, 24):
+        for minutes in range(0, 60, 15):
+            timetable_times[i] = time(hours, minutes)
+            i +=1
+    # timetable_times = [time(hour=9, minute=0), time(hour=9, minute=15), time(hour=9, minute=30), time(hour=9, minute=45), time(hour=10, minute=0)]
     day_date = datetime(year, month, day).date()
     day_activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__date = day_date) | Q(time_end__date = day_date)))
     return render(request, "timetable/day.html", {

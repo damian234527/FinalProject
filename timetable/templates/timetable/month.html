@@ -19,20 +19,20 @@
         <tr bgcolor="lime">
             {% for day in week %}
                 {% if day == today %}
-                    <td bgcolor="yellow">{{ day }}</td>
+                    <td bgcolor="yellow"><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
                 {% else %}
-                    <td>{{ day }}</td>
+                    <td><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
                 {% endif %}
             {% endfor %}
         </tr>
         {% else %}
             {% for day in week %}
                 {% if forloop.parentloop.first and day > 7 %}
-                    <td bgcolor="lightgray">{{ day }}</td>
+                    <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
                 {% elif forloop.parentloop.last and day < 7 %}
-                    <td bgcolor="lightgray">{{ day }}</td>
+                    <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
                 {% else %}
-                    <td>{{ day }}</td>
+                    <td><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
                 {% endif %}
             {% endfor %}
         </tr>

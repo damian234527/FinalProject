@@ -37,6 +37,7 @@
 </head>
 <body>
     <h1>Timetable - {{ day }}.{{ month }}.{{ year }}</h1>
+    <a>{{activities.0.time_start.time}}</a>
     <table>
         <tr>
             <th>Time</th>
@@ -46,13 +47,11 @@
             <tr>
                 <td>{{ time }}</td>
                 {% for activity in activities %}
-                {% if time >= activity.start_time and time < activity.end_time %}
+                {% if time >= activity.time_start.time and time < activity.time_end.time %}
                 <td class="timetable-activity-cell">
                     <div class="activity">
-                        {% if time == activity.start_time %}
-                            <p>{{ activity.description.0 }}</p>
-                            <p>{{ activity.description.1 }}</p>
-                            <p>{{ activity.description.2 }}</p>
+                        {% if time == activity.time_start.time %}
+                            <p>{{ activity.description }}</p>
                         {% endif %}
                     </div>
                 {% else %}
