@@ -15,7 +15,8 @@ urlpatterns = [
     path("timetable/<int:timetable_id>/day/", views.display_day, name="display_current_day"),
     path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/", views.display_day, name="display_day"),
 
-    #path("timetable/<int:timetable_id>/month/", views.month, name="month"),
-    # path("timetable/<int:timetable_id>/week/", views.week, name="week"),
-    # path("timetable/<int:timetable_id>/day/", views.day, name="day"),
+    path("timetable/<slug:name_surname>", views.teacher_details, name="teacher_details"),
+    path("timetable/<slug:activity_name>", views.activity_details, name="activity_details"),
+    path("timetable/<slug:activity_type_name>", views.activity_type_details, name="activity_type_details"),
+    path("timetable/<slug:course_name>", views.course_details, name="course_details"),
 ]

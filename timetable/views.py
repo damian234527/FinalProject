@@ -129,6 +129,18 @@ def timetable_details(request, timetable_id):
     return render(request, "timetable/timetable_details.html", {"timetable_id": timetable_id})
 
 
+def teacher_details(request, name_surname):
+    return 1
+
+def activity_details(request, activity_name):
+    return 1
+
+def activity_type_details(request, activity_type_name):
+    return 1
+
+def course_details(request, course_name):
+    return 1
+
 
 """
 # calendar for current month
