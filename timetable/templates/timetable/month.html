@@ -2,7 +2,8 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+
+<link rel="stylesheet" type="text/css" href="{% static 'timetable/style.css' %}">
 <h1>{{ month_name }} {{ year }}</h1>
 <table>
     <tr>
@@ -16,7 +17,7 @@
     </tr>
     {% for week in this_month %}
         {% if forloop.counter0 == this_week %}
-        <tr bgcolor="lime">
+        <tr class="intro">
             {% for day in week %}
                 {% if day == today %}
                     <td bgcolor="yellow"><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
