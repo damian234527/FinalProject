@@ -1,7 +1,7 @@
 import calendar
 from datetime import datetime, timedelta, time
 from django.urls import reverse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Timetable, Activity
 from django.views import generic
@@ -9,7 +9,7 @@ from django.views import generic
 
 
 class TimetableListView(generic.ListView):
-    template_name = "timetable/TimetableView.html"
+    template_name = "timetable/timetable_list.html"
     context_object_name = "available_timetables_list"
     model = Timetable
     def get_all_timetables(self):
@@ -69,10 +69,15 @@ def display_month(request, timetable_id, year=None, month=None):
         if day > calendar_month[week_number][0] + 6 or calendar_month[week_number][6] < day:
             week_number += 1
         #current_week = calendar_month[week_number]
-
+        return render(request, "timetable/month.html",
+                      {"this_month": calendar_month,
+                       "this_week": week_number,
+                       "timetable_id": timetable_id,
+                       "month_name": month_name,
+                       "month": month,
+                       "year": year})
     return render(request, "timetable/month.html",
                   {"this_month": calendar_month,
-                   "this_week": week_number,
                    "timetable_id": timetable_id,
                    "month_name": month_name,
                    "month": month,
@@ -141,6 +146,27 @@ def activity_type_details(request, activity_type_name):
 def course_details(request, course_name):
     return 1
 
+def delete_timetable(request, timetable_id):
+    timetable = get_object_or_404(Timetable, pk=timetable_id)
+    timetable.delete()
+    return redirect("timetable:main")
+
+def change_displayed_calendar(request, timetable_id, change_value, year, month, week=None, day=None):
+    change_value = int(change_value)
+    if day is not None:
+        new_date = datetime(year, month, day).date() + timedelta(days=change_value)
+        return display_day(request, timetable_id, new_date.year, new_date.month, new_date.day)
+    elif week is not None:
+        if week == 1 and change_value < 0:
+            return display_week(request, timetable_id, year=year - 1, week=53 + change_value)
+        if week == 52 and change_value > 0:
+            return display_week(request, timetable_id, year=year + 1, week=0 + change_value)
+    else:
+        if month == 1 and change_value < 0:
+            return display_month(request, timetable_id, year=year - 1, month=13 + change_value)
+        if month == 12 and change_value > 0:
+            return display_month(request, timetable_id, year=year + 1, month=0 + change_value)
+    return 1
 
 """
 # calendar for current month

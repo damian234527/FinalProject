@@ -24,8 +24,4 @@
             {% endfor %}
         </tr>
 </table>
-<form action="import/" method="post">
-    {% csrf_token %}
-    <input type="submit" value="Import .ics file">
-</form>
 {% endblock %}

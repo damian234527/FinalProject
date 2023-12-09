@@ -8,7 +8,9 @@
             font-family: Arial, sans-serif;
             display: flex;
         }
-
+        .header {
+        grid-area: header
+        }
         .time-column {
             width: 100px;
             padding: 10px;
@@ -17,10 +19,12 @@
 
 
         .time-column div {
-            margin-bottom: 25px; /* Dodaj margines dolny o wielkości 25 pikseli */
+            grid-area: time
+            margin-bottom: 25px;
         }
 
         .schedule-column {
+            grid-area: schedule
             flex-grow: 1;
             padding: 10px;
         }
@@ -31,23 +35,56 @@
             padding: 5px;
             border-radius: 3px;
         }
+
+        .calendar-navigation {
+            grid-area: navigation
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-areas:
+            'header header header header header header'
+            'time schedule schedule schedule schedule navigation'
+            'menu footer footer footer footer footer';
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .grid-container > div {
+            background-color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            padding: 20px 0;
+            font-size: 30px;
+        }
     </style>
     <title>Day Timetable</title>
 </head>
 <body>
-    <div class="time-column">
-        {% for time in timetable_times %}
-            <div>{{ time|date:'H:i'}}</div>
-        {% endfor %}
-    </div>
+    <div class="grid-container">
+        <div class="header">
+            <h1>Timetable - {{ day }}.{{ month }}.{{ year }}</h1>
+        </div>
+        <div class="calendar-navigation">
+            <a href="{% url 'timetable:display_month' timetable_id year month %}" hx-post="true" hx-trigger="click">Month</a>
+            <a href="{% url 'timetable:change_day' timetable_id -7 year month day %}" hx-post="true" hx-trigger="click"><<</a>
+            <a href="{% url 'timetable:change_day' timetable_id -1 year month day %}" hx-post="true" hx-trigger="click"><</a>
+            <a href="{% url 'timetable:change_day' timetable_id 1 year month day %}" hx-post="true" hx-trigger="click">></a>
+            <a href="{% url 'timetable:change_day' timetable_id 7 year month day %}" hx-post="true" hx-trigger="click">>></a>
+        </div>
+        <div class="time-column">
+            {% for time in timetable_times %}
+                <div>{{ time|date:'H:i'}}</div>
+            {% endfor %}
+        </div>
 
-    <div class="schedule-column">
-        {% for activity in activities %}
-            <div class="activity" style="margin-top: {{ activity.time_start|date:'H'|add:'0' }}0px; height: {% widthratio activity.time_duration.total_seconds 36 1 %}px; background-color: {{ activity.activity_type.type_color }}">
-                <strong>{{ activity.description }}</strong> <br>
-                {{ activity.time_start|date:'H:i' }} - {{ activity.time_end|date:'H:i' }}
-            </div>
-        {% endfor %}
+        <div class="schedule-column">
+            {% for activity in activities %}
+                <div class="activity" style="margin-top: {{ activity.time_start|date:'H'|add:'0' }}0px; height: {% widthratio activity.time_duration.total_seconds 36 1 %}px; background-color: {{ activity.activity_type.type_color }}">
+                    <strong>{{ activity.description }}</strong> <br>
+                    {{ activity.time_start|date:'H:i' }} - {{ activity.time_end|date:'H:i' }}
+                </div>
+            {% endfor %}
+        </div>
     </div>
 </body>
 </html>

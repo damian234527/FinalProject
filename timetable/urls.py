@@ -15,6 +15,12 @@ urlpatterns = [
     path("timetable/<int:timetable_id>/day/", views.display_day, name="display_current_day"),
     path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/", views.display_day, name="display_day"),
 
+    path("timetable/delete/<int:timetable_id>/", views.delete_timetable, name="delete_timetable"),
+
+    path("timetable/change/<int:timetable_id>/<str:change_val>/<int:year>/<int:month>/", views.change_displayed_calendar, name="change_month"),
+    path("timetable/change/<int:timetable_id>/<str:change_value>/<int:year>/<int:week>/", views.change_displayed_calendar, name="change_week"),
+    path("timetable/change/<int:timetable_id>/<str:change_value>/<int:year>/<int:month>/<int:day>/", views.change_displayed_calendar, name="change_day"),
+
     path("timetable/<slug:name_surname>", views.teacher_details, name="teacher_details"),
     path("timetable/<slug:activity_name>", views.activity_details, name="activity_details"),
     path("timetable/<slug:activity_type_name>", views.activity_type_details, name="activity_type_details"),
