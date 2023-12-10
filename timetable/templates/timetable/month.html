@@ -2,9 +2,19 @@
 {% load static %}
 
 {% block content %}
-
 <link rel="stylesheet" type="text/css" href="{% static 'timetable/style.css' %}">
 <h1>{{ month_name }} {{ year }}</h1>
+<div class="calendar-navigation">
+    <form action="{% url 'timetable:display_month' timetable_id year month %}" method="post">
+        {% csrf_token %}
+        <button type="submit" name="change_value" value="-12"><<</button>
+        <button type="submit" name="change_value" value="-1"><</button>
+        <button type="submit" name="change_value" value="1">></button>
+        <button type="submit" name="change_value" value="12">>></button>
+        <button type="submit" formaction="{% url 'timetable:details' timetable_id %}">Return</button>
+    </form>
+</div>
+
 <table>
     <tr>
         <th>Mon</th>
@@ -29,9 +39,17 @@
         {% else %}
             {% for day in week %}
                 {% if forloop.parentloop.first and day > 7 %}
-                    <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
+                    {% if month == 1 %}
+                        <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year|add:'-1' 12 day %}">{{ day }}</a></td>
+                    {% else %}
+                        <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year month|add:'-1' day %}">{{ day }}</a></td>
+                    {% endif %}
                 {% elif forloop.parentloop.last and day < 7 %}
-                    <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
+                    {% if month == 12 %}
+                        <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year|add:'1' 1 day %}">{{ day }}</a></td>
+                    {% else %}
+                        <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year month|add:'1' day %}">{{ day }}</a></td>
+                    {% endif %}
                 {% else %}
                     <td><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
                 {% endif %}

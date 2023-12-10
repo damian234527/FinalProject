@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, time
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
-from .models import Timetable, Activity
+from .models import Timetable, Activity, Activity_type, Teacher, Course
 from django.views import generic
 
 
@@ -22,7 +22,10 @@ class TimetableDetailsView(generic.DetailView):
 
 def get_month_calendar(year, month):
     calendar_month = calendar.monthcalendar(year, month)
-    calendar_last_month_last_week = calendar.monthcalendar(year, month - 1)[-1]
+    if month == 1:
+        calendar_last_month_last_week = calendar.monthcalendar(year-1, 12)[-1]
+    else:
+        calendar_last_month_last_week = calendar.monthcalendar(year, month - 1)[-1]
     next_month_days_iterator = 1
     for i, day_month in enumerate(calendar_month[0]):
         if day_month == 0:
@@ -36,18 +39,28 @@ def get_month_calendar(year, month):
 def display_month(request, timetable_id, year=None, month=None):
     current_date = datetime.now()
     current_month = False
+
+    # set current date as month to be displayed
     if year == None and month == None:
         year = current_date.year
         month = current_date.month
         current_month = True
-    # Get the month calendar for the specified year and month
+
+    # Get the month calendar for the specified year and month when using buttons
+    if request.method == 'POST':
+        change_value = request.POST.get("change_value", "0")
+        change_value = int(change_value)
+        if change_value != 0:
+            year = year + (month + change_value - 1) // 12
+            month = ((month + change_value - 1) % 12) + 1
+            return redirect('timetable:display_month', timetable_id, year, month)
     calendar_month = get_month_calendar(year, month)
     month_name = calendar.month_name[month]
     first_day = calendar_month[0][0]
     last_day = calendar_month[-1][-1]
     if first_day > 7:
         if month == 1:
-            start_date = datetime(year-1, month-1, first_day).date()
+            start_date = datetime(year-1, 12, first_day).date()
         else:
             start_date = datetime(year, month-1, first_day).date()
     else:
@@ -88,6 +101,16 @@ def display_week(request, timetable_id, year=None, week=None):
         current_date = datetime.now()
         year = current_date.year
         week = current_date.isocalendar()[1]
+    # Get the week calendar for the specified year and month when using buttons
+    if request.method == 'POST':
+        change_value = request.POST.get("change_value", "0")
+        change_value = int(change_value)
+        if change_value != 0:
+            year = year + (week + change_value - 1) // 52
+            week = ((week + change_value - 1) % 52) + 1
+            print(f"{year} - {week}")
+            return redirect('timetable:display_week', timetable_id, year, week)
+
     start_date = datetime(year, 1, 1)
     if start_date.weekday() <= 3:
         days_to_add = (week - 1) * 7 - start_date.weekday()
@@ -109,6 +132,16 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
         year = current_date.year
         month = current_date.month
         day = current_date.day
+    # Get the day calendar for the specified year and month when using buttons
+    if request.method == 'POST':
+        change_value = request.POST.get("change_value", "0")
+        change_value = int(change_value)
+        if change_value != 0:
+            new_date = datetime(year, month, day) + timedelta(days=change_value)
+            year = new_date.year
+            month = new_date.month
+            day = new_date.day
+            return redirect('timetable:display_day', timetable_id, year, month, day)
     month_name = calendar.month_name[month]
     timetable_times = [None] * 64
     i = 0
@@ -134,22 +167,29 @@ def timetable_details(request, timetable_id):
     return render(request, "timetable/timetable_details.html", {"timetable_id": timetable_id})
 
 
-def teacher_details(request, name_surname):
-    return 1
+def teacher_details(request, name_surname_initials):
+    teacher = get_object_or_404(Teacher, pk=name_surname_initials)
+    return render(request, "timetable/teacher.html", {"teacher": teacher})
 
-def activity_details(request, activity_name):
-    return 1
+def activity_details(request, activity_id):
+    activity = get_object_or_404(Teacher, pk=activity_id)
+    return render(request, "timetable/activity.html")
 
 def activity_type_details(request, activity_type_name):
-    return 1
+    activity_type = get_object_or_404(Activity_type, type_name = activity_type_name)
+    return render(request, "timetable/activity_type.html")
 
-def course_details(request, course_name):
-    return 1
+def course_details(request, course_initials):
+    course = get_object_or_404(Course, course_initials = course_initials)
+    return render(request, "timetable/course_details.html")
 
 def delete_timetable(request, timetable_id):
     timetable = get_object_or_404(Timetable, pk=timetable_id)
     timetable.delete()
     return redirect("timetable:main")
+
+def rename_timetable(request, timetable_id):
+    return render(request, "timetable/rename.html")
 
 def change_displayed_calendar(request, timetable_id, change_value, year, month, week=None, day=None):
     change_value = int(change_value)
@@ -159,13 +199,17 @@ def change_displayed_calendar(request, timetable_id, change_value, year, month, 
     elif week is not None:
         if week == 1 and change_value < 0:
             return display_week(request, timetable_id, year=year - 1, week=53 + change_value)
-        if week == 52 and change_value > 0:
+        elif week == 52 and change_value > 0:
             return display_week(request, timetable_id, year=year + 1, week=0 + change_value)
+        else:
+            return display_week(request, timetable_id, year=year, week=week + change_value)
     else:
         if month == 1 and change_value < 0:
             return display_month(request, timetable_id, year=year - 1, month=13 + change_value)
-        if month == 12 and change_value > 0:
+        elif month == 12 and change_value > 0:
             return display_month(request, timetable_id, year=year + 1, month=0 + change_value)
+        else:
+            return display_month(request, timetable_id, year=year, month=month + change_value)
     return 1
 
 """

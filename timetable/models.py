@@ -33,31 +33,39 @@ class Timetable(models.Model):
                 time_duration = time_end-time_start  # CHANGE
                 course_acronym = attributes_list[0]  # CHANGE
                 print(attributes_list[1])
-                activity_type_name=attributes_list[1]
-                try:
-                    activity_type = Activity_type.objects.get(type_name=activity_type_name)
-                except Activity_type.DoesNotExist:
-                    activity_type = Activity_type.objects.create(type_name=activity_type_name)
+                activity_type_name_pl=attributes_list[1]
+                # try:
+                activity_type = Activity_type.objects.get_or_create(type_name_pl=activity_type_name_pl)
+                # except Activity_type.DoesNotExist:
+                    # activity_type = Activity_type.objects.create(type_name=activity_type_name)
                 course, created = Course.objects.get_or_create(course_name=course_acronym, course_initialism=course_acronym)
                 timetable.course_set.add(course)
                 Activity.create_activity(time_start, time_end, description, time_duration, timetable, course, activity_type)
             return True, "Timetable imported successfully"
         except Exception as upload_error:
             return False, f"An error occurred while importing the timetable: {str(upload_error)}."
+
 class Course(models.Model):
+    course_initials = models.CharField(max_length=15, primary_key=True)
     course_name = models.CharField(max_length=100)
-    course_initialism = models.CharField(max_length=15)
     timetable = models.ManyToManyField(Timetable)
 
 
 class Activity_type(models.Model):
-    type_name = models.CharField(max_length=100, default="default")
+    type_name_pl = models.CharField(max_length=100, default="def", primary_key=True)
+    type_name = models.CharField(max_length=100, default="default", blank=True)
     type_description = models.CharField(max_length=255, default="This is default type when no information provided")
     type_color = models.CharField(max_length=10, default="#FFFFFF")
 
     @classmethod
     def generate_generic_types(cls):
-        type_names = ["wyk",
+        type_names = ["lecture",
+                      "classes",
+                      "laboratories",
+                      "project",
+                      "seminar",
+                      "exam"]
+        type_names_pl = ["wyk",
                       "ćw",
                       "lab",
                       "proj",
@@ -76,7 +84,7 @@ class Activity_type(models.Model):
                        "#C2C042",
                        "#FF0000"]
         for i in range(len(type_names)):
-            Activity_type.objects.get_or_create(type_name=type_names[i], type_description=type_descriptions[i], type_color=type_colors[i])
+            Activity_type.objects.get_or_create(type_names_pl=type_names_pl[i], type_name=type_names[i], type_description=type_descriptions[i], type_color=type_colors[i])
 
 
 
@@ -101,6 +109,7 @@ class Activity(models.Model):
 
 
 class Teacher(models.Model):
+    teacher_initials = models.CharField(max_length=20, primary_key=True)
     teacher_first_name = models.CharField(max_length=100)
     teacher_last_name = models.CharField(max_length=100)
     teacher_link = models.URLField(max_length=200)

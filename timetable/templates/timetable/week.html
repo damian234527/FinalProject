@@ -4,6 +4,15 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
 <h1>Week {{ week_number }} {{ year }}</h1>
+<div class="calendar-navigation">
+    <form action="{% url 'timetable:display_week' timetable_id year week_number %}" method="post">
+        {% csrf_token %}
+        <button type="submit" name="change_value" value="-2"><<</button>
+        <button type="submit" name="change_value" value="-1"><</button>
+        <button type="submit" name="change_value" value="1">></button>
+        <button type="submit" name="change_value" value="2">>></button>
+    </form>
+</div>
 <table>
     <tr>
         <th>Mon</th>

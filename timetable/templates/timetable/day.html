@@ -65,11 +65,14 @@
             <h1>Timetable - {{ day }}.{{ month }}.{{ year }}</h1>
         </div>
         <div class="calendar-navigation">
-            <a href="{% url 'timetable:display_month' timetable_id year month %}" hx-post="true" hx-trigger="click">Month</a>
-            <a href="{% url 'timetable:change_day' timetable_id -7 year month day %}" hx-post="true" hx-trigger="click"><<</a>
-            <a href="{% url 'timetable:change_day' timetable_id -1 year month day %}" hx-post="true" hx-trigger="click"><</a>
-            <a href="{% url 'timetable:change_day' timetable_id 1 year month day %}" hx-post="true" hx-trigger="click">></a>
-            <a href="{% url 'timetable:change_day' timetable_id 7 year month day %}" hx-post="true" hx-trigger="click">>></a>
+            <form action="{% url 'timetable:display_day' timetable_id year month day %}" method="post">
+                {% csrf_token %}
+                <button type="submit" name="change_value" value="-7"><<</button>
+                <button type="submit" name="change_value" value="-1"><</button>
+                <button type="submit" name="change_value" value="1">></button>
+                <button type="submit" name="change_value" value="7">>></button>
+                <button type="submit" formaction="{% url 'timetable:display_month' timetable_id year month %}">Month</button>
+            </form>
         </div>
         <div class="time-column">
             {% for time in timetable_times %}
