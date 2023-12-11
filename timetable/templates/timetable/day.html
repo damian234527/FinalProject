@@ -1,63 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-        }
-        .header {
-        grid-area: header
-        }
-        .time-column {
-            width: 100px;
-            padding: 10px;
-            border-right: 1px solid #ddd;
-        }
+{% extends "base_timetable.html" %}
+{% load static %}
+
+{% block title %}Day Timetable{% endblock %}
+
+{% block style %}
+    body {
+        font-family: Arial, sans-serif;
+
+    }
+    .header {
+    grid-area: header
+    }
+    .time-column {
+        width: 100px;
+        padding: 10px;
+        border-right: 1px solid #ddd;
+    }
 
 
-        .time-column div {
-            grid-area: time
-            margin-bottom: 25px;
-        }
+    .time-column div {
+        grid-area: time
+        margin-bottom: 25px;
+    }
 
-        .schedule-column {
-            grid-area: schedule
-            flex-grow: 1;
-            padding: 10px;
-        }
+    .schedule-column {
+        grid-area: schedule
+        flex-grow: 1;
+        padding: 10px;
+    }
 
-        .activity {
-            color: #fff;
-            margin-bottom: 5px;
-            padding: 5px;
-            border-radius: 3px;
-        }
+    .activity {
+        color: #fff;
+        margin-bottom: 5px;
+        padding: 5px;
+        border-radius: 3px;
+    }
 
-        .calendar-navigation {
-            grid-area: navigation
-        }
+    .calendar-navigation {
+        grid-area: navigation
+    }
 
-        .grid-container {
-            display: grid;
-            grid-template-areas:
-            'header header header header header header'
-            'time schedule schedule schedule schedule navigation'
-            'menu footer footer footer footer footer';
-            gap: 10px;
-            padding: 10px;
-        }
+    .grid-container {
+        display: grid;
+        grid-template-areas:
+        'header header header header header navigation'
+        'time schedule schedule schedule schedule schedule'
+        'menu footer footer footer footer footer';
+        gap: 10px;
+        padding: 10px;
+    }
 
-        .grid-container > div {
-            background-color: rgba(255, 255, 255, 0.8);
-            text-align: center;
-            padding: 20px 0;
-            font-size: 30px;
-        }
-    </style>
-    <title>Day Timetable</title>
+    .grid-container > div {
+        background-color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        padding: 20px 0;
+        font-size: 30px;
+    }
+{% endblock %}
+
+{% block content %}
 </head>
 <body>
     <div class="grid-container">
@@ -65,14 +66,21 @@
             <h1>Timetable - {{ day }}.{{ month }}.{{ year }}</h1>
         </div>
         <div class="calendar-navigation">
-            <form action="{% url 'timetable:display_day' timetable_id year month day %}" method="post">
-                {% csrf_token %}
-                <button type="submit" name="change_value" value="-7"><<</button>
-                <button type="submit" name="change_value" value="-1"><</button>
-                <button type="submit" name="change_value" value="1">></button>
-                <button type="submit" name="change_value" value="7">>></button>
-                <button type="submit" formaction="{% url 'timetable:display_month' timetable_id year month %}">Month</button>
-            </form>
+                <form action="{% url 'timetable:display_day' timetable_id year month day %}" method="post">
+                    {% csrf_token %}
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-info" formaction="{% url 'timetable:details' timetable_id %}">Return</button>
+                        <button type="submit" class="btn btn-info" formaction="{% url 'timetable:display_month' timetable_id year month %} ">Month</button>
+                        <button type="submit" class="btn btn-info" formaction="{% url 'timetable:display_week_for_day' timetable_id year %}" name="day_and_month" value={{day}}_{{month}}>Week</button>
+                    </div>
+                    <br>
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary" name="change_value" value="-7"><<</button>
+                        <button type="submit" class="btn btn-primary" name="change_value" value="-1"><</button>
+                        <button type="submit" class="btn btn-primary" name="change_value" value="1">></button>
+                        <button type="submit" class="btn btn-primary" name="change_value" value="7">>></button>
+                    </div>
+                </form>
         </div>
         <div class="time-column">
             {% for time in timetable_times %}
@@ -90,6 +98,6 @@
         </div>
     </div>
 </body>
-</html>
+{% endblock %}
 
 

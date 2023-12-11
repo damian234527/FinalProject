@@ -54,6 +54,11 @@ def display_month(request, timetable_id, year=None, month=None):
             year = year + (month + change_value - 1) // 12
             month = ((month + change_value - 1) % 12) + 1
             return redirect('timetable:display_month', timetable_id, year, month)
+        week_number = int(request.POST.get("week_number", "0"))
+        if week_number != 0:
+            iso_date = datetime.strptime(f"{year}-W{week_number}-1","%Y-W%W-%w")
+            month = iso_date.strftime("%m")
+            return redirect('timetable:display_month', timetable_id, year, month)
     calendar_month = get_month_calendar(year, month)
     month_name = calendar.month_name[month]
     first_day = calendar_month[0][0]
@@ -109,6 +114,12 @@ def display_week(request, timetable_id, year=None, week=None):
             year = year + (week + change_value - 1) // 52
             week = ((week + change_value - 1) % 52) + 1
             print(f"{year} - {week}")
+            return redirect('timetable:display_week', timetable_id, year, week)
+        else:
+            day_and_month = request.POST.get("day_and_month", "1_1")
+            day, month = int(day_and_month.split("_")[0]), int(day_and_month.split("_")[1])
+            date = datetime(year, month, day)
+            week = date.isocalendar()[1]
             return redirect('timetable:display_week', timetable_id, year, week)
 
     start_date = datetime(year, 1, 1)

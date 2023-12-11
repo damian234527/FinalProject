@@ -3,59 +3,66 @@
 
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'timetable/style.css' %}">
-<h1>{{ month_name }} {{ year }}</h1>
+<div class="header">
+    <h1>{{ month_name }} {{ year }}</h1>
+</div>
 <div class="calendar-navigation">
     <form action="{% url 'timetable:display_month' timetable_id year month %}" method="post">
         {% csrf_token %}
-        <button type="submit" name="change_value" value="-12"><<</button>
-        <button type="submit" name="change_value" value="-1"><</button>
-        <button type="submit" name="change_value" value="1">></button>
-        <button type="submit" name="change_value" value="12">>></button>
-        <button type="submit" formaction="{% url 'timetable:details' timetable_id %}">Return</button>
+        <button type="submit" class="btn btn-info" formaction="{% url 'timetable:details' timetable_id %}">Return</button>
+        <br>
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary" name="change_value" value="-12"><<</button>
+            <button type="submit" class="btn btn-primary" name="change_value" value="-1"><</button>
+            <button type="submit" class="btn btn-primary" name="change_value" value="1">></button>
+            <button type="submit" class="btn btn-primary" name="change_value" value="12">>></button>
+        </div>
     </form>
 </div>
+<div>
+    <table>
+        <tr>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+            <th>Sun</th>
+        </tr>
+        {% for week in this_month %}
+            {% if forloop.counter0 == this_week %}
+            <tr class="intro">
+                {% for day in week %}
+                    {% if day == today %}
+                        <td bgcolor="yellow"><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
+                    {% else %}
+                        <td><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% else %}
+                {% for day in week %}
+                    {% if forloop.parentloop.first and day > 7 %}
+                        {% if month == 1 %}
+                            <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year|add:'-1' 12 day %}">{{ day }}</a></td>
+                        {% else %}
+                            <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year month|add:'-1' day %}">{{ day }}</a></td>
+                        {% endif %}
+                    {% elif forloop.parentloop.last and day < 7 %}
+                        {% if month == 12 %}
+                            <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year|add:'1' 1 day %}">{{ day }}</a></td>
+                        {% else %}
+                            <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year month|add:'1' day %}">{{ day }}</a></td>
+                        {% endif %}
+                    {% else %}
+                        <td><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+</div>
 
-<table>
-    <tr>
-        <th>Mon</th>
-        <th>Tue</th>
-        <th>Wed</th>
-        <th>Thu</th>
-        <th>Fri</th>
-        <th>Sat</th>
-        <th>Sun</th>
-    </tr>
-    {% for week in this_month %}
-        {% if forloop.counter0 == this_week %}
-        <tr class="intro">
-            {% for day in week %}
-                {% if day == today %}
-                    <td bgcolor="yellow"><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
-                {% else %}
-                    <td><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
-                {% endif %}
-            {% endfor %}
-        </tr>
-        {% else %}
-            {% for day in week %}
-                {% if forloop.parentloop.first and day > 7 %}
-                    {% if month == 1 %}
-                        <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year|add:'-1' 12 day %}">{{ day }}</a></td>
-                    {% else %}
-                        <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year month|add:'-1' day %}">{{ day }}</a></td>
-                    {% endif %}
-                {% elif forloop.parentloop.last and day < 7 %}
-                    {% if month == 12 %}
-                        <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year|add:'1' 1 day %}">{{ day }}</a></td>
-                    {% else %}
-                        <td bgcolor="lightgray"><a href="{% url 'timetable:display_day' timetable_id year month|add:'1' day %}">{{ day }}</a></td>
-                    {% endif %}
-                {% else %}
-                    <td><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
-                {% endif %}
-            {% endfor %}
-        </tr>
-        {% endif %}
-    {% endfor %}
-</table>
 {% endblock %}

@@ -5,25 +5,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Django laboratories{% endblock %}</title>
+    <title>{% block title %}Student Organiser{% endblock %}</title>
     {% load bootstrap5 %}
     {% bootstrap_css %}
     {% bootstrap_javascript %}
+
+    {% block link %}<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">{% endblock %}
+    <style>{% block style %}{% endblock %}</style>
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-
-    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
     <div class="container">
         <ul class="nav bg-info">
             <li class="nav-item">
                 <a class="nav-link link-light" href="{% url 'home:page' %}">Home</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link link-light" href="{% url 'timetable:main' %}">Timetable</a>
+                <a class="nav-link link-light" href="{% url 'timetable:main' %}">Timetables</a>
             </li>
             {% if user.is_authenticated %}
             <li class="nav-item">
-                <a class="nav-link link-light" href="/settings/">Account settings</a> 
+                <a class="nav-link link-light" href="/settings/">Account settings</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link link-light" href="{% url 'authentication:log_out' %}">Log out</a>

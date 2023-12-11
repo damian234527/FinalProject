@@ -1,4 +1,4 @@
-{% extends "base_template.html" %}
+{% extends "base_timetable.html" %}
 {% load static %}
 
 {% block content %}
@@ -7,10 +7,17 @@
 <div class="calendar-navigation">
     <form action="{% url 'timetable:display_week' timetable_id year week_number %}" method="post">
         {% csrf_token %}
-        <button type="submit" name="change_value" value="-2"><<</button>
-        <button type="submit" name="change_value" value="-1"><</button>
-        <button type="submit" name="change_value" value="1">></button>
-        <button type="submit" name="change_value" value="2">>></button>
+        <div class="btn-group">
+            <button type="submit" class="btn btn-info" formaction="{% url 'timetable:details' timetable_id %}">Return</button>
+            <button type="submit" class="btn btn-info" formaction="{% url 'timetable:display_month_for_week' timetable_id year %}" name="week_number" value={{week_number}}>Month</button>
+        </div>
+        <br>
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary" name="change_value" value="-2"><<</button>
+            <button type="submit" class="btn btn-primary" name="change_value" value="-1"><</button>
+            <button type="submit" class="btn btn-primary" name="change_value" value="1">></button>
+            <button type="submit" class="btn btn-primary" name="change_value" value="2">>></button>
+        </div>
     </form>
 </div>
 <table>
@@ -26,9 +33,9 @@
         <tr>
             {% for day in this_week %}
                 {% if day == today %}
-                    <td bgcolor="yellow">{{ day }}</td>
+                    <td bgcolor="yellow"><a href="{% url 'timetable:display_day_for_week' timetable_id year day %}">{{ day }}</a></td>
                 {% else %}
-                    <td>{{ day }}</td>
+                    <td><a href="{% url 'timetable:display_day_for_week' timetable_id year day %}">{{ day }}</a></td>
                 {% endif %}
             {% endfor %}
         </tr>
