@@ -1,9 +1,9 @@
 {% extends "base_timetable.html" %}
 {% load static %}
 
+{% block title %}Week Timetable W{{ week_number }} {{ year }}{% endblock %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
-<h1>Week {{ week_number }} {{ year }}</h1>
 <div class="calendar-navigation">
     <form action="{% url 'timetable:display_week' timetable_id year week_number %}" method="post">
         {% csrf_token %}
@@ -20,24 +20,28 @@
         </div>
     </form>
 </div>
-<table>
-    <tr>
-        <th>Mon</th>
-        <th>Tue</th>
-        <th>Wed</th>
-        <th>Thu</th>
-        <th>Fri</th>
-        <th>Sat</th>
-        <th>Sun</th>
-    </tr>
+<div>
+    <h1>Week {{ week_number }} {{ year }}</h1>
+    <table>
+        <tr>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+            <th>Sun</th>
+        </tr>
         <tr>
             {% for day in this_week %}
                 {% if day == today %}
                     <td bgcolor="yellow"><a href="{% url 'timetable:display_day_for_week' timetable_id year day %}">{{ day }}</a></td>
                 {% else %}
-                    <td><a href="{% url 'timetable:display_day_for_week' timetable_id year day %}">{{ day }}</a></td>
+                    <td><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
                 {% endif %}
             {% endfor %}
         </tr>
-</table>
+    </table>
+</div>
+
 {% endblock %}

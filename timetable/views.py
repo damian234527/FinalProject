@@ -115,26 +115,27 @@ def display_week(request, timetable_id, year=None, week=None):
             week = ((week + change_value - 1) % 52) + 1
             print(f"{year} - {week}")
             return redirect('timetable:display_week', timetable_id, year, week)
-        else:
-            day_and_month = request.POST.get("day_and_month", "1_1")
+        day_and_month = request.POST.get("day_and_month", "")
+        if day_and_month != "":
             day, month = int(day_and_month.split("_")[0]), int(day_and_month.split("_")[1])
             date = datetime(year, month, day)
             week = date.isocalendar()[1]
             return redirect('timetable:display_week', timetable_id, year, week)
-
     start_date = datetime(year, 1, 1)
     if start_date.weekday() <= 3:
         days_to_add = (week - 1) * 7 - start_date.weekday()
     else:
         days_to_add = week * 7 - start_date.weekday()
-
     first_day_of_week = start_date + timedelta(days=days_to_add)
     calendar_week = [(first_day_of_week + timedelta(days=i)).day for i in range(7)]
-
+    day = first_day_of_week.day
+    month = first_day_of_week.month
     return render(request, "timetable/week.html",
                   {"this_week": calendar_week,
                    "timetable_id": timetable_id,
                    "week_number": week,
+                   "day": day,
+                   "month": month,
                    "year": year})
 
 def display_day(request, timetable_id, year=None, month=None, day=None):
@@ -222,6 +223,8 @@ def change_displayed_calendar(request, timetable_id, change_value, year, month, 
         else:
             return display_month(request, timetable_id, year=year, month=month + change_value)
     return 1
+
+
 
 """
 # calendar for current month

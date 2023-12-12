@@ -1,12 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from datetime import datetime
-from dateutil.parser import parse
-from .models import Student
 from .forms import NewAccountRegistrationForm, NewAccountProfileForm, LoginForm
-# from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def register(request):

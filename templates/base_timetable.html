@@ -5,6 +5,56 @@
 {% block link %}<link rel="stylesheet" type="text/css" href="{% static 'timetable/style.css' %}">{% endblock %}
 
 {% block style %}
+    body {
+        font-family: Arial, sans-serif;
+
+    }
+    .header {
+    grid-area: header
+    }
+    .time-column {
+        width: 100px;
+        padding: 10px;
+        border-right: 2px solid #ddd;
+    }
 
 
+    .time-column div {
+        grid-area: time
+        margin-bottom: 25px;
+    }
+
+    .schedule-column {
+        grid-area: schedule
+        flex-grow: 1;
+        padding: 10px;
+    }
+
+    .activity {
+        color: #fff;
+        margin-bottom: 5px;
+        padding: 5px;
+        border-radius: 3px;
+    }
+
+    .calendar-navigation {
+        grid-area: navigation
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-areas:
+        'header header header header header navigation'
+        'time schedule schedule schedule schedule schedule'
+        'menu footer footer footer footer footer';
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .grid-container > div {
+        background-color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        padding: 20px 0;
+        font-size: 30px;
+    }
 {% endblock %}

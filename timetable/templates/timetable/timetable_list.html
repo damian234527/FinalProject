@@ -3,13 +3,21 @@
 
 {% block content %}
   <h2>Timetables</h2>
-  <ul>
-    {% for timetable in available_timetables_list %}
-      <li>
-          <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
-          <a href="{% url 'timetable:rename_timetable' timetable.id %}">Rename</a>
-          <a href="{% url 'timetable:delete_timetable' timetable.id %}">Delete</a>
-      </li>
-    {% endfor %}
-  </ul>
+    {% if available_timetables_list %}
+      <ul>
+        {% for timetable in available_timetables_list %}
+          <li>
+              <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
+              <a href="{% url 'timetable:rename_timetable' timetable.id %}">Rename</a>
+              <a href="{% url 'timetable:delete_timetable' timetable.id %}">Delete</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+    <p>Nothing here, you can add new timetables using import button.</p>
+    {% endif %}
+    <form action="{% url 'home:import_ics_file' %}" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Import .ics file">
+    </form>
 {% endblock %}

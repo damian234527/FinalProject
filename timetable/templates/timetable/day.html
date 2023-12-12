@@ -1,65 +1,9 @@
 {% extends "base_timetable.html" %}
 {% load static %}
 
-{% block title %}Day Timetable{% endblock %}
-
-{% block style %}
-    body {
-        font-family: Arial, sans-serif;
-
-    }
-    .header {
-    grid-area: header
-    }
-    .time-column {
-        width: 100px;
-        padding: 10px;
-        border-right: 1px solid #ddd;
-    }
-
-
-    .time-column div {
-        grid-area: time
-        margin-bottom: 25px;
-    }
-
-    .schedule-column {
-        grid-area: schedule
-        flex-grow: 1;
-        padding: 10px;
-    }
-
-    .activity {
-        color: #fff;
-        margin-bottom: 5px;
-        padding: 5px;
-        border-radius: 3px;
-    }
-
-    .calendar-navigation {
-        grid-area: navigation
-    }
-
-    .grid-container {
-        display: grid;
-        grid-template-areas:
-        'header header header header header navigation'
-        'time schedule schedule schedule schedule schedule'
-        'menu footer footer footer footer footer';
-        gap: 10px;
-        padding: 10px;
-    }
-
-    .grid-container > div {
-        background-color: rgba(255, 255, 255, 0.8);
-        text-align: center;
-        padding: 20px 0;
-        font-size: 30px;
-    }
-{% endblock %}
+{% block title %}Day Timetable {{ day }}.{{ month }}.{{ year }}{% endblock %}
 
 {% block content %}
-</head>
 <body>
     <div class="grid-container">
         <div class="header">
@@ -90,7 +34,7 @@
 
         <div class="schedule-column">
             {% for activity in activities %}
-                <div class="activity" style="margin-top: {{ activity.time_start|date:'H'|add:'0' }}0px; height: {% widthratio activity.time_duration.total_seconds 36 1 %}px; background-color: {{ activity.activity_type.type_color }}">
+                <div class="activity" style="margin-top: {{ activity.time_start|date:'H'|add:'-7' }}0px; height: {% widthratio activity.time_duration.total_seconds 19 1 %}px; background-color: {{ activity.activity_type.type_color }}">
                     <strong>{{ activity.description }}</strong> <br>
                     {{ activity.time_start|date:'H:i' }} - {{ activity.time_end|date:'H:i' }}
                 </div>
