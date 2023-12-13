@@ -2,22 +2,41 @@
 {% load static %}
 
 {% block content %}
-  <h2>Timetables</h2>
-    {% if available_timetables_list %}
-      <ul>
-        {% for timetable in available_timetables_list %}
-          <li>
-              <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
-              <a href="{% url 'timetable:rename_timetable' timetable.id %}">Rename</a>
-              <a href="{% url 'timetable:delete_timetable' timetable.id %}">Delete</a>
-          </li>
+<h2>Timetables</h2>
+{% if user_timetables %}
+<div class="user_timetables">
+    <p>{{ user }}'s timetables</p>
+    <ul>
+        {% for timetable in user_timetables %}
+        <li>
+            <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
+            <a href="{% url 'timetable:rename_timetable' timetable.id %}">Rename</a>
+            <a href="{% url 'timetable:delete_timetable' timetable.id %}">Delete</a>
+        </li>
         {% endfor %}
-      </ul>
-    {% else %}
-    <p>Nothing here, you can add new timetables using import button.</p>
-    {% endif %}
+    </ul>
+</div>
+{% else %}
+<p>Nothing here, you can add new timetables using import button.</p>
+{% endif %}
+<div class="import_timetable">
     <form action="{% url 'home:import_ics_file' %}" method="post">
         {% csrf_token %}
         <input type="submit" value="Import .ics file">
     </form>
+</div>
+{% if public_timetables %}
+<div class="public_timetables">
+  <p> Publicly available timetables</p>
+    <ul>
+      {% for timetable in public_timetables %}
+        <li>
+            <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+</div>
+{% else %}
+<p>No public timetables available.</p>
+{% endif %}
 {% endblock %}

@@ -1,3 +1,5 @@
+import sys
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
 import calendar
@@ -29,7 +31,12 @@ def upload_new_timetable(request):
             if timetable_name == "":
                 uploaded_filename = ics_file.name
                 timetable_name = uploaded_filename
-            success, message = Timetable.import_timetable(ics_file, timetable_name)
+            author = request.user.is_authenticated
+            if author:
+                author = author.id
+            else:
+                author = None
+            success, message = Timetable.import_timetable(ics_file, timetable_name, author)
 
             if success:
                 messages.success(request, message)

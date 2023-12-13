@@ -19,25 +19,25 @@ class Timetable(models.Model):
         return self.timetable_name
 
     @classmethod
-    def import_timetable(cls, ics_file, timetable_name=None):
+    def import_timetable(cls, ics_file, timetable_name=None, author=None):
         try:
             imported_calendar = icalendar.Calendar.from_ical(ics_file.read())
-            timetable, created = cls.objects.get_or_create(timetable_name=timetable_name)
+            timetable = cls.objects.create(timetable_name=timetable_name, author=author)
+            if author:
+                student, created = Student.objects.get(id=author)
+            else:
+                student = author
+            Timetable_assignment.objects.create(timetable=timetable, student=student)
+            Activity_type.generate_generic_types()
             for activity in imported_calendar.walk("vevent"):
                 time_start = activity.get("dtstart").dt
                 time_end = activity.get("dtend").dt
                 description = activity.get("summary")
-                Activity_type.generate_generic_types()
                 attributes_list = description.split()
-                # edit
-                time_duration = time_end-time_start  # CHANGE
-                course_acronym = attributes_list[0]  # CHANGE
-                print(attributes_list[1])
+                time_duration = time_end-time_start
+                course_acronym = attributes_list[0]
                 activity_type_name_pl=attributes_list[1]
-                # try:
                 activity_type, created = Activity_type.objects.get_or_create(type_name_pl=activity_type_name_pl)
-                # except Activity_type.DoesNotExist:
-                    # activity_type = Activity_type.objects.create(type_name=activity_type_name)
                 course, created = Course.objects.get_or_create(course_name=course_acronym, course_initials=course_acronym)
                 timetable.course_set.add(course)
                 Activity.create_activity(time_start, time_end, description, time_duration, timetable, course, activity_type)
@@ -87,8 +87,6 @@ class Activity_type(models.Model):
         for i in range(len(type_names)):
             Activity_type.objects.get_or_create(type_name_pl=type_names_pl[i], type_name=type_names[i], type_description=type_descriptions[i], type_color=type_colors[i])
 
-
-
 class Activity(models.Model):
     time_start = models.DateTimeField()
     time_end = models.DateTimeField()
@@ -108,11 +106,16 @@ class Activity(models.Model):
                                         course=course,
                                         activity_type=activity_type)
 
-
 class Teacher(models.Model):
     teacher_initials = models.CharField(max_length=20)
     teacher_first_name = models.CharField(max_length=100)
     teacher_last_name = models.CharField(max_length=100)
     teacher_link = models.URLField(max_length=200)
     teacher_mail = models.EmailField(max_length=254)
+
+
+class Timetable_assignment(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True)
+    timetable = models.ForeignKey(Timetable, on_delete=models.CASCADE)
+    assignment_description = models.CharField(max_length=100)
 

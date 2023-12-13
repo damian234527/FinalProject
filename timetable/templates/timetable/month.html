@@ -32,12 +32,12 @@
         </tr>
         {% for week in this_month %}
             {% if forloop.counter0 == this_week %}
-            <tr class="intro">
+            <tr>
                 {% for day in week %}
                     {% if day == today %}
-                        <td bgcolor="yellow"><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
+                        <td bgcolor="gold"><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
                     {% else %}
-                        <td><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
+                        <td bgcolor="navyblue"><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
                     {% endif %}
                 {% endfor %}
             </tr>

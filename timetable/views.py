@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, time
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
-from .models import Timetable, Activity, Activity_type, Teacher, Course
+from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
 from django.views import generic
 
 
@@ -14,6 +14,21 @@ class TimetableListView(generic.ListView):
     model = Timetable
     def get_all_timetables(self):
         return Timetable.objects.all()
+def get_available_timetables(request):
+    user = None
+    user_timetables = None
+    if request.user.is_authenticated:
+        user = request.user.id
+        assigned_timetables = Timetable_assignment.objects.filter(student_id=user)
+        user_timetables = Timetable.objects.filter(id__in=assigned_timetables.values("timetable_id"))
+    not_assigned_timetables = Timetable_assignment.objects.filter(student_id=None)
+    public_timetables = Timetable.objects.filter(id__in=not_assigned_timetables.values("timetable_id"))
+    return render(request, "timetable/timetable_list.html",
+                  {"user": user,
+                   "user_timetables": user_timetables,
+                   "public_timetables": public_timetables})
+
+
 
 
 class TimetableDetailsView(generic.DetailView):
@@ -93,7 +108,8 @@ def display_month(request, timetable_id, year=None, month=None):
                        "timetable_id": timetable_id,
                        "month_name": month_name,
                        "month": month,
-                       "year": year})
+                       "year": year,
+                       "today": current_date.day})
     return render(request, "timetable/month.html",
                   {"this_month": calendar_month,
                    "timetable_id": timetable_id,
