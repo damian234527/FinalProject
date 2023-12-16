@@ -26,20 +26,41 @@
                     </div>
                 </form>
         </div>
-        <div class="time-column">
+        <div class="grid-day">
+            <div class="time-column">
             {% for time in timetable_times %}
-                <div>{{ time|date:'H:i'}}</div>
+            <div>{{ time|date:'H:i'}}</div>
             {% endfor %}
+            </div>
+            {% if track_number == 1 %}
+            <div class="schedule-column-5">
+            </div>
+            {% elif track_number == 2 %}
+            <div class="time-column">tttt</div>
+            <div class="schedule-column-3">Tets</div>
+            <div class="schedule-column-2">Tets</div>
+            {% elif track_number == 3 %}
+            <div class="time-column">tttt</div>
+            <div class="schedule-column-2">Tets</div>
+            <div class="schedule-column-2">Tets</div>
+            <div class="schedule-column-1">Tets</div>
+            {% elif track_number == 4 %}
+            <div class="time-column">tttt</div>
+            <div class="schedule-column-2">Tets</div>
+            <div class="schedule-column-1">Tets</div>
+            <div class="schedule-column-1">Tets</div>
+            <div class="schedule-column-1">Tets</div>
+            {% else %}
+            <div class="time-column">tttt</div>
+            <div class="schedule-column-1">Tets</div>
+            <div class="schedule-column-1">Tets</div>
+            <div class="schedule-column-1">Tets</div>
+            <div class="schedule-column-1">Tets</div>
+            <div class="schedule-column-1">Tets</div>
+            {% endif %}
+
         </div>
 
-        <div class="schedule-column">
-            {% for activity in activities %}
-                <div class="activity" style="margin-top: {{ activity.time_start|date:'H'|add:'-7' }}0px; height: {% widthratio activity.time_duration.total_seconds 19 1 %}px; background-color: {{ activity.activity_type.type_color }}">
-                    <strong>{{ activity.description }}</strong> <br>
-                    {{ activity.time_start|date:'H:i' }} - {{ activity.time_end|date:'H:i' }}
-                </div>
-            {% endfor %}
-        </div>
     </div>
 </body>
 {% endblock %}

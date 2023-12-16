@@ -5,6 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
 from django.views import generic
+from .forms import ActivityForm
 
 
 
@@ -171,7 +172,8 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
             day = new_date.day
             return redirect('timetable:display_day', timetable_id, year, month, day)
     month_name = calendar.month_name[month]
-    timetable_times = [None] * 64
+    timetable_length = 64
+    timetable_times = [None] * timetable_length
     i = 0
     for hours in range(8, 24):
         for minutes in range(0, 60, 15):
@@ -180,8 +182,36 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
     # timetable_times = [time(hour=9, minute=0), time(hour=9, minute=15), time(hour=9, minute=30), time(hour=9, minute=45), time(hour=10, minute=0)]
     day_date = datetime(year, month, day).date()
     day_activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__date = day_date) | Q(time_end__date = day_date)))
+
+    tracks = {}
+    track_number = None
+    for activity in day_activities:
+        # Checking for overlapping tracks
+        overlapping_tracks = []
+        for track, track_activities in tracks.items():
+            for track_activity in track_activities:
+                if (activity.time_start < track_activity.time_end and activity.time_end > track_activity.time_start):
+                    overlapping_tracks.append(track)
+
+        # Finding the first available track for the current activity
+        track_number = 0
+        while track_number in overlapping_tracks:
+            track_number += 1
+
+        # Adding the current activity to the selected track
+        if track_number not in tracks:
+            tracks[track_number] = []
+        tracks[track_number].append(activity)
+
+    if tracks:
+        print("Activities on tracks:")
+        for track_number, track_activities in tracks.items():
+            print(f"Track {track_number}: {', '.join(str(activity) for activity in track_activities)}")
+    track_number = int(len(tracks))
+    print(tracks)
     return render(request, "timetable/day.html", {
-                                                                "activities": day_activities,
+                                                                "activities": tracks,
+                                                                "track_number": track_number,
                                                                 "timetable_times": timetable_times,
                                                                 "month_name": month_name,
                                                                 "timetable_id": timetable_id,
@@ -190,23 +220,57 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
                                                                 "year": year,
                                                                 "date":day_date})
 
+
+# ======================================================TIMETABLE======================================================
 def timetable_details(request, timetable_id):
     timetable = get_object_or_404(Timetable, pk=timetable_id)
     return render(request, "timetable/timetable_details.html", {"timetable_id": timetable_id})
 
 
-def teacher_details(request, name_surname_initials):
-    teacher = get_object_or_404(Teacher, pk=name_surname_initials)
-    return render(request, "timetable/teacher.html", {"teacher": teacher})
+# ======================================================ACTIVITY======================================================
+def add_activity(request, timetable_id):
+    if request.method == "POST":
+        create_new_activity_form = ActivityForm(request.POST)
+        if create_new_activity_form.is_valid():
+            time_start = create_new_activity_form.cleaned_data["time_start"]
+            time_end = create_new_activity_form.cleaned_data["time_end"]
+            description = create_new_activity_form.cleaned_data["description"]
+            time_duration = time_end - time_start
+
+            timetable = create_new_activity_form.cleaned_data["timetable"]
+            course = create_new_activity_form.cleaned_data["course"]
+            activity_type = create_new_activity_form.cleaned_data["activity_type"]
+    else:
+        create_new_activity_form = ActivityForm()
+
+    return render(request, "timetable/add_activity.html", {"activity_form": create_new_activity_form})
+
+def edit_activity(request, timetable_id, activity_id):
+    if request.method == "POST":
+        create_new_activity_form = ActivityForm(request.POST)
+
+def delete_activity(request, activity_id):
+    activity = get_object_or_404(Activity, pk=activity_id)
+    activity.delete()
+    return redirect("timetable:main")
 
 def activity_details(request, activity_id):
     activity = get_object_or_404(Teacher, pk=activity_id)
     return render(request, "timetable/activity.html")
 
+# ======================================================TEACHER======================================================
+
+def teacher_details(request, name_surname_initials):
+    teacher = get_object_or_404(Teacher, pk=name_surname_initials)
+    return render(request, "timetable/teacher.html", {"teacher": teacher})
+
+# ======================================================ACTIVITY_TYPE======================================================
+
 def activity_type_details(request, activity_type_name):
     activity_type = get_object_or_404(Activity_type, type_name = activity_type_name)
     return render(request, "timetable/activity_type.html")
 
+# ======================================================COURSE======================================================
 def course_details(request, course_initials):
     course = get_object_or_404(Course, course_initials = course_initials)
     return render(request, "timetable/course_details.html")
@@ -218,28 +282,6 @@ def delete_timetable(request, timetable_id):
 
 def rename_timetable(request, timetable_id):
     return render(request, "timetable/rename.html")
-
-def change_displayed_calendar(request, timetable_id, change_value, year, month, week=None, day=None):
-    change_value = int(change_value)
-    if day is not None:
-        new_date = datetime(year, month, day).date() + timedelta(days=change_value)
-        return display_day(request, timetable_id, new_date.year, new_date.month, new_date.day)
-    elif week is not None:
-        if week == 1 and change_value < 0:
-            return display_week(request, timetable_id, year=year - 1, week=53 + change_value)
-        elif week == 52 and change_value > 0:
-            return display_week(request, timetable_id, year=year + 1, week=0 + change_value)
-        else:
-            return display_week(request, timetable_id, year=year, week=week + change_value)
-    else:
-        if month == 1 and change_value < 0:
-            return display_month(request, timetable_id, year=year - 1, month=13 + change_value)
-        elif month == 12 and change_value > 0:
-            return display_month(request, timetable_id, year=year + 1, month=0 + change_value)
-        else:
-            return display_month(request, timetable_id, year=year, month=month + change_value)
-    return 1
-
 
 
 """
@@ -297,4 +339,26 @@ def day(request):
                                                   "month": current_month,
                                                   "year": current_year,
                                                   "timetable_times": timetable_times})
+                                                  
+                                                  
+def change_displayed_calendar(request, timetable_id, change_value, year, month, week=None, day=None):
+    change_value = int(change_value)
+    if day is not None:
+        new_date = datetime(year, month, day).date() + timedelta(days=change_value)
+        return display_day(request, timetable_id, new_date.year, new_date.month, new_date.day)
+    elif week is not None:
+        if week == 1 and change_value < 0:
+            return display_week(request, timetable_id, year=year - 1, week=53 + change_value)
+        elif week == 52 and change_value > 0:
+            return display_week(request, timetable_id, year=year + 1, week=0 + change_value)
+        else:
+            return display_week(request, timetable_id, year=year, week=week + change_value)
+    else:
+        if month == 1 and change_value < 0:
+            return display_month(request, timetable_id, year=year - 1, month=13 + change_value)
+        elif month == 12 and change_value > 0:
+            return display_month(request, timetable_id, year=year + 1, month=0 + change_value)
+        else:
+            return display_month(request, timetable_id, year=year, month=month + change_value)
+    return 1
 """

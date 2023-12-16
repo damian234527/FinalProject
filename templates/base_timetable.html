@@ -13,6 +13,7 @@
     grid-area: header
     }
     .time-column {
+        grid-column: 1;
         width: 100px;
         padding: 10px;
         border-right: 2px solid #ddd;
@@ -20,18 +21,36 @@
 
 
     .time-column div {
-        grid-area: time
         margin-bottom: 25px;
     }
 
-    .schedule-column {
-        grid-area: schedule
+    .schedule-column-5 {
+        grid-column: span 5;
+        flex-grow: 1;
+        padding: 10px;
+    }
+    .schedule-column-4 {
+        grid-column: span 4;
+        flex-grow: 1;
+        padding: 10px;
+    }
+    .schedule-column-3 {
+        grid-column: span 3;
+        flex-grow: 1;
+        padding: 10px;
+    }
+    .schedule-column-2 {
+        grid-column: span 2;
+        flex-grow: 1;
+        padding: 10px;
+    }
+    .schedule-column-1 {
         flex-grow: 1;
         padding: 10px;
     }
 
     .activity {
-        color: #fff;
+        color: #000;
         margin-bottom: 5px;
         padding: 5px;
         border-radius: 3px;
@@ -45,7 +64,7 @@
         display: grid;
         grid-template-areas:
         'header header header header header navigation'
-        'time schedule schedule schedule schedule schedule'
+        'schedule schedule schedule schedule schedule schedule'
         'menu footer footer footer footer footer';
         gap: 10px;
         padding: 10px;
@@ -53,6 +72,20 @@
 
     .grid-container > div {
         background-color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        padding: 20px 0;
+        font-size: 30px;
+    }
+
+    .grid-day {
+        grid-area: schedule;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+        grid-auto-rows: 25px;
+        gap: 0px;
+        padding: 10px;
+    }
+    .grid-day > div {
         text-align: center;
         padding: 20px 0;
         font-size: 30px;

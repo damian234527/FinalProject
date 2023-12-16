@@ -50,6 +50,8 @@ class Course(models.Model):
     course_initials = models.CharField(max_length=15)
     course_name = models.CharField(max_length=100)
     timetable = models.ManyToManyField(Timetable)
+    def __str__(self):
+        return self.course_initials
 
 
 class Activity_type(models.Model):
@@ -57,6 +59,9 @@ class Activity_type(models.Model):
     type_name = models.CharField(max_length=100, default="default", blank=True)
     type_description = models.CharField(max_length=255, default="This is default type when no information provided")
     type_color = models.CharField(max_length=10, default="#FFFFFF")
+
+    def __str__(self):
+        return self.type_name
 
     @classmethod
     def generate_generic_types(cls):
@@ -96,6 +101,9 @@ class Activity(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
     activity_type = models.ForeignKey(Activity_type, on_delete=models.CASCADE, null=True, blank=True)
 
+    def __str__(self):
+        return self.description
+
     @classmethod
     def create_activity(cls, time_start, time_end, description, time_duration, timetable, course, activity_type):
         cls.objects.create(time_start=time_start,
@@ -112,6 +120,9 @@ class Teacher(models.Model):
     teacher_last_name = models.CharField(max_length=100)
     teacher_link = models.URLField(max_length=200)
     teacher_mail = models.EmailField(max_length=254)
+
+    def __str__(self):
+        return self.teacher_initials
 
 
 class Timetable_assignment(models.Model):
