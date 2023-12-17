@@ -45,9 +45,11 @@
                 {% endfor %}
             {% if track_number == 1 %}
                 {% for activity in activities.0 %}
-                <div class="activity" style="grid-row: {{activity.time_start|date:'Hi'}} / {{activity.time_end|date:'Hi'}}; grid-column: 2 / 6; margin-top: 50 px; background-color: {{ activity.activity_type.type_color }}">
-                    <strong>{{ activity.description }}</strong> <br>
-                    {{ activity.time_start|date:'H:i' }} - {{ activity.time_end|date:'H:i' }}
+                <div class="activity" onclick="location.href='{% url 'timetable:activity_details' activity.id %}'" style="grid-row: {{activity.time_start|date:'Hi'}} / {{activity.time_end|date:'Hi'}}; grid-column: 2 / 6; margin-top: 50 px; background-color: {{ activity.activity_type.type_color }}">
+                    <strong><a href="{% url 'timetable:course_details' activity.course %}">{{ activity.course }}</a></strong> <br>
+                    <a href="{% url 'timetable:activity_type_details' activity.activity_type %}">{{ activity.activity_type }}</a> <br>
+                    {{ activity.time_start|date:'H:i' }} - {{ activity.time_end|date:'H:i' }} <br>
+                    <p>{{ activity.description }}</p>
                 </div>
                 {% endfor %}
 

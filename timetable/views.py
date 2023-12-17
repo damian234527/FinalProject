@@ -8,13 +8,13 @@ from django.views import generic
 from .forms import ActivityForm
 from django.http import JsonResponse
 
-
 class TimetableListView(generic.ListView):
     template_name = "timetable/timetable_list.html"
     context_object_name = "available_timetables_list"
     model = Timetable
     def get_all_timetables(self):
         return Timetable.objects.all()
+
 def get_available_timetables(request):
     user = None
     user_timetables = None
@@ -28,8 +28,6 @@ def get_available_timetables(request):
                   {"user": user,
                    "user_timetables": user_timetables,
                    "public_timetables": public_timetables})
-
-
 
 
 class TimetableDetailsView(generic.DetailView):
@@ -225,13 +223,11 @@ def timetable_details(request, timetable_id):
     return render(request, "timetable/timetable_details.html", {"timetable_id": timetable_id})
 
 
-def update_timetable(request, timetable_id):
+def update_timetable(request, timetable_id, year, month, day):
     print("1111")
     activity_type_ids = request.GET.getlist("activity_types[]")
-    activities = Activity.objects.filter(
-        Q(timetable_id=timetable_id) & (Q(time_start__date=day_date) | Q(time_end__date=day_date)),
-        activity_type__id__in=activity_type_ids
-    )
+    day_date = datetime(year, month, day).date()
+    activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__date=day_date) | Q(time_end__date=day_date)), activity_type__id__in=activity_type_ids)
     print(activity_type_ids)
     print(activities)
     data = {
@@ -268,25 +264,26 @@ def delete_activity(request, activity_id):
     return redirect("timetable:main")
 
 def activity_details(request, activity_id):
-    activity = get_object_or_404(Teacher, pk=activity_id)
-    return render(request, "timetable/activity.html")
+    activity = get_object_or_404(Activity, pk=activity_id)
+    return render(request, "timetable/activity.html", {"activity": activity})
 
 # ======================================================TEACHER======================================================
 
 def teacher_details(request, name_surname_initials):
-    teacher = get_object_or_404(Teacher, pk=name_surname_initials)
+    teacher = get_object_or_404(Teacher, teacher_initials=name_surname_initials)
     return render(request, "timetable/teacher.html", {"teacher": teacher})
 
 # ======================================================ACTIVITY_TYPE======================================================
 
 def activity_type_details(request, activity_type_name):
+    print(activity_type_name)
     activity_type = get_object_or_404(Activity_type, type_name = activity_type_name)
-    return render(request, "timetable/activity_type.html")
+    return render(request, "timetable/activity_type.html", {"activity_type": activity_type})
 
 # ======================================================COURSE======================================================
 def course_details(request, course_initials):
     course = get_object_or_404(Course, course_initials = course_initials)
-    return render(request, "timetable/course_details.html")
+    return render(request, "timetable/course.html", {"course": course})
 
 def delete_timetable(request, timetable_id):
     timetable = get_object_or_404(Timetable, pk=timetable_id)

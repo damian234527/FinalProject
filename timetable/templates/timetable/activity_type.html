@@ -1,7 +1,2 @@
-{% extends "base_template.html" %}
-{% load static %}
+<strong>{{activity_type.type_name}}</strong> ({{activity_type.type_name_pl}}) - {{activity_type.type_description}}
 
-{% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'timetable/style.css' %}">
-
-{% endblock %}

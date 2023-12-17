@@ -65,3 +65,6 @@ def log_out(request):
         logout(request)
         messages.success(request, "Logged out successfully")
         return redirect("home:page")
+
+def user_profile(request, user_id):
+    return 1
