@@ -6,7 +6,7 @@ from django.db.models import Q
 from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
 from django.views import generic
 from .forms import ActivityForm
-
+from django.http import JsonResponse
 
 
 class TimetableListView(generic.ListView):
@@ -182,16 +182,17 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
     # timetable_times = [time(hour=9, minute=0), time(hour=9, minute=15), time(hour=9, minute=30), time(hour=9, minute=45), time(hour=10, minute=0)]
     day_date = datetime(year, month, day).date()
     day_activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__date = day_date) | Q(time_end__date = day_date)))
-
-    tracks = {}
+    activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
+    tracks = []
     track_number = None
+
     for activity in day_activities:
         # Checking for overlapping tracks
         overlapping_tracks = []
-        for track, track_activities in tracks.items():
+        for i, track_activities in enumerate(tracks):
             for track_activity in track_activities:
                 if (activity.time_start < track_activity.time_end and activity.time_end > track_activity.time_start):
-                    overlapping_tracks.append(track)
+                    overlapping_tracks.append(i)
 
         # Finding the first available track for the current activity
         track_number = 0
@@ -199,16 +200,12 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
             track_number += 1
 
         # Adding the current activity to the selected track
-        if track_number not in tracks:
-            tracks[track_number] = []
+        if track_number >= len(tracks):
+            tracks.append([])
         tracks[track_number].append(activity)
-
-    if tracks:
-        print("Activities on tracks:")
-        for track_number, track_activities in tracks.items():
-            print(f"Track {track_number}: {', '.join(str(activity) for activity in track_activities)}")
-    track_number = int(len(tracks))
     print(tracks)
+    track_number = len(tracks)
+
     return render(request, "timetable/day.html", {
                                                                 "activities": tracks,
                                                                 "track_number": track_number,
@@ -218,13 +215,29 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
                                                                 "month": month,
                                                                 "day": day,
                                                                 "year": year,
-                                                                "date":day_date})
+                                                                "date":day_date,
+                                                                "activity_types": activity_types})
 
 
 # ======================================================TIMETABLE======================================================
 def timetable_details(request, timetable_id):
     timetable = get_object_or_404(Timetable, pk=timetable_id)
     return render(request, "timetable/timetable_details.html", {"timetable_id": timetable_id})
+
+
+def update_timetable(request, timetable_id):
+    print("1111")
+    activity_type_ids = request.GET.getlist("activity_types[]")
+    activities = Activity.objects.filter(
+        Q(timetable_id=timetable_id) & (Q(time_start__date=day_date) | Q(time_end__date=day_date)),
+        activity_type__id__in=activity_type_ids
+    )
+    print(activity_type_ids)
+    print(activities)
+    data = {
+    #"html": render_to_string("timetable/timetable_partial.html", {"activities": activities}),
+    }
+    return JsonResponse(data)
 
 
 # ======================================================ACTIVITY======================================================

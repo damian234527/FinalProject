@@ -9,6 +9,19 @@
         <div class="header">
             <h1>Timetable - {{ day }}.{{ month }}.{{ year }}</h1>
         </div>
+        <div class="calendar-settings">
+        {% for activity_type in activity_types %}
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="{{ activity_type.type_name }}" id="activity_type{{ activity_type.type_name }}" hx-get="{% url 'timetable:update_timetable' timetable_id %}" hx-trigger="change" hx-indicator="#loading-indicator" checked>
+            <label class="form-check-label" for="activity_type{{ activity_type.type_name }}">
+                {{ activity_type.type_name }}
+            </label>
+        </div>
+        {% endfor %}
+        <div id="loading-indicator" class="spinner-border" role="status">
+          <span class="sr-only"></span>
+        </div>
+        </div>
         <div class="calendar-navigation">
                 <form action="{% url 'timetable:display_day' timetable_id year month day %}" method="post">
                     {% csrf_token %}
@@ -26,32 +39,35 @@
                     </div>
                 </form>
         </div>
-        <div class="grid-day">
-            <div class="time-column">
-            {% for time in timetable_times %}
-            <div>{{ time|date:'H:i'}}</div>
-            {% endfor %}
-            </div>
+        <div class="grid-day" hx-target="#timetable" hx-swap="outerHTML">
+                {% for time in timetable_times %}
+                <div class="time-column" style="grid-row: {{time|date:'Hi'}}" >{{ time|date:'H:i'}}</div>
+                {% endfor %}
             {% if track_number == 1 %}
-            <div class="schedule-column-5">
-            </div>
+                {% for activity in activities.0 %}
+                <div class="activity" style="grid-row: {{activity.time_start|date:'Hi'}} / {{activity.time_end|date:'Hi'}}; grid-column: 2 / 6; margin-top: 50 px; background-color: {{ activity.activity_type.type_color }}">
+                    <strong>{{ activity.description }}</strong> <br>
+                    {{ activity.time_start|date:'H:i' }} - {{ activity.time_end|date:'H:i' }}
+                </div>
+                {% endfor %}
+
             {% elif track_number == 2 %}
-            <div class="time-column">tttt</div>
+            <div class="time-column"></div>
             <div class="schedule-column-3">Tets</div>
             <div class="schedule-column-2">Tets</div>
             {% elif track_number == 3 %}
-            <div class="time-column">tttt</div>
+            <div class="time-column"></div>
             <div class="schedule-column-2">Tets</div>
             <div class="schedule-column-2">Tets</div>
             <div class="schedule-column-1">Tets</div>
             {% elif track_number == 4 %}
-            <div class="time-column">tttt</div>
+            <div class="time-column"></div>
             <div class="schedule-column-2">Tets</div>
             <div class="schedule-column-1">Tets</div>
             <div class="schedule-column-1">Tets</div>
             <div class="schedule-column-1">Tets</div>
             {% else %}
-            <div class="time-column">tttt</div>
+            <div class="time-column"></div>
             <div class="schedule-column-1">Tets</div>
             <div class="schedule-column-1">Tets</div>
             <div class="schedule-column-1">Tets</div>
@@ -60,8 +76,8 @@
             {% endif %}
 
         </div>
-
     </div>
+
 </body>
 {% endblock %}
 

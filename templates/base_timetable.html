@@ -12,16 +12,11 @@
     .header {
     grid-area: header
     }
+
     .time-column {
         grid-column: 1;
-        width: 100px;
-        padding: 10px;
-        border-right: 2px solid #ddd;
-    }
-
-
-    .time-column div {
-        margin-bottom: 25px;
+        width: 8rem;
+        border-right: 0.2rem solid #ddd;
     }
 
     .schedule-column-5 {
@@ -59,11 +54,14 @@
     .calendar-navigation {
         grid-area: navigation
     }
+    .calendar-settings {
+        grid-area: settings
+    }
 
     .grid-container {
         display: grid;
         grid-template-areas:
-        'header header header header header navigation'
+        'header header header header settings navigation'
         'schedule schedule schedule schedule schedule schedule'
         'menu footer footer footer footer footer';
         gap: 10px;
@@ -80,8 +78,73 @@
     .grid-day {
         grid-area: schedule;
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-        grid-auto-rows: 25px;
+        grid-gap: 1em;
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows:
+        [0800] 1fr
+        [0815] 1fr
+        [0830] 1fr
+        [0845] 1fr
+        [0900] 1fr
+        [0915] 1fr
+        [0930] 1fr
+        [0945] 1fr
+        [1000] 1fr
+        [1015] 1fr
+        [1030] 1fr
+        [1045] 1fr
+        [1100] 1fr
+        [1115] 1fr
+        [1130] 1fr
+        [1145] 1fr
+        [1200] 1fr
+        [1315] 1fr
+        [1330] 1fr
+        [1345] 1fr
+        [1400] 1fr
+        [1415] 1fr
+        [1430] 1fr
+        [1445] 1fr
+        [1500] 1fr
+        [1515] 1fr
+        [1530] 1fr
+        [1545] 1fr
+        [1600] 1fr
+        [1615] 1fr
+        [1630] 1fr
+        [1645] 1fr
+        [1700] 1fr
+        [1715] 1fr
+        [1730] 1fr
+        [1745] 1fr
+        [1800] 1fr
+        [1815] 1fr
+        [1830] 1fr
+        [1845] 1fr
+        [1900] 1fr
+        [1915] 1fr
+        [1930] 1fr
+        [1945] 1fr
+        [2000] 1fr
+        [2015] 1fr
+        [2030] 1fr
+        [2045] 1fr
+        [2100] 1fr
+        [2115] 1fr
+        [2130] 1fr
+        [2145] 1fr
+        [2200] 1fr
+        [2215] 1fr
+        [2230] 1fr
+        [2245] 1fr
+        [2300] 1fr
+        [2315] 1fr
+        [2330] 1fr
+        [2345] 1fr
+        [2400] 1fr;
+        border-top: 0.2rem solid #ddd;
+        border-bottom: 0.2rem solid #ddd;
+
         gap: 0px;
         padding: 10px;
     }

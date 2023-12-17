@@ -1,0 +1,10 @@
+{% for time in timetable_times %}
+   <div class="time-column" style="grid-row: {{time|date:'Hi'}}">{{ time|date:'H:i'}}</div>
+{% endfor %}
+
+{% for activity in activities %}
+   <div class="activity" style="grid-row: {{activity.time_start|date:'Hi'}} / {{activity.time_end|date:'Hi'}}; grid-column: 2 / 6; margin-top: 50px; background-color: {{ activity.activity_type.type_color }}">
+      <strong>{{ activity.description }}</strong> <br>
+      {{ activity.time_start|date:'H:i' }} - {{ activity.time_end|date:'H:i' }}
+   </div>
+{% endfor %}
