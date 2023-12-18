@@ -16,4 +16,9 @@ class ActivityForm(forms.ModelForm):
         model = Activity
         fields = ["time_start", "time_end", "description", "course", "activity_type"]
 
-
+class ActivityTypeForm(forms.Form):
+    activity_types = forms.ModelMultipleChoiceField(
+        queryset=Activity_type.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )

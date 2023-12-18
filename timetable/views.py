@@ -5,8 +5,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
 from django.views import generic
-from .forms import ActivityForm
-from django.http import JsonResponse
+from .forms import ActivityForm, ActivityTypeForm
+from django.http import JsonResponse, HttpResponse
 
 class TimetableListView(generic.ListView):
     template_name = "timetable/timetable_list.html"
@@ -203,10 +203,15 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
         tracks[track_number].append(activity)
     print(tracks)
     track_number = len(tracks)
-
+    if track_number != 0:
+        track_span = int(5/track_number)
+    else:
+        track_span = 1
+    print(track_span)
     return render(request, "timetable/day.html", {
                                                                 "activities": tracks,
                                                                 "track_number": track_number,
+                                                                "track_span": track_span,
                                                                 "timetable_times": timetable_times,
                                                                 "month_name": month_name,
                                                                 "timetable_id": timetable_id,
@@ -224,14 +229,16 @@ def timetable_details(request, timetable_id):
 
 
 def update_timetable(request, timetable_id, year, month, day):
-    print("1111")
-    activity_type_ids = request.GET.getlist("activity_types[]")
+    form = ActivityTypeForm(request.GET)
+    selected_activity_types = []
+    if form.is_valid():
+        selected_activity_types  = form.cleaned_data.get("activity_types")
+        print(selected_activity_types)
     day_date = datetime(year, month, day).date()
-    activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__date=day_date) | Q(time_end__date=day_date)), activity_type__id__in=activity_type_ids)
-    print(activity_type_ids)
-    print(activities)
+    activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__date=day_date) | Q(time_end__date=day_date)), activity_type__id__in=selected_activity_types )
+    #print(selected_activity_types)
     data = {
-    #"html": render_to_string("timetable/timetable_partial.html", {"activities": activities}),
+        "selected_activity_types": selected_activity_types,
     }
     return JsonResponse(data)
 
@@ -266,6 +273,17 @@ def delete_activity(request, activity_id):
 def activity_details(request, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id)
     return render(request, "timetable/activity.html", {"activity": activity})
+"""
+    activity = get_object_or_404(Activity, id=activity_id)
+    modal_content = render(request, 'timetable/modal_template.html', {
+        'modal_id': 'activityModal',
+        'modal_title': 'Activity details',
+        'modal_body_content': f'<strong>Activity: {activity.activity_id}</strong><br>',
+        'modal_footer_content': '',
+    })
+    return modal_content
+"""
+
 
 # ======================================================TEACHER======================================================
 

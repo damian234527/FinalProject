@@ -19,7 +19,7 @@ urlpatterns = [
     # display_day
     path("timetable/<int:timetable_id>/day/", views.display_day, name="display_current_day"),
     path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/", views.display_day, name="display_day"),
-    path("timetable/<int:timetable_id>/", views.update_timetable, name="update_timetable"),
+    path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/update/", views.update_timetable, name="update_timetable"),
 
     path("timetable/delete/<int:timetable_id>/", views.delete_timetable, name="delete_timetable"),
     path("timetable/rename/<int:timetable_id>/", views.rename_timetable, name="rename_timetable"),
@@ -33,7 +33,7 @@ urlpatterns = [
     path("timetable/teacher/<slug:name_surname_initials>", views.teacher_details, name="teacher_details"),
     path("timetable/activity/<int:activity_id>", views.activity_details, name="activity_details"),
     path("timetable/atype/<slug:activity_type_name>", views.activity_type_details, name="activity_type_details"),
-    path("timetable/course/<slug:course_initials>", views.course_details, name="course_details"),
+    path("timetable/course/<str:course_initials>", views.course_details, name="course_details"),
 
     # add or edit
     path("timetable/<int:timetable_id>/activity", views.add_activity, name="add_activity"),
