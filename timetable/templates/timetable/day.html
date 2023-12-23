@@ -37,30 +37,36 @@
                         <button type="submit" class="btn btn-primary" name="change_value" value="1">></button>
                         <button type="submit" class="btn btn-primary" name="change_value" value="7">>></button>
                     </div>
+
+                    <div>
+                        <br>
+                        <button class="btn btn-primary" hx-get="{% url 'timetable:add_activity' timetable_id %}" hx-target="#dialog">
+                          New activity
+                        </button>
+                    </div>
                 </form>
         </div>
-        <div class="grid-day" id="grid-day" hx-swap="outerHTML">
-            {% include "timetable/modal_template.html" with modal_id="activityModal" modal_title="Activity details" modal_body_content="<strong>Activity: {{ activity.activity_id }}</strong><br>" modal_footer_content="" %}
-            {% include "timetable/modal_template.html" with modal_id="activityTypeDetailsModal" modal_title="Activity type details" modal_body_content="<strong>Activity type: {{ activity.activity_type }}</strong><br>" modal_footer_content="" %}
-            {% include "timetable/modal_template.html" with modal_id="courseDetailsModal" modal_title="Course details" modal_body_content="<strong>Course: {{ activity.course }}</strong><br>" modal_footer_content="" %}
+        <div class="grid-day" id="grid-day">
 
                 {% for time in timetable_times %}
                 <div class="time-column" style="grid-row: {{time|date:'Hi'}}" >{{ time|date:'H:i'}}</div>
                 {% endfor %}
                 {% for track in activities %}
-                {% for track in activities %}
                 {% for activity in track %}
-                <div class="activity" onclick="location.href='{% url 'timetable:activity_details' activity.id %}'" style="grid-row: {{activity.time_start|date:'Hi'}} / {{activity.time_end|date:'Hi'}}; grid-column: track{{ forloop.parentloop.counter }} / track{{ track_span }}; margin-top: 50 px; background-color: {{ activity.activity_type.type_color }}">
-                    <strong><a href="{% url 'timetable:course_details' activity.course %}">{{ activity.course }}</a></strong> <br>
-                    <a href="{% url 'timetable:activity_type_details' activity.activity_type %}">{{ activity.activity_type }}</a> <br>
+                <div class="activity" hx-get="{% url 'timetable:activity_details' timetable_id activity.id %}" hx-target="#dialog" style="grid-row: {{activity.time_start|date:'Hi'}} / {{activity.time_end|date:'Hi'}}; grid-column: track{{ forloop.parentloop.counter }} / track{{ track_span }}; margin-top: 50 px; background-color: {{ activity.activity_type.type_color }}">
+                    <button onclick="event.stopPropagation();" class="btn btn-link" hx-get="{% url 'timetable:course_details' timetable_id activity.course %}" hx-target="#dialog"><strong style="font-size:xxx-large;">{{ activity.course }}</strong></button> <br>
+                    <button onclick="event.stopPropagation();" class="btn btn-link" hx-get="{% url 'timetable:activity_type_details' activity.activity_type %}" hx-target="#dialog"><strong style="font-size:xx-large;">{{ activity.activity_type }}</strong></button> <br>
                     {{ activity.time_start|date:'H:i' }} - {{ activity.time_end|date:'H:i' }} <br>
                     <p>{{ activity.description }}</p>
                 </div>
                 {% endfor %}
                 {% endfor %}
-                {% endfor %}
         </div>
     </div>
+    <div id="modal" class="modal fade">
+      <div id="dialog" class="modal-dialog" hx-target="this"></div>
+    </div>
+<script src="{% static 'timetable/scripts.js' %}"></script>
 </body>
 {% endblock %}
 

@@ -1,12 +1,13 @@
 import calendar
 from datetime import datetime, timedelta, time
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
 from django.views import generic
-from .forms import ActivityForm, ActivityTypeForm
+from .forms import ActivityForm, ActivityTypeForm, ActivityModelForm
 from django.http import JsonResponse, HttpResponse
+from bootstrap_modal_forms.generic import BSModalReadView, BSModalFormView, BSModalCreateView, BSModalUpdateView, BSModalDeleteView
 
 class TimetableListView(generic.ListView):
     template_name = "timetable/timetable_list.html"
@@ -30,7 +31,7 @@ def get_available_timetables(request):
                    "public_timetables": public_timetables})
 
 
-class TimetableDetailsView(generic.DetailView):
+class TimetableDetailsView(BSModalReadView):
     def get_specific_timetable(timetable_id):
         return Timetable.objects.filter(pk=timetable_id)
 
@@ -244,18 +245,13 @@ def update_timetable(request, timetable_id, year, month, day):
 
 
 # ======================================================ACTIVITY======================================================
+
 def add_activity(request, timetable_id):
     if request.method == "POST":
         create_new_activity_form = ActivityForm(request.POST)
         if create_new_activity_form.is_valid():
-            time_start = create_new_activity_form.cleaned_data["time_start"]
-            time_end = create_new_activity_form.cleaned_data["time_end"]
-            description = create_new_activity_form.cleaned_data["description"]
-            time_duration = time_end - time_start
-
-            timetable = create_new_activity_form.cleaned_data["timetable"]
-            course = create_new_activity_form.cleaned_data["course"]
-            activity_type = create_new_activity_form.cleaned_data["activity_type"]
+            create_new_activity_form.save()
+            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
     else:
         create_new_activity_form = ActivityForm()
 
@@ -265,14 +261,14 @@ def edit_activity(request, timetable_id, activity_id):
     if request.method == "POST":
         create_new_activity_form = ActivityForm(request.POST)
 
-def delete_activity(request, activity_id):
+def delete_activity(request, timetable_id, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id)
     activity.delete()
     return redirect("timetable:main")
 
-def activity_details(request, activity_id):
+def activity_details(request, timetable_id, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id)
-    return render(request, "timetable/activity.html", {"activity": activity})
+    return render(request, "timetable/activity.html", {"activity": activity, "timetable_id":timetable_id})
 """
     activity = get_object_or_404(Activity, id=activity_id)
     modal_content = render(request, 'timetable/modal_template.html', {
@@ -299,9 +295,18 @@ def activity_type_details(request, activity_type_name):
     return render(request, "timetable/activity_type.html", {"activity_type": activity_type})
 
 # ======================================================COURSE======================================================
-def course_details(request, course_initials):
+def course_details(request, timetable_id, course_initials):
     course = get_object_or_404(Course, course_initials = course_initials)
-    return render(request, "timetable/course.html", {"course": course})
+    return render(request, "timetable/course.html", {"course": course, "timetable_id": timetable_id})
+
+def edit_course(request, timetable_id, course_initials):
+    course = get_object_or_404(Course, course_initials = course_initials)
+    return render(request, "timetable/course.html", {"course": course, "timetable_id": timetable_id})
+
+def delete_course(request, timetable_id, course_initials):
+    activity = get_object_or_404(Course, course_initials = course_initials)
+    activity.delete()
+    return redirect("timetable:main")
 
 def delete_timetable(request, timetable_id):
     timetable = get_object_or_404(Timetable, pk=timetable_id)

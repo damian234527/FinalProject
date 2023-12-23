@@ -1,0 +1,18 @@
+<div class="modal fade" id="activityModal{{ activity.id }}" tabindex="-1" aria-labelledby="activityModalLabel{{ activity.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="activityModalLabel{{ activity.id }}">Activity Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <strong>{{ activity.course }} course {{ activity.activity_type }}</strong><br>
+                {{ activity.description }}
+            </div>
+            <!-- You can customize the modal footer if needed -->
+            <div class="modal-footer">
+                <!-- Add additional buttons or content here -->
+            </div>
+        </div>
+    </div>
+</div>

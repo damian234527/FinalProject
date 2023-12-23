@@ -28,15 +28,46 @@ class Timetable(models.Model):
             else:
                 student = author
             Timetable_assignment.objects.create(timetable=timetable, student=student)
-            Activity_type.generate_generic_types()
+            initial_types = Activity_type.generate_generic_types()
             for activity in imported_calendar.walk("vevent"):
                 time_start = activity.get("dtstart").dt
                 time_end = activity.get("dtend").dt
-                description = activity.get("summary")
-                attributes_list = description.split()
                 time_duration = time_end-time_start
-                course_acronym = attributes_list[0]
-                activity_type_name_pl=attributes_list[1]
+                description = activity.get("summary")
+                description = description.replace("/","-")
+                course_acronym = None
+                activity_type_name_pl = None
+                type_found = False
+                rooms = []
+                teachers = []
+                print("tets")
+                for i, type in enumerate(initial_types):
+                    print(f"tets{i} - {type}")
+                    searched_string = " " + type + " "
+                    index = description.find(searched_string)
+                    if index != -1:
+                        course_acronym, description = description.split(searched_string)[0], description.split(searched_string)[1]
+                        activity_type_name_pl = type
+                        type_found = True
+                        break
+                attributes_list = description.split()
+                if not type_found:
+                    if attributes_list[0] == "*":
+                        attributes_list[0] += attributes_list.pop(1)
+                    course_acronym = attributes_list[0]
+                    activity_type_name_pl=attributes_list[1]
+                else:
+                    for i, attribute in enumerate(attributes_list):
+                        any_digit = any(char.isdigit() for char in attribute)
+                        if any_digit:
+                            rooms.append(attribute)
+                        else:
+                            upper_leters = sum(map(str.isupper, attribute))
+                            if upper_leters == 2:
+                                teachers.append(attribute)
+                print(f"rooms = {rooms}")
+                print("\n\n\n")
+                print(f"teachers = {teachers}")
                 activity_type, created = Activity_type.objects.get_or_create(type_name_pl=activity_type_name_pl)
                 course, created = Course.objects.get_or_create(course_name=course_acronym, course_initials=course_acronym)
                 timetable.course_set.add(course)
@@ -62,6 +93,15 @@ class Activity_type(models.Model):
 
     def __str__(self):
         return self.type_name
+
+    @staticmethod
+    def get_initial_types():
+        type_names_pl = ["wyk",
+                      "ćw",
+                      "lab",
+                      "proj",
+                      "sem",
+                      "exam"]
 
     @classmethod
     def generate_generic_types(cls):
@@ -91,6 +131,7 @@ class Activity_type(models.Model):
                        "#FF0000"]
         for i in range(len(type_names)):
             Activity_type.objects.get_or_create(type_name_pl=type_names_pl[i], type_name=type_names[i], type_description=type_descriptions[i], type_color=type_colors[i])
+        return type_names_pl
 
 class Activity(models.Model):
     time_start = models.DateTimeField()

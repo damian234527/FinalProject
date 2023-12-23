@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .forms import NewAccountRegistrationForm, NewAccountProfileForm, LoginForm
 from django.contrib.auth import authenticate, login, logout
+from .models import Student
 
 # Create your views here.
 def register(request):
@@ -67,4 +68,5 @@ def log_out(request):
         return redirect("home:page")
 
 def user_profile(request, user_id):
-    return 1
+    student = get_object_or_404(Student, pk=user_id)
+    return render(request, "authentication/user_profile.html", {"student": student})

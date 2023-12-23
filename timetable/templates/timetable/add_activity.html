@@ -1,10 +1,13 @@
-{% extends "base_template.html" %}
-{% load static %}
-
-{% block content %}
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
+<form hx-post="{{ request.path }}" class="modal-content">
+  {% csrf_token %}
+  <div class="modal-header">
+    <h5 class="modal-title">Add activity</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+  </div>
+  <div class="modal-body">
     {{ activity_form.as_p }}
-    <button type="submit">Add Activity</button>
+  </div>
+  <div class="modal-footer">
+    <button type="submit">Save</button>
+  </div>
 </form>
-{% endblock %}

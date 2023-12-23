@@ -1,4 +1,17 @@
-<strong>{{activity.course}} course {{activity.activity_type}}</strong>
-<br>
-{{activity.description}}
+ <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="activityModalLabel{{ activity.id }}">Activity Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <strong>{{ activity.course }} course {{ activity.activity_type }}</strong><br>
+            {{ activity.description }}
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-warning" hx-get="{% url 'timetable:delete_activity' timetable_id activity.id %}">Delete</button>
+            <button type="button" class="btn btn-primary" hx-get="{% url 'timetable:edit_activity' timetable_id activity.id %}">Edit</button>
+        </div>
+    </div>
+</div>
 

@@ -30,12 +30,17 @@ urlpatterns = [
     # path("timetable/change/<int:timetable_id>/<str:change_value>/<int:year>/<int:month>/<int:day>/", views.change_displayed_calendar, name="change_day"),
 
     # for pop-up details windows
-    path("timetable/teacher/<slug:name_surname_initials>", views.teacher_details, name="teacher_details"),
-    path("timetable/activity/<int:activity_id>", views.activity_details, name="activity_details"),
-    path("timetable/atype/<slug:activity_type_name>", views.activity_type_details, name="activity_type_details"),
-    path("timetable/course/<str:course_initials>", views.course_details, name="course_details"),
+    path("timetable/teacher/<slug:name_surname_initials>/", views.teacher_details, name="teacher_details"),
+    path("timetable/<int:timetable_id>/activity/<int:activity_id>/", views.activity_details, name="activity_details"),
+    path("timetable/atype/<slug:activity_type_name>/", views.activity_type_details, name="activity_type_details"),
+    path("timetable/<int:timetable_id>/course/<str:course_initials>/", views.course_details, name="course_details"),
 
     # add or edit
-    path("timetable/<int:timetable_id>/activity", views.add_activity, name="add_activity"),
+    path("timetable/<int:timetable_id>/activity/add/", views.add_activity, name="add_activity"),
+    path("timetable/<int:timetable_id>/activity/<int:activity_id>/edit/", views.edit_activity, name="edit_activity"),
+    path("timetable/<int:timetable_id>/activity/<int:activity_id>/delete/", views.delete_activity, name="delete_activity"),
+
+    path("timetable/<int:timetable_id>/course/<str:course_initials>/edit/", views.edit_course, name="edit_course"),
+    path("timetable/<int:timetable_id>/course/<str:course_initials>/delete/", views.delete_course, name="delete_course"),
 
 ]
