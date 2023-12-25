@@ -1,7 +1,16 @@
-{% extends "base_template.html" %}
-{% load static %}
-
-{% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'timetable/style.css' %}">
-
-{% endblock %}
+ <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="teacherModalLabel{{ teacher.id }}">Teacher Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <strong>{{ teacher.teacher_first_name }} {{ teacher.teacher_first_name }}</strong> ({{ teacher.teacher_initials }})<br>
+            {{ teacher.teacher_link }} <br>
+            {{ teacher.teacher_mail }}
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" hx-get="{% url 'timetable:edit_teacher' teacher.teacher_initials %}">Edit</button>
+        </div>
+    </div>
+</div>

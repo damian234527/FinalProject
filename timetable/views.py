@@ -287,6 +287,11 @@ def teacher_details(request, name_surname_initials):
     teacher = get_object_or_404(Teacher, teacher_initials=name_surname_initials)
     return render(request, "timetable/teacher.html", {"teacher": teacher})
 
+def edit_teacher(request, name_surname_initials):
+    teacher = get_object_or_404(Teacher, teacher_initials=name_surname_initials)
+    return render(request, "timetable/edit_teacher_.html", {"teacher": teacher})
+
+
 # ======================================================ACTIVITY_TYPE======================================================
 
 def activity_type_details(request, activity_type_name):
@@ -297,7 +302,7 @@ def activity_type_details(request, activity_type_name):
 # ======================================================COURSE======================================================
 def course_details(request, timetable_id, course_initials):
     course = get_object_or_404(Course, course_initials = course_initials)
-    return render(request, "timetable/course.html", {"course": course, "timetable_id": timetable_id})
+    return render(request, "timetable/edit_course.html", {"course": course, "timetable_id": timetable_id})
 
 def edit_course(request, timetable_id, course_initials):
     course = get_object_or_404(Course, course_initials = course_initials)

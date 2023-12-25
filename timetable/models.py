@@ -38,7 +38,6 @@ class Timetable(models.Model):
                 course_acronym = None
                 activity_type_name_pl = None
                 type_found = False
-                rooms = []
                 teachers = []
                 print("tets")
                 for i, type in enumerate(initial_types):
@@ -56,25 +55,39 @@ class Timetable(models.Model):
                         attributes_list[0] += attributes_list.pop(1)
                     course_acronym = attributes_list[0]
                     activity_type_name_pl=attributes_list[1]
-                else:
-                    for i, attribute in enumerate(attributes_list):
-                        any_digit = any(char.isdigit() for char in attribute)
-                        if any_digit:
-                            rooms.append(attribute)
-                        else:
-                            upper_leters = sum(map(str.isupper, attribute))
-                            if upper_leters == 2:
-                                teachers.append(attribute)
-                print(f"rooms = {rooms}")
-                print("\n\n\n")
-                print(f"teachers = {teachers}")
+                    attributes_list = attributes_list[2:]
+                # teachers_search = True
+                for i, attribute in enumerate(attributes_list):
+                    upper_leters = sum(map(str.isupper, attribute))
+                    if upper_leters == 2:
+                        teachers.append(attribute)
+                    else:
+                        # teachers_search = False
+                        break
+                # print(f"teachers = {teachers}")
                 activity_type, created = Activity_type.objects.get_or_create(type_name_pl=activity_type_name_pl)
                 course, created = Course.objects.get_or_create(course_name=course_acronym, course_initials=course_acronym)
                 timetable.course_set.add(course)
-                Activity.create_activity(time_start, time_end, description, time_duration, timetable, course, activity_type)
+                activity = Activity.objects.create(time_start=time_start, time_end=time_end, description=description, time_duration=time_duration, timetable=timetable, course=course, activity_type=activity_type)
+                teacher_objects = [None] * len(teachers)
+                for i, teacher in enumerate(teachers):
+                    teacher_objects[i], created = Teacher.objects.get_or_create(teacher_initials=teacher)
+                    teacher_objects[i].activity_set.add(activity)
+                #Activity.create_activity(time_start, time_end, description, time_duration, timetable, course, activity_type)
+                #teacher.activity_set.add(teachers)
             return True, "Timetable imported successfully"
         except Exception as upload_error:
             return False, f"An error occurred while importing the timetable: {str(upload_error)}."
+
+class Teacher(models.Model):
+    teacher_initials = models.CharField(max_length=20)
+    teacher_first_name = models.CharField(max_length=100, null=True)
+    teacher_last_name = models.CharField(max_length=100, null=True)
+    teacher_link = models.URLField(max_length=200, null=True)
+    teacher_mail = models.EmailField(max_length=254, null=True)
+
+    def __str__(self):
+        return self.teacher_initials
 
 class Course(models.Model):
 
@@ -83,7 +96,6 @@ class Course(models.Model):
     timetable = models.ManyToManyField(Timetable)
     def __str__(self):
         return self.course_initials
-
 
 class Activity_type(models.Model):
     type_name_pl = models.CharField(max_length=100, default="def")
@@ -141,6 +153,7 @@ class Activity(models.Model):
     timetable = models.ForeignKey(Timetable, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
     activity_type = models.ForeignKey(Activity_type, on_delete=models.CASCADE, null=True, blank=True)
+    teacher = models.ManyToManyField(Teacher)
 
     def __str__(self):
         return self.description
@@ -154,17 +167,6 @@ class Activity(models.Model):
                                         timetable=timetable,
                                         course=course,
                                         activity_type=activity_type)
-
-class Teacher(models.Model):
-    teacher_initials = models.CharField(max_length=20)
-    teacher_first_name = models.CharField(max_length=100)
-    teacher_last_name = models.CharField(max_length=100)
-    teacher_link = models.URLField(max_length=200)
-    teacher_mail = models.EmailField(max_length=254)
-
-    def __str__(self):
-        return self.teacher_initials
-
 
 class Timetable_assignment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True)

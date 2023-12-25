@@ -56,6 +56,9 @@
                 <div class="activity" hx-get="{% url 'timetable:activity_details' timetable_id activity.id %}" hx-target="#dialog" style="grid-row: {{activity.time_start|date:'Hi'}} / {{activity.time_end|date:'Hi'}}; grid-column: track{{ forloop.parentloop.counter }} / track{{ track_span }}; margin-top: 50 px; background-color: {{ activity.activity_type.type_color }}">
                     <button onclick="event.stopPropagation();" class="btn btn-link" hx-get="{% url 'timetable:course_details' timetable_id activity.course %}" hx-target="#dialog"><strong style="font-size:xxx-large;">{{ activity.course }}</strong></button> <br>
                     <button onclick="event.stopPropagation();" class="btn btn-link" hx-get="{% url 'timetable:activity_type_details' activity.activity_type %}" hx-target="#dialog"><strong style="font-size:xx-large;">{{ activity.activity_type }}</strong></button> <br>
+                    {% for teacher in activity.teacher.all %}
+                    <button onclick="event.stopPropagation();" class="btn btn-link" hx-get="{% url 'timetable:teacher_details' teacher %}" hx-target="#dialog"><strong style="font-size:x-large;">{{ teacher }}</strong></button>
+                    {% endfor %} <br>
                     {{ activity.time_start|date:'H:i' }} - {{ activity.time_end|date:'H:i' }} <br>
                     <p>{{ activity.description }}</p>
                 </div>

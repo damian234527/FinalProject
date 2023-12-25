@@ -43,4 +43,6 @@ urlpatterns = [
     path("timetable/<int:timetable_id>/course/<str:course_initials>/edit/", views.edit_course, name="edit_course"),
     path("timetable/<int:timetable_id>/course/<str:course_initials>/delete/", views.delete_course, name="delete_course"),
 
+    path("timetable/teacher/<slug:name_surname_initials>/edit", views.edit_teacher, name="edit_teacher"),
+
 ]
