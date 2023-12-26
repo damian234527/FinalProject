@@ -4,7 +4,7 @@
 {% block title %}Day Timetable {{ day }}.{{ month }}.{{ year }}{% endblock %}
 
 {% block content %}
-    <div class="grid-container" hx-boost="true" hx-trigger="unload">
+    <div class="grid-container">
         <div class="header">
             <h1>Timetable {{ day }}.{{ month }}.{{ year }}</h1>
         </div>
@@ -45,7 +45,7 @@
                     </div>
                 </form>
         </div>
-        <div class="grid-day" id="grid-day">
+        <div class="grid-day" id="grid-day" hx-trigger="load, timetable_changed from:body" hx-get="{% url 'timetable:update_timetable' timetable_id year month day %}" hx-target="this">
 
                 {% for time in timetable_times %}
                 <div class="time-column" style="grid-row: {{time|date:'Hi'}}" >{{ time|date:'H:i'}}</div>

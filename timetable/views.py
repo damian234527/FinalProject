@@ -271,7 +271,7 @@ def edit_activity(request, timetable_id, activity_id):
 def delete_activity(request, timetable_id, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id)
     activity.delete()
-    return HttpResponse(status=200)
+    return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
     #year, month, day = int(request.GET.get("year")), int(request.GET.get("month")), int(request.GET.get("day"))
     #print(f"{year}-{month}-{day}")
     #reverse("timetable:display_day", timetable_id, year, month, day)
