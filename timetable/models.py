@@ -90,7 +90,6 @@ class Teacher(models.Model):
         return self.teacher_initials
 
 class Course(models.Model):
-
     course_initials = models.CharField(max_length=15)
     course_name = models.CharField(max_length=100)
     timetable = models.ManyToManyField(Timetable)

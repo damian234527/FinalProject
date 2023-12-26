@@ -47,5 +47,9 @@
         {% endif %}
         {% block content %}{% endblock %}
     </div>
+    <div id="modal" class="modal fade">
+      <div id="dialog" class="modal-dialog" hx-target="this"></div>
+    </div>
+<script src="{% static 'scripts.js' %}"></script>
 </body>
 </html>

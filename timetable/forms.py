@@ -27,3 +27,18 @@ class ActivityModelForm(BSModalModelForm):
     class Meta:
         model = Activity
         exclude = ["time_duration", "timetable"]
+
+"""
+class ActivityModelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        timetable_instance = kwargs.pop('timetable_instance', None)
+        super(ActivityModelForm, self).__init__(*args, **kwargs)
+
+        # Set the initial value for the timetable field
+        if timetable_instance:
+            self.fields['timetable'].initial = timetable_instance
+
+    class Meta:
+        model = Activity
+        exclude = ["time_duration", "timetable"]
+"""

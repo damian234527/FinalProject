@@ -6,7 +6,7 @@ from django.db.models import Q
 from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
 from django.views import generic
 from .forms import ActivityForm, ActivityTypeForm, ActivityModelForm
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, Http404
 from bootstrap_modal_forms.generic import BSModalReadView, BSModalFormView, BSModalCreateView, BSModalUpdateView, BSModalDeleteView
 
 class TimetableListView(generic.ListView):
@@ -247,10 +247,16 @@ def update_timetable(request, timetable_id, year, month, day):
 # ======================================================ACTIVITY======================================================
 
 def add_activity(request, timetable_id):
+    try:
+        timetable = Timetable.objects.get(pk=timetable_id)
+    except Timetable.DoesNotExist:
+        raise Http404("Timetable does not exist")
     if request.method == "POST":
         create_new_activity_form = ActivityForm(request.POST)
         if create_new_activity_form.is_valid():
-            create_new_activity_form.save()
+            activity = create_new_activity_form.save(commit=False)
+            activity.timetable = timetable
+            activity.save()
             return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
     else:
         create_new_activity_form = ActivityForm()
@@ -258,15 +264,22 @@ def add_activity(request, timetable_id):
     return render(request, "timetable/add_activity.html", {"activity_form": create_new_activity_form})
 
 def edit_activity(request, timetable_id, activity_id):
+    print(request.GET)
     if request.method == "POST":
         create_new_activity_form = ActivityForm(request.POST)
 
 def delete_activity(request, timetable_id, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id)
     activity.delete()
-    return redirect("timetable:main")
+    return HttpResponse(status=200)
+    #year, month, day = int(request.GET.get("year")), int(request.GET.get("month")), int(request.GET.get("day"))
+    #print(f"{year}-{month}-{day}")
+    #reverse("timetable:display_day", timetable_id, year, month, day)
+    #return display_day(request, timetable_id, year, month, day)
+    #return HttpResponseRedirect(reverse("timetable:display_day", kwargs={"timetable_id": timetable_id, "year": year, "month": month, "day": day }) )
 
 def activity_details(request, timetable_id, activity_id):
+    print(request.GET)
     activity = get_object_or_404(Activity, pk=activity_id)
     return render(request, "timetable/activity.html", {"activity": activity, "timetable_id":timetable_id})
 """
