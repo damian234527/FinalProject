@@ -19,7 +19,7 @@ urlpatterns = [
     # display_day
     path("timetable/<int:timetable_id>/day/", views.display_day, name="display_current_day"),
     path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/", views.display_day, name="display_day"),
-    path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/update/", views.update_timetable, name="update_timetable"),
+    path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/update/", views.update_day, name="update_day"),
 
     path("timetable/delete/<int:timetable_id>/", views.delete_timetable, name="delete_timetable"),
     path("timetable/rename/<int:timetable_id>/", views.rename_timetable, name="rename_timetable"),

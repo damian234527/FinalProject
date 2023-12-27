@@ -14,7 +14,7 @@
     }
 
     .time-column {
-        grid-column: 1;
+        grid-column: time;
         width: 8rem;
         border-right: 0.2rem solid #ddd;
     }
@@ -59,7 +59,7 @@
     .grid-day {
         grid-area: schedule;
         display: grid;
-        grid-column-gap: 1rem;
+        column-gap: .1rem;
         grid-template-columns:
         [time] 1fr
         [track1] 1fr
@@ -131,13 +131,41 @@
         [2400] 1fr;
         border-top: 0.2rem solid #ddd;
         border-bottom: 0.2rem solid #ddd;
-
-        gap: 0px;
-        padding: 10px;
     }
     .grid-day > div {
         text-align: center;
         padding: 20px 0;
         font-size: 30px;
+    }
+
+    .grid-week {
+        grid-area: schedule;
+        display: grid;
+        column-gap: .1rem;
+        grid-template-columns:
+        [mon] 1fr
+        [tue] 1fr
+        [wed] 1fr
+        [thu] 1fr
+        [fri] 1fr
+        [sat] 1fr
+        [sun] 1fr;
+        grid-template-rows:
+        [day] 1fr
+        [date] 1fr
+        [timetable] 64fr;
+    }
+
+    .week-day {
+        grid-row: day;
+        font-weight: bold;
+        border-top: 0.2rem solid #ddd;
+    }
+    .week-date {
+        grid-row: date;
+        border-top: 0.2rem solid #ddd;
+    }
+    .week-timetable {
+        grid-row: timetable;
     }
 {% endblock %}

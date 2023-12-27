@@ -146,6 +146,15 @@ def display_week(request, timetable_id, year=None, week=None):
     calendar_week = [(first_day_of_week + timedelta(days=i)).day for i in range(7)]
     day = first_day_of_week.day
     month = first_day_of_week.month
+    if calendar_week[0]>calendar_week[-1]:
+        second_month = calendar_week[-1].month
+        return render(request, "timetable/week.html",
+                      {"this_week": calendar_week,
+                       "timetable_id": timetable_id,
+                       "week_number": week,
+                       "month": month,
+                       "second_month": second_month,
+                       "year": year})
     return render(request, "timetable/week.html",
                   {"this_week": calendar_week,
                    "timetable_id": timetable_id,
@@ -154,12 +163,14 @@ def display_week(request, timetable_id, year=None, week=None):
                    "month": month,
                    "year": year})
 
+
 def display_day(request, timetable_id, year=None, month=None, day=None):
     if year == None and month == None and day==None:
         current_date = datetime.now()
         year = current_date.year
         month = current_date.month
         day = current_date.day
+
     # Get the day calendar for the specified year and month when using buttons
     if request.method == 'POST':
         change_value = request.POST.get("change_value", "0")
@@ -170,15 +181,42 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
             month = new_date.month
             day = new_date.day
             return redirect('timetable:display_day', timetable_id, year, month, day)
+
+    activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
+    # Get selected activity_types filter
+    form = ActivityTypeForm(request.GET)
+    selected_activity_types = []
+    if form.is_valid():
+        selected_activity_types  = form.cleaned_data.get("activity_types")
+        print(selected_activity_types)
     month_name = calendar.month_name[month]
-    timetable_length = 64
-    timetable_times = [None] * timetable_length
-    i = 0
-    for hours in range(8, 24):
-        for minutes in range(0, 60, 15):
-            timetable_times[i] = time(hours, minutes)
-            i +=1
-    # timetable_times = [time(hour=9, minute=0), time(hour=9, minute=15), time(hour=9, minute=30), time(hour=9, minute=45), time(hour=10, minute=0)]
+
+
+    return render(request, "timetable/day.html", {
+                                                                "month_name": month_name,
+                                                                "timetable_id": timetable_id,
+                                                                "month": month,
+                                                                "day": day,
+                                                                "year": year,
+                                                                "activity_types": activity_types})
+
+
+# ======================================================TIMETABLE======================================================
+def timetable_details(request, timetable_id):
+    timetable = get_object_or_404(Timetable, pk=timetable_id)
+    return render(request, "timetable/timetable_details.html", {"timetable_id": timetable_id})
+
+
+def update_day(request, timetable_id, year, month, day):
+    """
+    day_date = datetime(year, month, day).date()
+    activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__date=day_date) | Q(time_end__date=day_date)), activity_type__id__in=selected_activity_types )
+    #print(selected_activity_types)
+    data = {
+        "selected_activity_types": selected_activity_types,
+    }
+    """
+        # timetable_times = [time(hour=9, minute=0), time(hour=9, minute=15), time(hour=9, minute=30), time(hour=9, minute=45), time(hour=10, minute=0)]
     day_date = datetime(year, month, day).date()
     day_activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__date = day_date) | Q(time_end__date = day_date)))
     activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
@@ -208,40 +246,37 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
         track_span = int(5/track_number)
     else:
         track_span = 1
-    print(track_span)
-    return render(request, "timetable/day.html", {
+
+    generate_time = request.GET.get("generate", True)
+    if generate_time == True:
+        timetable_length = 64
+        timetable_times = [None] * timetable_length
+        i = 0
+        for hours in range(8, 24):
+            for minutes in range(0, 60, 15):
+                timetable_times[i] = time(hours, minutes)
+                i +=1
+        return render(request, "timetable/update_day.html", {
                                                                 "activities": tracks,
                                                                 "track_number": track_number,
                                                                 "track_span": track_span,
                                                                 "timetable_times": timetable_times,
-                                                                "month_name": month_name,
                                                                 "timetable_id": timetable_id,
                                                                 "month": month,
                                                                 "day": day,
                                                                 "year": year,
                                                                 "date":day_date,
                                                                 "activity_types": activity_types})
-
-
-# ======================================================TIMETABLE======================================================
-def timetable_details(request, timetable_id):
-    timetable = get_object_or_404(Timetable, pk=timetable_id)
-    return render(request, "timetable/timetable_details.html", {"timetable_id": timetable_id})
-
-
-def update_timetable(request, timetable_id, year, month, day):
-    form = ActivityTypeForm(request.GET)
-    selected_activity_types = []
-    if form.is_valid():
-        selected_activity_types  = form.cleaned_data.get("activity_types")
-        print(selected_activity_types)
-    day_date = datetime(year, month, day).date()
-    activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__date=day_date) | Q(time_end__date=day_date)), activity_type__id__in=selected_activity_types )
-    #print(selected_activity_types)
-    data = {
-        "selected_activity_types": selected_activity_types,
-    }
-    return JsonResponse(data)
+    return render(request, "timetable/update_day.html", {
+        "activities": tracks,
+        "track_number": track_number,
+        "track_span": track_span,
+        "timetable_id": timetable_id,
+        "month": month,
+        "day": day,
+        "year": year,
+        "date": day_date,
+        "activity_types": activity_types})
 
 
 # ======================================================ACTIVITY======================================================
@@ -264,7 +299,6 @@ def add_activity(request, timetable_id):
     return render(request, "timetable/add_activity.html", {"activity_form": create_new_activity_form})
 
 def edit_activity(request, timetable_id, activity_id):
-    print(request.GET)
     if request.method == "POST":
         create_new_activity_form = ActivityForm(request.POST)
 

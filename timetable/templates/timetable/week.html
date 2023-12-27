@@ -3,45 +3,64 @@
 
 {% block title %}Week Timetable W{{ week_number }} {{ year }}{% endblock %}
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
-<div class="calendar-navigation">
-    <form action="{% url 'timetable:display_week' timetable_id year week_number %}" method="post">
-        {% csrf_token %}
-        <div class="btn-group">
-            <button type="submit" class="btn btn-info" formaction="{% url 'timetable:details' timetable_id %}">Return</button>
-            <button type="submit" class="btn btn-info" formaction="{% url 'timetable:display_month_for_week' timetable_id year %}" name="week_number" value={{week_number}}>Month</button>
-        </div>
-        <br>
-        <div class="btn-group">
-            <button type="submit" class="btn btn-primary" name="change_value" value="-2"><<</button>
-            <button type="submit" class="btn btn-primary" name="change_value" value="-1"><</button>
-            <button type="submit" class="btn btn-primary" name="change_value" value="1">></button>
-            <button type="submit" class="btn btn-primary" name="change_value" value="2">>></button>
-        </div>
-    </form>
-</div>
-<div>
-    <h1>Week {{ week_number }} {{ year }}</h1>
-    <table>
-        <tr>
-            <th>Mon</th>
-            <th>Tue</th>
-            <th>Wed</th>
-            <th>Thu</th>
-            <th>Fri</th>
-            <th>Sat</th>
-            <th>Sun</th>
-        </tr>
-        <tr>
-            {% for day in this_week %}
-                {% if day == today %}
-                    <td bgcolor="yellow"><a href="{% url 'timetable:display_day_for_week' timetable_id year day %}">{{ day }}</a></td>
-                {% else %}
-                    <td><a href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
-                {% endif %}
+<div class="grid-container">
+    <div class="header">
+        <h1>Timetable Week {{ week_number }} {{ year }}</h1>
+    </div>
+    <div class="calendar-settings">
+        <form id="activityTypeForm" method="GET" hx-get="{% url 'timetable:update_day' timetable_id year month day %}" hx-indicator="#loading-indicator" hx-target="#grid-day">
+            {% csrf_token %}
+            {% for activity_type in activity_types %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="activity_types" value="{{ activity_type.id }}" id="activity_type{{ activity_type.id }}" onchange="document.getElementById('activityTypeForm').submit()" {% if activity_type.id in selected_activity_types %}checked{% endif %}>
+                    <label class="form-check-label" for="activity_type{{ activity_type.id }}">
+                        {{ activity_type.type_name }}
+                    </label>
+                </div>
             {% endfor %}
-        </tr>
-    </table>
-</div>
+        </form>
+    </div>
+    <div class="calendar-navigation">
+        <form action="{% url 'timetable:display_week' timetable_id year week_number %}" method="post">
+            {% csrf_token %}
+            <div class="btn-group">
+                <button type="submit" class="btn btn-info" formaction="{% url 'timetable:details' timetable_id %}">Return</button>
+                <button type="submit" class="btn btn-info" formaction="{% url 'timetable:display_month_for_week' timetable_id year %}" name="week_number" value={{week_number}}>Month</button>
+            </div>
+            <br>
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary" name="change_value" value="-2"><<</button>
+                <button type="submit" class="btn btn-primary" name="change_value" value="-1"><</button>
+                <button type="submit" class="btn btn-primary" name="change_value" value="1">></button>
+                <button type="submit" class="btn btn-primary" name="change_value" value="2">>></button>
+            </div>
+        </form>
+    </div>
+    <div class="grid-week">
+        <div class="week-day">Mon</div>
+        <div class="week-day">Tue</div>
+        <div class="week-day">Wed</div>
+        <div class="week-day">Thu</div>
+        <div class="week-day">Fri</div>
+        <div class="week-day">Sat</div>
+        <div class="week-day">Sun</div>
+        {% for day in this_week %}
+        <div>
+        {% if day == today %}
+            <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day_for_week' timetable_id year day %}">{{ day }}</a>
+        {% else %}
+            <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a>
+        {% endif %}
+        </div>
 
+        <div class="week-timetable">
+            {% if second_month %}
+
+            {% else %}
+            <div class="grid-day" id="grid-day" hx-trigger="load, timetable_changed from:body" hx-get="{% url 'timetable:update_day' timetable_id year month day %}?generate=True" hx-target="this"></div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
