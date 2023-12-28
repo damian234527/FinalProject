@@ -57,7 +57,7 @@
             {% if second_month %}
 
             {% else %}
-            <div class="grid-day" id="grid-day" hx-trigger="load, timetable_changed from:body" hx-get="{% url 'timetable:update_day' timetable_id year month day %}?generate=True" hx-target="this"></div>
+            <div class="grid-day" id="grid-day" hx-trigger="load, timetable_changed from:body" hx-get="{% url 'timetable:update_day' timetable_id year month day %}?generate=False" hx-target="this"></div>
             {% endif %}
         </div>
         {% endfor %}

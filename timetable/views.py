@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
 from django.views import generic
-from .forms import ActivityForm, ActivityTypeForm, ActivityModelForm
+from .forms import ActivityForm, ActivityTypeForm, TeacherForm, CourseForm
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, Http404
 from bootstrap_modal_forms.generic import BSModalReadView, BSModalFormView, BSModalCreateView, BSModalUpdateView, BSModalDeleteView
 
@@ -18,15 +18,18 @@ class TimetableListView(generic.ListView):
 
 def get_available_timetables(request):
     user = None
+    username = None
     user_timetables = None
     if request.user.is_authenticated:
         user = request.user.id
+        username = request.user.username
         assigned_timetables = Timetable_assignment.objects.filter(student_id=user)
         user_timetables = Timetable.objects.filter(id__in=assigned_timetables.values("timetable_id"))
     not_assigned_timetables = Timetable_assignment.objects.filter(student_id=None)
     public_timetables = Timetable.objects.filter(id__in=not_assigned_timetables.values("timetable_id"))
     return render(request, "timetable/timetable_list.html",
-                  {"user": user,
+                  {
+                   "username": username,
                    "user_timetables": user_timetables,
                    "public_timetables": public_timetables})
 
@@ -129,7 +132,7 @@ def display_week(request, timetable_id, year=None, week=None):
         if change_value != 0:
             year = year + (week + change_value - 1) // 52
             week = ((week + change_value - 1) % 52) + 1
-            print(f"{year} - {week}")
+            # print(f"{year} - {week}")
             return redirect('timetable:display_week', timetable_id, year, week)
         day_and_month = request.POST.get("day_and_month", "")
         if day_and_month != "":
@@ -301,6 +304,9 @@ def add_activity(request, timetable_id):
 def edit_activity(request, timetable_id, activity_id):
     if request.method == "POST":
         create_new_activity_form = ActivityForm(request.POST)
+    else:
+        create_new_activity_form = ActivityForm()
+    return render(request, "timetable/edit_activity.html", {"activity_form": create_new_activity_form})
 
 def delete_activity(request, timetable_id, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id)
@@ -313,7 +319,7 @@ def delete_activity(request, timetable_id, activity_id):
     #return HttpResponseRedirect(reverse("timetable:display_day", kwargs={"timetable_id": timetable_id, "year": year, "month": month, "day": day }) )
 
 def activity_details(request, timetable_id, activity_id):
-    print(request.GET)
+    # print(request.GET)
     activity = get_object_or_404(Activity, pk=activity_id)
     return render(request, "timetable/activity.html", {"activity": activity, "timetable_id":timetable_id})
 """
@@ -335,8 +341,17 @@ def teacher_details(request, name_surname_initials):
     return render(request, "timetable/teacher.html", {"teacher": teacher})
 
 def edit_teacher(request, name_surname_initials):
-    teacher = get_object_or_404(Teacher, teacher_initials=name_surname_initials)
-    return render(request, "timetable/edit_teacher_.html", {"teacher": teacher})
+    current_teacher = get_object_or_404(Teacher, teacher_initials=name_surname_initials)
+    if request.method == "POST":
+        edit_teacher_form = TeacherForm(request.POST, instance=current_teacher)
+        if edit_teacher_form.is_valid():
+            edited_teacher = edit_teacher_form.save()
+            print(edited_teacher)
+            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_unchanged'})
+    else:
+        edit_teacher_form = TeacherForm(instance=current_teacher)
+
+    return render(request, "timetable/edit_teacher.html", {"teacher_form": edit_teacher_form})
 
 
 # ======================================================ACTIVITY_TYPE======================================================
@@ -349,11 +364,22 @@ def activity_type_details(request, activity_type_name):
 # ======================================================COURSE======================================================
 def course_details(request, timetable_id, course_initials):
     course = get_object_or_404(Course, course_initials = course_initials)
-    return render(request, "timetable/edit_course.html", {"course": course, "timetable_id": timetable_id})
+    return render(request, "timetable/course.html", {"course": course, "timetable_id": timetable_id})
 
 def edit_course(request, timetable_id, course_initials):
-    course = get_object_or_404(Course, course_initials = course_initials)
-    return render(request, "timetable/course.html", {"course": course, "timetable_id": timetable_id})
+    print(request.method)
+    current_course = get_object_or_404(Course, course_initials=course_initials)
+    if request.method == "POST":
+        edit_course_form = CourseForm(request.POST, instance=current_course)
+        print(edit_course_form)
+        if edit_course_form.is_valid():
+            edit_course_form.save()
+            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_unchanged'})
+        else:
+            print(edit_course_form.errors)
+    else:
+        edit_course_form = CourseForm(instance=current_course)
+    return render(request, "timetable/edit_course.html", {"course_form": edit_course_form})
 
 def delete_course(request, timetable_id, course_initials):
     activity = get_object_or_404(Course, course_initials = course_initials)
@@ -368,7 +394,8 @@ def delete_timetable(request, timetable_id):
 def rename_timetable(request, timetable_id):
     return render(request, "timetable/rename.html")
 
-
+def share_timetable(request, timetable_id):
+    return render(request, "timetable/rename.html")
 """
 # calendar for current month
 now = datetime.now()

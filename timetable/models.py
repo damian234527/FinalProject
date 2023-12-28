@@ -22,12 +22,10 @@ class Timetable(models.Model):
     def import_timetable(cls, ics_file, timetable_name=None, author=None):
         try:
             imported_calendar = icalendar.Calendar.from_ical(ics_file.read())
-            timetable = cls.objects.create(timetable_name=timetable_name, author=author)
             if author:
-                student, created = Student.objects.get(id=author)
-            else:
-                student = author
-            Timetable_assignment.objects.create(timetable=timetable, student=student)
+                author = Student.objects.get(pk=author)
+            timetable = cls.objects.create(timetable_name=timetable_name, author=author)
+            Timetable_assignment.objects.create(timetable=timetable, student=author)
             initial_types = Activity_type.generate_generic_types()
             for activity in imported_calendar.walk("vevent"):
                 time_start = activity.get("dtstart").dt
@@ -92,6 +90,7 @@ class Teacher(models.Model):
 class Course(models.Model):
     course_initials = models.CharField(max_length=15)
     course_name = models.CharField(max_length=100)
+    # course_description = models.CharField(max_length=100)
     timetable = models.ManyToManyField(Timetable)
     def __str__(self):
         return self.course_initials

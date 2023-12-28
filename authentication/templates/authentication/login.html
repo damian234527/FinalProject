@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<form method="post" enctype="multipart/form-data">
+<form method="post">
     {% csrf_token %}
     {{ login_form.as_p }}
     <button type="submit">Log in</button>

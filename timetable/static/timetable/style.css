@@ -1,10 +1,3 @@
-{% extends "base_template.html" %}
-{% load static %}
-
-{% block title %}Timetable{% endblock %}
-{% block link %}<link rel="stylesheet" type="text/css" href="{% static 'timetable/style.css' %}">{% endblock %}
-
-{% block style %}
     body {
         font-family: Arial, sans-serif;
 
@@ -171,5 +164,3 @@
     .activity-text {
     font-size: x-large;
     }
-
-{% endblock %}

@@ -33,7 +33,8 @@ def upload_new_timetable(request):
                 timetable_name = uploaded_filename
             author = request.user.is_authenticated
             if author:
-                author = author.id
+                print(request.user.id)
+                author = request.user.id
             else:
                 author = None
             success, message = Timetable.import_timetable(ics_file, timetable_name, author)

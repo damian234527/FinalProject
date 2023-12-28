@@ -6,5 +6,6 @@ urlpatterns = [
     path("register/", views.register, name="register"),
     path("login/", views.log_in, name="log_in"),
     path("logout/", views.log_out, name="log_out"),
-    path("user/<int:user_id>", views.user_profile, name="user_profile"),
+    path("user/<slug:username>", views.user_profile, name="user_profile"),
+    path("user/<slug:username>/edit", views.edit_user_profile, name="edit_user_profile"),
 ]

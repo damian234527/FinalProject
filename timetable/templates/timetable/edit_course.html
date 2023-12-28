@@ -1,17 +1,18 @@
  <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title" id="courseDetailsModalLabel{{ course.id }}">Course Details {{course.timetable.timetable_name}}</h5>
+            <h5 class="modal-title" id="courseDetailsModalLabel{{ course.id }}Edit">Edit course details {{course.timetable.timetable_name}}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <strong>{{course.course_name}}</strong>
-            <br>
-            ({{course.course_initials}})
+            <form method="post">
+                {% csrf_token %}
+                {{ course_form.as_p }}
+                <button type="submit">Submit</button>
+            </form>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-warning" hx-get="{% url 'timetable:delete_course' timetable_id course.course_initials %}">Delete</button>
-            <button type="button" class="btn btn-primary" hx-get="{% url 'timetable:edit_course' timetable_id course.course_initials %}">Edit</button>
+
         </div>
     </div>
  </div>

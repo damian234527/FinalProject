@@ -33,10 +33,9 @@ def register(request):
 
     else:
         create_new_user_form = NewAccountRegistrationForm()
-        new_user_profile_form = NewAccountProfileForm()
+        #new_user_profile_form = NewAccountProfileForm()
 
-    return render(request, "authentication/register.html", {"registration_form": create_new_user_form,
-                                                            "profile_form": new_user_profile_form})
+    return render(request, "authentication/register.html", {"registration_form": create_new_user_form})
 
 def log_in(request):
     if request.user.is_authenticated:
@@ -67,6 +66,9 @@ def log_out(request):
         messages.success(request, "Logged out successfully")
         return redirect("home:page")
 
-def user_profile(request, user_id):
-    student = get_object_or_404(Student, pk=user_id)
+def user_profile(request, username):
+    student = get_object_or_404(Student, username=username)
     return render(request, "authentication/user_profile.html", {"student": student})
+
+def edit_user_profile(request, username):
+    return 0

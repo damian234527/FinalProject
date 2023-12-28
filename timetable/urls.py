@@ -21,8 +21,9 @@ urlpatterns = [
     path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/", views.display_day, name="display_day"),
     path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/update/", views.update_day, name="update_day"),
 
-    path("timetable/delete/<int:timetable_id>/", views.delete_timetable, name="delete_timetable"),
-    path("timetable/rename/<int:timetable_id>/", views.rename_timetable, name="rename_timetable"),
+    path("timetable/<int:timetable_id>/delete/", views.delete_timetable, name="delete_timetable"),
+    path("timetable/<int:timetable_id>/rename/", views.rename_timetable, name="rename_timetable"),
+    path("timetable/<int:timetable_id>/share/", views.share_timetable, name="share_timetable"),
 
     # change_displayed_calendar
     # path("timetable/change/<int:timetable_id>/<str:change_val>/<int:year>/<int:month>/", views.change_displayed_calendar, name="change_month"),

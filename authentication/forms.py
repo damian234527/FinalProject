@@ -15,5 +15,5 @@ class NewAccountProfileForm(forms.ModelForm):
         fields = ["first_name", "last_name", "student_mail", "profile_description"]
 
 class LoginForm(forms.Form):
-    user_name = forms.CharField(max_length=128)
-    user_password = forms.CharField(max_length=128)
+    username = forms.CharField(max_length=128)
+    password = forms.CharField(max_length=128)

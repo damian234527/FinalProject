@@ -5,7 +5,7 @@
 <h2>Timetables</h2>
 {% if user_timetables %}
 <div class="user_timetables">
-    <p>{{ user }}'s timetables</p>
+    <p>{{ username }}'s timetables</p>
     <ul>
         {% for timetable in user_timetables %}
         <li>
@@ -14,8 +14,10 @@
             <a href="{% url 'authentication:user_profile' timetable.author %}"><i>by {{ timetable.author }}</i></a>
             {% else %}
             <i>by anonymous user</i>
-            {% endif %}            <a href="{% url 'timetable:rename_timetable' timetable.id %}">Rename</a>
+            {% endif %}
+            <a href="{% url 'timetable:rename_timetable' timetable.id %}">Rename</a>
             <a href="{% url 'timetable:delete_timetable' timetable.id %}">Delete</a>
+            <a href="{% url 'timetable:share_timetable' timetable.id %}">Share</a>
         </li>
         {% endfor %}
     </ul>
