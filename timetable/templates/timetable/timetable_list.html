@@ -2,53 +2,63 @@
 {% load static %}
 
 {% block content %}
-<h2>Timetables</h2>
-{% if user_timetables %}
-<div class="user_timetables">
-    <p>{{ username }}'s timetables</p>
-    <ul>
-        {% for timetable in user_timetables %}
-        <li>
-            <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
-            {% if timetable.author %}
-            <a href="{% url 'authentication:user_profile' timetable.author %}"><i>by {{ timetable.author }}</i></a>
-            {% else %}
-            <i>by anonymous user</i>
-            {% endif %}
-            <a href="{% url 'timetable:rename_timetable' timetable.id %}">Rename</a>
-            <a href="{% url 'timetable:delete_timetable' timetable.id %}">Delete</a>
-            <a href="{% url 'timetable:share_timetable' timetable.id %}">Share</a>
-        </li>
-        {% endfor %}
-    </ul>
+<div>
+    <button class="btn btn-primary" hx-get="{% url 'timetable:merge_timetable' %}" hx-target="#dialog">
+    Merge timetables
+    </button>
 </div>
-{% else %}
-<p>Nothing here, you can add new timetables using import button.</p>
-{% endif %}
-<div class="import_timetable">
-    <form action="{% url 'home:import_ics_file' %}" method="post">
-        {% csrf_token %}
-        <input type="submit" value="Import .ics file">
-    </form>
+<div>
+    <h2>Timetables</h2>
 </div>
-{% if public_timetables %}
-<div class="public_timetables">
-  <p> Publicly available timetables</p>
-    <ul>
-      {% for timetable in public_timetables %}
-        <li>
-            <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
-            {% if timetable.author %}
-            <a href="{% url 'authentication:user_profile' timetable.author %}">by {{ timetable.author }}</a>
-            {% else %}
-            <i>by anonymous user</i>
-            <a href="{% url 'timetable:delete_timetable' timetable.id %}">Delete</a>
-            {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
+<div>
+    {% if user_timetables %}
+    <div class="user_timetables">
+        <p>{{ username }}'s timetables</p>
+        <ul>
+            {% for timetable in user_timetables %}
+            <li>
+                <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
+                {% if timetable.author %}
+                by
+                <a href="{% url 'authentication:user_profile' timetable.author %}"><i> {{ timetable.author }}</i></a>
+                {% else %}
+                <i>by anonymous user</i>
+                {% endif %}
+                <a href="{% url 'timetable:rename_timetable' timetable.id %}">Rename</a>
+                <a href="{% url 'timetable:delete_timetable' timetable.id %}">Delete</a>
+                <a href="{% url 'timetable:share_timetable' timetable.id %}">Share</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <p>Nothing here, you can add new timetables using import button.</p>
+    {% endif %}
+    <div class="import_timetable">
+        <form action="{% url 'home:import_ics_file' %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Import .ics file">
+        </form>
+    </div>
+    {% if public_timetables %}
+    <div class="public_timetables">
+      <p> Publicly available timetables</p>
+        <ul>
+          {% for timetable in public_timetables %}
+            <li>
+                <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
+                {% if timetable.author %}
+                <a href="{% url 'authentication:user_profile' timetable.author %}">by {{ timetable.author }}</a>
+                {% else %}
+                <i>by anonymous user</i>
+                <a href="{% url 'timetable:delete_timetable' timetable.id %}">Delete</a>
+                {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <p>No public timetables available.</p>
+    {% endif %}
 </div>
-{% else %}
-<p>No public timetables available.</p>
-{% endif %}
 {% endblock %}

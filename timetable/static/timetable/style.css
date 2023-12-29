@@ -162,5 +162,7 @@
         grid-row: timetable;
     }
     .activity-text {
-    font-size: x-large;
+    font-size: 2vw;
+    word-wrap: break-word;
+    word-break: break-all;
     }

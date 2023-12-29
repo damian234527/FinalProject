@@ -33,6 +33,11 @@ class CourseForm(forms.ModelForm):
         model = models.Course
         fields = ["course_name"]
 
+class TimetableMergingForm(forms.Form):
+    timetable_name = forms.CharField(max_length=50)
+    timetable1 = forms.ModelChoiceField(queryset=models.Timetable.objects.all(), required=True, help_text="First timetable")
+    timetable2 = forms.ModelChoiceField(queryset=models.Timetable.objects.all(), required=True, help_text="Second timetable")
+
 """
 class ActivityModelForm(BSModalModelForm):
     class Meta:

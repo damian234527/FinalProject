@@ -99,7 +99,7 @@ class Activity_type(models.Model):
     type_name_pl = models.CharField(max_length=100, default="def")
     type_name = models.CharField(max_length=100, default="default", blank=True)
     type_description = models.CharField(max_length=255, default="This is default type when no information provided")
-    type_color = models.CharField(max_length=10, default="#FFFFFF")
+    type_color = models.CharField(max_length=10, default="#D7D3BA")
 
     def __str__(self):
         return self.type_name
@@ -170,4 +170,3 @@ class Timetable_assignment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True)
     timetable = models.ForeignKey(Timetable, on_delete=models.CASCADE)
     assignment_description = models.CharField(max_length=100)
-

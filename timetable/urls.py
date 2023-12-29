@@ -4,6 +4,7 @@ from . import views
 app_name = "timetable"
 urlpatterns = [
     path("timetable/", views.get_available_timetables, name="main"),
+    path("timetable/merge/", views.merge_timetable, name="merge_timetable"),
     path("timetable/<int:timetable_id>/", views.timetable_details, name="details"),
 
     # display_month

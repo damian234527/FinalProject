@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
 from django.views import generic
-from .forms import ActivityForm, ActivityTypeForm, TeacherForm, CourseForm
+from .forms import ActivityForm, ActivityTypeForm, TeacherForm, CourseForm, TimetableMergingForm
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, Http404
 from bootstrap_modal_forms.generic import BSModalReadView, BSModalFormView, BSModalCreateView, BSModalUpdateView, BSModalDeleteView
 
@@ -186,9 +186,10 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
             return redirect('timetable:display_day', timetable_id, year, month, day)
 
     activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
+
     # Get selected activity_types filter
-    form = ActivityTypeForm(request.GET)
     selected_activity_types = []
+    form = ActivityTypeForm(request.GET)
     if form.is_valid():
         selected_activity_types  = form.cleaned_data.get("activity_types")
         print(selected_activity_types)
@@ -246,7 +247,7 @@ def update_day(request, timetable_id, year, month, day):
     print(tracks)
     track_number = len(tracks)
     if track_number != 0:
-        track_span = int(5/track_number)
+        track_span = int(6/track_number)
     else:
         track_span = 1
 
@@ -367,11 +368,9 @@ def course_details(request, timetable_id, course_initials):
     return render(request, "timetable/course.html", {"course": course, "timetable_id": timetable_id})
 
 def edit_course(request, timetable_id, course_initials):
-    print(request.method)
     current_course = get_object_or_404(Course, course_initials=course_initials)
     if request.method == "POST":
         edit_course_form = CourseForm(request.POST, instance=current_course)
-        print(edit_course_form)
         if edit_course_form.is_valid():
             edit_course_form.save()
             return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_unchanged'})
@@ -396,7 +395,32 @@ def rename_timetable(request, timetable_id):
 
 def share_timetable(request, timetable_id):
     return render(request, "timetable/rename.html")
-"""
+
+def merge_timetable(request):
+    if request.method == "POST":
+        merge_timetable_form = TimetableMergingForm(request.POST)
+        if merge_timetable_form.is_valid():
+            merged_timetable_name = merge_timetable_form.cleaned_data["timetable_name"]
+            merged_timetable_author = request.user
+            merged_timetable = Timetable.objects.create(timetable_name=merged_timetable_name, author=merged_timetable_author)
+            Timetable_assignment.objects.create(timetable=merged_timetable, student=merged_timetable_author)
+            timetable1 = merge_timetable_form.cleaned_data["timetable1"]
+            timetable2 = merge_timetable_form.cleaned_data["timetable2"]
+            #both_timetables_activity_types = Activity_type.objects.filter(Q(timetable=timetable1) | Q(timetable=timetable2))
+            #merged_timetable.activity_type.set(both_timetables_activity_types)
+            #both_timetables_courses = Course.objects.filter(Q(timetable=timetable1) | Q(timetable=timetable2))
+            #merged_timetable.course.set(both_timetables_courses)
+            both_timetables_activities = Activity.objects.filter(Q(timetable=timetable1) | Q(timetable=timetable2))
+            for activity in both_timetables_activities:
+                new_activity = Activity.objects.create(time_start=activity.time_start, time_end=activity.time_end, description=activity.description, time_duration=activity.time_duration, timetable=merged_timetable, course=activity.course, activity_type=activity.activity_type)
+                new_activity.teacher.set(activity.teacher.all())
+            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_unchanged'})
+    else:
+        merge_timetable_form = TimetableMergingForm()
+    return render(request, "timetable/merge_timetable.html", {"merge_timetable_form": merge_timetable_form})
+
+
+""" 
 # calendar for current month
 now = datetime.now()
 current_year, current_month, current_day = now.year, now.month, now.day
