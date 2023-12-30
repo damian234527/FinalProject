@@ -9,16 +9,17 @@
             <h1>Timetable {{ day }}.{{ month }}.{{ year }}</h1>
         </div>
         <div class="calendar-settings">
-            <form id="activityTypeForm" method="GET" hx-get="{% url 'timetable:update_day' timetable_id year month day %}" hx-indicator="#loading-indicator" hx-target="#grid-day">
+            <form id="activityTypeForm" hx-post="{% url 'timetable:update_day' timetable_id year month day %}" hx-indicator="#loading-indicator" hx-target="#grid-day">
                 {% csrf_token %}
                 {% for activity_type in activity_types %}
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="activity_types" value="{{ activity_type.id }}" id="activity_type{{ activity_type.id }}" onchange="document.getElementById('activityTypeForm').submit()" {% if activity_type.id in selected_activity_types %} checked {% endif %}>
+                        <input class="form-check-input" type="checkbox" name="activity_types" value="{{ activity_type.id }}" id="activity_type{{ activity_type.id }}" checked>
                         <label class="form-check-label" for="activity_type{{ activity_type.id }}">
                             {{ activity_type.type_name }}
                         </label>
                     </div>
                 {% endfor %}
+                <button type="submit" class="btn btn-info">Submit</button>
             </form>
         </div>
         <div class="calendar-navigation">

@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .forms import NewAccountRegistrationForm, NewAccountProfileForm, LoginForm
+from .forms import NewAccountRegistrationForm, ProfileForm, LoginForm, ChangePasswordForm
 from django.contrib.auth import authenticate, login, logout
 from .models import Student
+from django.http import HttpResponse
+from django.contrib.auth.hashers import check_password
 
 # Create your views here.
 def register(request):
@@ -66,9 +68,51 @@ def log_out(request):
         messages.success(request, "Logged out successfully")
         return redirect("home:page")
 
-def user_profile(request, username):
+def get_user_data(request, username):
     student = get_object_or_404(Student, username=username)
-    return render(request, "authentication/user_profile.html", {"student": student})
+    return render(request, "authentication/user_data.html", {"student": student})
 
-def edit_user_profile(request, username):
-    return 0
+def user_profile(request, username):
+    get_user_data(request, username)
+    return render(request, "authentication/user_profile.html", {"username": username})
+
+def edit_profile(request, username):
+    current_profile = get_object_or_404(Student, username=username)
+    if request.method == "POST":
+        edit_form = ProfileForm(request.POST, instance=current_profile)
+        if edit_form.is_valid():
+            edit_form.save()
+            return HttpResponse(status=204, headers={'HX-Trigger': 'profile_changed'})
+    else:
+        edit_form = ProfileForm(instance=current_profile)
+    return render(request, "authentication/edit_profile.html", {"edit_form": edit_form})
+
+
+def change_password(request, username):
+    current_profile = get_object_or_404(Student, username=username)
+
+    if request.method == "POST":
+        password_form = ChangePasswordForm(request.POST)
+        if password_form.is_valid():
+            new_password1 = password_form.cleaned_data["new_password"]
+            new_password2 = password_form.cleaned_data["new_password_confirm"]
+
+            if new_password1 == new_password2:
+                current_password = password_form.cleaned_data["current_password"]
+                if check_password(current_password, current_profile.password):
+                    current_profile.password = new_password1
+                    current_profile.save()
+                    messages.success(request, 'Password changed successfully.')
+                    return HttpResponse(status=204, headers={'HX-Trigger': 'profile_changed'})
+                else:
+                    messages.error(request, 'Invalid current password.')
+            else:
+                messages.warning(request, 'New passwords do not match.')
+        else:
+            for field, errors in password_form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        password_form = ChangePasswordForm()
+
+    return render(request, "authentication/change_password.html", {"change_password_form": password_form})

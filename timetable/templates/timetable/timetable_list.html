@@ -2,13 +2,14 @@
 {% load static %}
 
 {% block content %}
+
 <div>
+    <h2>Timetables</h2>
+</div>
+<div style="float: right;">
     <button class="btn btn-primary" hx-get="{% url 'timetable:merge_timetable' %}" hx-target="#dialog">
     Merge timetables
     </button>
-</div>
-<div>
-    <h2>Timetables</h2>
 </div>
 <div>
     {% if user_timetables %}
@@ -24,10 +25,15 @@
                 {% else %}
                 <i>by anonymous user</i>
                 {% endif %}
-                <a href="{% url 'timetable:rename_timetable' timetable.id %}">Rename</a>
-                <a href="{% url 'timetable:delete_timetable' timetable.id %}">Delete</a>
-                <a href="{% url 'timetable:share_timetable' timetable.id %}">Share</a>
+                <div class="btn-group" style="float: right;">
+                    <button type="submit" class="btn btn-primary" hx-get="{% url 'timetable:rename_timetable' timetable.id %}" hx-target="#dialog">Rename</button>
+                    <form action="{% url 'timetable:delete_timetable' timetable.id %}">
+                        <button type="submit" class="btn btn-primary">Delete</button>
+                    </form>
+                    <button type="submit" class="btn btn-primary" hx-get="{% url 'timetable:share_timetable' timetable.id %}" hx-target="#dialog">Share</button>
+                </div>
             </li>
+            <br>
             {% endfor %}
         </ul>
     </div>
@@ -51,7 +57,14 @@
                 <a href="{% url 'authentication:user_profile' timetable.author %}">by {{ timetable.author }}</a>
                 {% else %}
                 <i>by anonymous user</i>
-                <a href="{% url 'timetable:delete_timetable' timetable.id %}">Delete</a>
+                {% if user.is_superuser or user.id == timetable.author %}
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary" hx-get="{% url 'timetable:rename_timetable' timetable.id %}" hx-target="#dialog">Rename</button>
+                    <form action="{% url 'timetable:delete_timetable' timetable.id %}">
+                        <button type="submit" class="btn btn-primary">Delete</button>
+                    </form>
+                </div>
+                {% endif %}
                 {% endif %}
             </li>
           {% endfor %}

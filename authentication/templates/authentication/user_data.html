@@ -1,0 +1,31 @@
+<Strong>Name and surname:</Strong>
+{% if student.first_name or student.last_name %}
+{{student.first_name}} {{student.last_name}}
+{% else %}
+Not specified
+{% endif %}
+<br>
+
+<Strong>Student mail:</Strong>
+{% if student.student_mail %}
+{{student.student_mail}}
+{% else %}
+Not specified
+{% endif %}
+<br>
+
+<Strong>Description:</Strong> <br>
+{% if student.profile_description %}
+{{student.profile_description}}
+{% else %}
+This is the profile of the {{student.username}}
+{% endif %}
+<br>
+<br>
+
+{% if student.id == request.user.id %}
+<div class="btn-group">
+    <button type="submit" class="btn btn-primary" hx-get="{% url 'authentication:change_password' student.username %}" hx-target="#dialog">Change password</button>
+    <button type="submit" class="btn btn-primary" hx-get="{% url 'authentication:edit_profile' student.username %}" hx-target="#dialog">Edit profile</button>
+</div>
+{% endif %}

@@ -1,13 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-{{student.first_name}}
-{{student.last_name}}
-{{student.student_mail}}
-{{student.profile_description}}
-</body>
-</html>
+{% extends "base_template.html" %}
+{% load static %}
+{% block content %}
+<div hx-trigger="load, profile_changed from:body" hx-get="{% url 'authentication:update_profile' username %}" hx-target="this"></div>
+{% endblock %}
