@@ -4,6 +4,7 @@ from . import views
 app_name = "timetable"
 urlpatterns = [
     path("timetable/", views.get_available_timetables, name="main"),
+    path("timetable/import/", views.upload_new_timetable, name="import_ics_file"),
     path("timetable/merge/", views.merge_timetable, name="merge_timetable"),
     path("timetable/<int:timetable_id>/", views.timetable_details, name="details"),
 
@@ -22,6 +23,7 @@ urlpatterns = [
     path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/", views.display_day, name="display_day"),
     path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/update/", views.update_day, name="update_day"),
 
+    # timetable list actions
     path("timetable/<int:timetable_id>/delete/", views.delete_timetable, name="delete_timetable"),
     path("timetable/<int:timetable_id>/rename/", views.rename_timetable, name="rename_timetable"),
     path("timetable/<int:timetable_id>/share/", views.share_timetable, name="share_timetable"),
@@ -34,13 +36,15 @@ urlpatterns = [
     # for pop-up details windows
     path("timetable/teacher/<slug:name_surname_initials>/", views.teacher_details, name="teacher_details"),
     path("timetable/<int:timetable_id>/activity/<int:activity_id>/", views.activity_details, name="activity_details"),
-    path("timetable/atype/<slug:activity_type_name>/", views.activity_type_details, name="activity_type_details"),
+    path("timetable/atype/<int:activity_type_id>/", views.activity_type_details, name="activity_type_details"),
     path("timetable/<int:timetable_id>/course/<str:course_initials>/", views.course_details, name="course_details"),
 
     # add or edit
     path("timetable/<int:timetable_id>/activity/add/", views.add_activity, name="add_activity"),
     path("timetable/<int:timetable_id>/activity/<int:activity_id>/edit/", views.edit_activity, name="edit_activity"),
     path("timetable/<int:timetable_id>/activity/<int:activity_id>/delete/", views.delete_activity, name="delete_activity"),
+
+    path("timetable/atype/<int:activity_type_id>/edit/", views.edit_activity_type, name="edit_activity_type"),
 
     path("timetable/<int:timetable_id>/course/<str:course_initials>/edit/", views.edit_course, name="edit_course"),
     path("timetable/<int:timetable_id>/course/<str:course_initials>/delete/", views.delete_course, name="delete_course"),

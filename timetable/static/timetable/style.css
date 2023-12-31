@@ -2,8 +2,13 @@
         font-family: Arial, sans-serif;
 
     }
+    .btn{
+        width: 250px;
+        max-width: 100%;
+        padding: 15px;
+    }
     .header {
-    grid-area: header
+        grid-area: header
     }
 
     .time-column {

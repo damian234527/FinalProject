@@ -1,0 +1,14 @@
+<div class="modal-dialog">
+    <form hx-post="{{ request.path }}" class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="activityModalLabel{{ activity.id }}Edit">Edit activity details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            {{ activity_type_form.as_p }}
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+</div>

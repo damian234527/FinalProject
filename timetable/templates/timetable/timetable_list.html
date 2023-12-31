@@ -41,7 +41,7 @@
     <p>Nothing here, you can add new timetables using import button.</p>
     {% endif %}
     <div class="import_timetable">
-        <form action="{% url 'home:import_ics_file' %}" method="post">
+        <form action="{% url 'timetable:import_ics_file' %}" method="post">
             {% csrf_token %}
             <input type="submit" value="Import .ics file">
         </form>
@@ -57,7 +57,7 @@
                 <a href="{% url 'authentication:user_profile' timetable.author %}">by {{ timetable.author }}</a>
                 {% else %}
                 <i>by anonymous user</i>
-                {% if user.is_superuser or user.id == timetable.author %}
+                {% if user.is_superuser or timetable.author %}
                 <div class="btn-group">
                     <button type="submit" class="btn btn-primary" hx-get="{% url 'timetable:rename_timetable' timetable.id %}" hx-target="#dialog">Rename</button>
                     <form action="{% url 'timetable:delete_timetable' timetable.id %}">

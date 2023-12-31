@@ -9,6 +9,8 @@
             <p>{{activity_type.type_description}}</p>
         </div>
         <div class="modal-footer">
+
+            <button type="button" class="btn btn-primary" hx-get="{% url 'timetable:edit_activity_type' activity_type.id %}">Edit</button>
         </div>
     </div>
  </div>

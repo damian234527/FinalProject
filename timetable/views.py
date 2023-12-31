@@ -5,26 +5,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
 from django.views import generic
-from .forms import ActivityForm, ActivityTypeForm, TeacherForm, CourseForm, TimetableMergingForm, TimetableRenameForm
+from .forms import ActivityForm, ActivityTypesForm, TeacherForm, CourseForm, TimetableMergingForm, TimetableRenameForm, EditActivityTypeForm, ICSFileUploadForm
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, Http404
+from django.contrib import messages
+from math import floor, ceil
 
-
-def get_available_timetables(request):
-    user = None
-    username = None
-    user_timetables = None
-    if request.user.is_authenticated:
-        user = request.user.id
-        username = request.user.username
-        assigned_timetables = Timetable_assignment.objects.filter(student_id=user)
-        user_timetables = Timetable.objects.filter(id__in=assigned_timetables.values("timetable_id"))
-    not_assigned_timetables = Timetable_assignment.objects.filter(student_id=None)
-    public_timetables = Timetable.objects.filter(id__in=not_assigned_timetables.values("timetable_id"))
-    return render(request, "timetable/timetable_list.html",
-                  {
-                   "username": username,
-                   "user_timetables": user_timetables,
-                   "public_timetables": public_timetables})
+# ======================================================MONTH======================================================
 
 def get_month_calendar(year, month):
     calendar_month = calendar.monthcalendar(year, month)
@@ -108,6 +94,8 @@ def display_month(request, timetable_id, year=None, month=None):
                    "month": month,
                    "year": year})
 
+# ======================================================WEEK======================================================
+
 def display_week(request, timetable_id, year=None, week=None):
     if year == None and week == None:
         current_date = datetime.now()
@@ -154,6 +142,8 @@ def display_week(request, timetable_id, year=None, week=None):
                    "month": month,
                    "year": year})
 
+# ======================================================DAY======================================================
+
 
 def display_day(request, timetable_id, year=None, month=None, day=None):
     if year == None and month == None and day==None:
@@ -177,10 +167,10 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
 
     # Get selected activity_types filter
     selected_activity_types = []
-    form = ActivityTypeForm(request.GET)
+    form = ActivityTypesForm(request.GET)
     if form.is_valid():
         selected_activity_types  = form.cleaned_data.get("activity_types")
-        print(selected_activity_types)
+        # print(selected_activity_types)
     month_name = calendar.month_name[month]
 
 
@@ -194,10 +184,27 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
 
 
 # ======================================================TIMETABLE======================================================
+
+def get_available_timetables(request):
+    user = None
+    username = None
+    user_timetables = None
+    if request.user.is_authenticated:
+        user = request.user.id
+        username = request.user.username
+        assigned_timetables = Timetable_assignment.objects.filter(student_id=user)
+        user_timetables = Timetable.objects.filter(id__in=assigned_timetables.values("timetable_id"))
+    not_assigned_timetables = Timetable_assignment.objects.filter(student_id=None)
+    public_timetables = Timetable.objects.filter(id__in=not_assigned_timetables.values("timetable_id"))
+    return render(request, "timetable/timetable_list.html",
+                  {
+                   "username": username,
+                   "user_timetables": user_timetables,
+                   "public_timetables": public_timetables})
+
 def timetable_details(request, timetable_id):
     timetable = get_object_or_404(Timetable, pk=timetable_id)
     return render(request, "timetable/timetable_details.html", {"timetable_id": timetable_id})
-
 
 def update_day(request, timetable_id, year, month, day):
     day_date = datetime(year, month, day).date()
@@ -211,7 +218,7 @@ def update_day(request, timetable_id, year, month, day):
     day_activities = Activity.objects.filter(
         Q(timetable_id=timetable_id) & (Q(time_start__date=day_date) | Q(time_end__date=day_date)),
         activity_type__id__in=selected_activity_types)
-    print(selected_activity_types)
+    # print(selected_activity_types)
     # day_activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__date = day_date) | Q(time_end__date = day_date)))
 
     tracks = []
@@ -234,13 +241,25 @@ def update_day(request, timetable_id, year, month, day):
         if track_number >= len(tracks):
             tracks.append([])
         tracks[track_number].append(activity)
-    print(tracks)
+    # print(tracks)
     track_number = len(tracks)
+    track_span = int(5 / track_number)
     if track_number != 0:
-        track_span = int(6/track_number)
+        tracks = [tracks, [], []]
+        if track_number != 5:
+            reserve = True
+        track_end = 0
+        for i in range(track_number):
+            track_start = track_end + 1
+            tracks[1].append(track_start)
+            if reserve:
+                track_end = track_start + ceil(track_span)
+            else:
+                track_end = track_start + floor(track_span)
+            tracks[2].append(track_end)
     else:
         track_span = 1
-
+    print(tracks[0])
     generate_time = request.GET.get("generate", True)
     if generate_time == True:
         timetable_length = 64
@@ -251,7 +270,7 @@ def update_day(request, timetable_id, year, month, day):
                 timetable_times[i] = time(hours, minutes)
                 i +=1
         return render(request, "timetable/update_day.html", {
-                                                                "activities": tracks,
+                                                                "activities_tracks": tracks,
                                                                 "track_number": track_number,
                                                                 "track_span": track_span,
                                                                 "timetable_times": timetable_times,
@@ -272,35 +291,107 @@ def update_day(request, timetable_id, year, month, day):
         "date": day_date,
         "activity_types": activity_types})
 
+def upload_new_timetable(request):
+    if request.method == "POST":
+        upload_new_timetable_form = ICSFileUploadForm(request.POST, request.FILES)
+        if upload_new_timetable_form.is_valid():
+            ics_file = upload_new_timetable_form.cleaned_data["ics_file"] # normalizes input to be always consistent
+            #timetable_name = request.POST.get("timetable_name", uploaded_filename)
+            timetable_name = upload_new_timetable_form.cleaned_data["timetable_name"]
+            if timetable_name == "":
+                uploaded_filename = ics_file.name
+                timetable_name = uploaded_filename
+            author = request.user.is_authenticated
+            if author:
+                author = request.user.id
+            else:
+                author = None
+            success, message = Timetable.import_timetable(ics_file, timetable_name, author)
+
+            if success:
+                messages.success(request, message)
+                return redirect("timetable:main")
+            else:
+                messages.error(request, message)
+    else:
+        upload_new_timetable_form = ICSFileUploadForm()
+
+    return render(request, "timetable/import_ics.html", {"form": upload_new_timetable_form})
+
+def delete_timetable(request, timetable_id):
+    timetable = get_object_or_404(Timetable, pk=timetable_id)
+    timetable.delete()
+    return redirect("timetable:main")
+
+def rename_timetable(request, timetable_id):
+    timetable = get_object_or_404(Timetable, pk=timetable_id)
+    if request.method == "POST":
+        rename_form = TimetableRenameForm(request.POST, instance=timetable)
+        if rename_form.is_valid():
+            rename_form.save()
+            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+    else:
+        rename_form = TimetableRenameForm(instance=timetable)
+    return render(request, "timetable/rename_timetable.html", {"rename_form": rename_form})
+
+def share_timetable(request, timetable_id):
+
+    return render(request, "timetable/share_timetable.html")
+
+def merge_timetable(request):
+    user = request.user if request.user.is_authenticated else None
+    if request.method == "POST":
+        merge_timetable_form = TimetableMergingForm(user, request.POST)
+        if merge_timetable_form.is_valid():
+            merged_timetable_name = merge_timetable_form.cleaned_data["timetable_name"]
+            merged_timetable_author = request.user
+            merged_timetable = Timetable.objects.create(timetable_name=merged_timetable_name, author=merged_timetable_author)
+            Timetable_assignment.objects.create(timetable=merged_timetable, student=merged_timetable_author)
+            timetable1 = merge_timetable_form.cleaned_data["timetable1"]
+            timetable2 = merge_timetable_form.cleaned_data["timetable2"]
+            #both_timetables_activity_types = Activity_type.objects.filter(Q(timetable=timetable1) | Q(timetable=timetable2))
+            #merged_timetable.activity_type.set(both_timetables_activity_types)
+            #both_timetables_courses = Course.objects.filter(Q(timetable=timetable1) | Q(timetable=timetable2))
+            #merged_timetable.course.set(both_timetables_courses)
+            both_timetables_activities = Activity.objects.filter(Q(timetable=timetable1) | Q(timetable=timetable2))
+            for activity in both_timetables_activities:
+                new_activity = Activity.objects.create(time_start=activity.time_start, time_end=activity.time_end, description=activity.description, time_duration=activity.time_duration, timetable=merged_timetable, course=activity.course, activity_type=activity.activity_type)
+                new_activity.teacher.set(activity.teacher.all())
+            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_unchanged'})
+    else:
+        merge_timetable_form = TimetableMergingForm(user)
+    return render(request, "timetable/merge_timetable.html", {"merge_timetable_form": merge_timetable_form})
 
 # ======================================================ACTIVITY======================================================
 
 def add_activity(request, timetable_id):
+    user = request.user if request.user.is_authenticated else None
     try:
         timetable = Timetable.objects.get(pk=timetable_id)
     except Timetable.DoesNotExist:
         raise Http404("Timetable does not exist")
     if request.method == "POST":
-        create_new_activity_form = ActivityForm(request.POST)
+        create_new_activity_form = ActivityForm(user, request.POST)
         if create_new_activity_form.is_valid():
             activity = create_new_activity_form.save(commit=False)
             activity.timetable = timetable
             activity.save()
             return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
     else:
-        create_new_activity_form = ActivityForm()
+        create_new_activity_form = ActivityForm(user)
 
     return render(request, "timetable/add_activity.html", {"activity_form": create_new_activity_form})
 
 def edit_activity(request, timetable_id, activity_id):
+    user = request.user if request.user.is_authenticated else None
     current_activity = get_object_or_404(Activity, pk=activity_id)
     if request.method == "POST":
-        edit_activity_form = ActivityForm(request.POST, instance=current_activity)
+        edit_activity_form = ActivityForm(user, request.POST, instance=current_activity)
         if edit_activity_form.is_valid():
             edit_activity_form.save()
             return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
     else:
-        edit_activity_form = ActivityForm(instance=current_activity)
+        edit_activity_form = ActivityForm(user, instance=current_activity)
     return render(request, "timetable/edit_activity.html", {"activity_form": edit_activity_form})
 
 def delete_activity(request, timetable_id, activity_id):
@@ -312,7 +403,6 @@ def activity_details(request, timetable_id, activity_id):
     # print(request.GET)
     activity = get_object_or_404(Activity, pk=activity_id)
     return render(request, "timetable/activity.html", {"activity": activity, "timetable_id":timetable_id})
-
 
 # ======================================================TEACHER======================================================
 
@@ -326,7 +416,7 @@ def edit_teacher(request, name_surname_initials):
         edit_teacher_form = TeacherForm(request.POST, instance=current_teacher)
         if edit_teacher_form.is_valid():
             edited_teacher = edit_teacher_form.save()
-            print(edited_teacher)
+            # print(edited_teacher)
             return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_unchanged'})
     else:
         edit_teacher_form = TeacherForm(instance=current_teacher)
@@ -336,10 +426,23 @@ def edit_teacher(request, name_surname_initials):
 
 # ======================================================ACTIVITY_TYPE======================================================
 
-def activity_type_details(request, activity_type_name):
-    print(activity_type_name)
-    activity_type = get_object_or_404(Activity_type, type_name = activity_type_name)
+def activity_type_details(request, activity_type_id):
+    activity_type = get_object_or_404(Activity_type, pk = activity_type_id)
     return render(request, "timetable/activity_type.html", {"activity_type": activity_type})
+
+def edit_activity_type(request, activity_type_id):
+    current_activity_type = get_object_or_404(Activity_type, pk=activity_type_id)
+    if request.method == "POST":
+        edit_activity_type_form = EditActivityTypeForm(request.POST, instance=current_activity_type)
+        if edit_activity_type_form.is_valid():
+            edit_activity_type_form.save()
+            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+        else:
+            print(edit_activity_type_form.errors)
+    else:
+        edit_activity_type_form = EditActivityTypeForm(instance=current_activity_type)
+    return render(request, "timetable/edit_activity_type.html", {"activity_type_form": edit_activity_type_form})
+
 
 # ======================================================COURSE======================================================
 def course_details(request, timetable_id, course_initials):
@@ -363,126 +466,3 @@ def delete_course(request, timetable_id, course_initials):
     activity = get_object_or_404(Course, course_initials = course_initials)
     activity.delete()
     return redirect("timetable:main")
-
-def delete_timetable(request, timetable_id):
-    timetable = get_object_or_404(Timetable, pk=timetable_id)
-    timetable.delete()
-    return redirect("timetable:main")
-
-def rename_timetable(request, timetable_id):
-    timetable = get_object_or_404(Timetable, pk=timetable_id)
-    if request.method == "POST":
-        rename_form = TimetableRenameForm(request.POST, instance=timetable)
-        if rename_form.is_valid():
-            rename_form.save()
-            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
-    else:
-        rename_form = TimetableRenameForm(instance=timetable)
-    return render(request, "timetable/rename_timetable.html", {"rename_form": rename_form})
-
-def share_timetable(request, timetable_id):
-
-    return render(request, "timetable/share_timetable.html")
-
-def merge_timetable(request):
-    if request.method == "POST":
-        merge_timetable_form = TimetableMergingForm(request.POST)
-        if merge_timetable_form.is_valid():
-            merged_timetable_name = merge_timetable_form.cleaned_data["timetable_name"]
-            merged_timetable_author = request.user
-            merged_timetable = Timetable.objects.create(timetable_name=merged_timetable_name, author=merged_timetable_author)
-            Timetable_assignment.objects.create(timetable=merged_timetable, student=merged_timetable_author)
-            timetable1 = merge_timetable_form.cleaned_data["timetable1"]
-            timetable2 = merge_timetable_form.cleaned_data["timetable2"]
-            #both_timetables_activity_types = Activity_type.objects.filter(Q(timetable=timetable1) | Q(timetable=timetable2))
-            #merged_timetable.activity_type.set(both_timetables_activity_types)
-            #both_timetables_courses = Course.objects.filter(Q(timetable=timetable1) | Q(timetable=timetable2))
-            #merged_timetable.course.set(both_timetables_courses)
-            both_timetables_activities = Activity.objects.filter(Q(timetable=timetable1) | Q(timetable=timetable2))
-            for activity in both_timetables_activities:
-                new_activity = Activity.objects.create(time_start=activity.time_start, time_end=activity.time_end, description=activity.description, time_duration=activity.time_duration, timetable=merged_timetable, course=activity.course, activity_type=activity.activity_type)
-                new_activity.teacher.set(activity.teacher.all())
-            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_unchanged'})
-    else:
-        merge_timetable_form = TimetableMergingForm()
-    return render(request, "timetable/merge_timetable.html", {"merge_timetable_form": merge_timetable_form})
-
-
-""" 
-# calendar for current month
-now = datetime.now()
-current_year, current_month, current_day = now.year, now.month, now.day
-
-# month calendar
-calendar_current_month = calendar.monthcalendar(current_year, current_month)
-calendar_last_month_last_week = calendar.monthcalendar(current_year, current_month - 1)[-1]
-next_month_days_iterator = 1
-
-for i, day_month in enumerate(calendar_current_month[0]):
-    if day_month == 0:
-        calendar_current_month[0][i] = calendar_last_month_last_week[i]
-for i, day_month in enumerate(calendar_current_month[-1]):
-    if day_month == 0:
-        calendar_current_month[-1][i] = next_month_days_iterator
-        next_month_days_iterator += 1
-
-# week calendar
-week_number = current_day // 7
-if current_day > calendar_current_month[week_number][0] + 6:
-    week_number += 1
-calendar_current_week = calendar_current_month[week_number]
-
-def month(request):
-    month_name = calendar.month_name[current_month]
-    return render(request, "timetable/month.html", {"this_month": calendar_current_month,
-                                                    "this_week": calendar_current_week,
-                                                    "this_week_number": week_number,
-                                                    "today": current_day,
-                                                    "month_name": month_name})
-
-def week(request):
-    return render(request, "timetable/week.html", {"this_week": calendar_current_week,
-                                                   "today": day})
-
-def day(request):
-    time_array = [None] * 64
-    time_earliest_start = 800
-    start_time = 800
-    end_time = 1200
-    description = ["Jerzy Respondek", "830", "lab"]
-    activity = {"start_time": start_time, "end_time": end_time, "description": description}
-    activities = []
-    activities.append(activity)
-    timetable_times = range(800, 2100, 100)
-    # time_to_index_conversion = (((start_time - time_earliest_start) // 100 * 60) + (start_time % 100)) // 15
-    # time_array[time_to_index_conversion] = [start_time, end_time, description]
-
-    return render(request, "timetable/day.html", {"today": current_day,
-                                                  #"time_array": time_array,
-                                                  "activities": activities,
-                                                  "month": current_month,
-                                                  "year": current_year,
-                                                  "timetable_times": timetable_times})
-                                                  
-                                                  
-def change_displayed_calendar(request, timetable_id, change_value, year, month, week=None, day=None):
-    change_value = int(change_value)
-    if day is not None:
-        new_date = datetime(year, month, day).date() + timedelta(days=change_value)
-        return display_day(request, timetable_id, new_date.year, new_date.month, new_date.day)
-    elif week is not None:
-        if week == 1 and change_value < 0:
-            return display_week(request, timetable_id, year=year - 1, week=53 + change_value)
-        elif week == 52 and change_value > 0:
-            return display_week(request, timetable_id, year=year + 1, week=0 + change_value)
-        else:
-            return display_week(request, timetable_id, year=year, week=week + change_value)
-    else:
-        if month == 1 and change_value < 0:
-            return display_month(request, timetable_id, year=year - 1, month=13 + change_value)
-        elif month == 12 and change_value > 0:
-            return display_month(request, timetable_id, year=year + 1, month=0 + change_value)
-        else:
-            return display_month(request, timetable_id, year=year, month=month + change_value)
-    return 1
-"""
