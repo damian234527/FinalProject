@@ -1,11 +1,21 @@
     body {
         font-family: Arial, sans-serif;
-
-    }
-    .btn{
-        width: 250px;
+        .btn-resp{
+        width: 6vw;
         max-width: 100%;
-        padding: 15px;
+        padding: 1vw;
+    }
+
+    .button-text{
+        font-size: .9vw;
+    }
+
+    .checkbox-text{
+        font-size: 1.2vw;
+    }
+    .text{
+        font-size: 1vw;
+        text-align: left;
     }
     .header {
         grid-area: header
@@ -129,7 +139,6 @@
         [2345] 1fr
         [2400] 1fr;
         border-top: 0.2rem solid #ddd;
-        border-bottom: 0.2rem solid #ddd;
     }
     .grid-day > div {
         text-align: center;

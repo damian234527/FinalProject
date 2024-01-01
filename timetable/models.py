@@ -1,7 +1,7 @@
 from django.db import models
 from authentication.models import Student
 import icalendar
-from datetime import datetime
+import uuid
 # Create your models here.
 
 def create_acronym(string):
@@ -14,6 +14,7 @@ def create_acronym(string):
 class Timetable(models.Model):
     timetable_name = models.CharField(max_length=255, blank=True)
     author = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True)
+    share_link = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def __str__(self):
         return self.timetable_name

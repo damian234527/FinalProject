@@ -6,6 +6,7 @@ urlpatterns = [
     path("timetable/", views.get_available_timetables, name="main"),
     path("timetable/import/", views.upload_new_timetable, name="import_ics_file"),
     path("timetable/merge/", views.merge_timetable, name="merge_timetable"),
+    path("timetable/add/", views.add_existing_timetable, name="add_existing_timetable"),
     path("timetable/<int:timetable_id>/", views.timetable_details, name="details"),
 
     # display_month
@@ -25,8 +26,10 @@ urlpatterns = [
 
     # timetable list actions
     path("timetable/<int:timetable_id>/delete/", views.delete_timetable, name="delete_timetable"),
+    path("timetable/<int:timetable_id>/delete/", views.remove_timetable, name="remove_timetable"),
     path("timetable/<int:timetable_id>/rename/", views.rename_timetable, name="rename_timetable"),
     path("timetable/<int:timetable_id>/share/", views.share_timetable, name="share_timetable"),
+    path("timetable/<int:timetable_id>/publish/", views.publish_timetable, name="publish_timetable"),
 
     # change_displayed_calendar
     # path("timetable/change/<int:timetable_id>/<str:change_val>/<int:year>/<int:month>/", views.change_displayed_calendar, name="change_month"),

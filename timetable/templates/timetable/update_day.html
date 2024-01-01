@@ -1,11 +1,12 @@
 {% if timetable_times %}
 {% for time in timetable_times %}
+{% load timetable_extras %}
 <div class="time-column" style="grid-row: {{time|date:'Hi'}}" >{{ time|date:'H:i'}}</div>
 {% endfor %}
 {% endif %}
 {% for activities in activities_tracks.0 %}
 {% for activity in activities %}
-<div class="activity" hx-get="{% url 'timetable:activity_details' timetable_id activity.id %}" hx-target="#dialog" style="grid-row: {{activity.time_start|date:'Hi'}} / {{activity.time_end|date:'Hi'}}; grid-column: track{{ activities_tracks.1.0 }} / track{{ activities_tracks.2.1 }}; margin-top: 50 px; background-color: {{ activity.activity_type.type_color }}">
+<div class="activity" hx-get="{% url 'timetable:activity_details' timetable_id activity.id %}" hx-target="#dialog" style="grid-row: {{activity.time_start|date:'Hi'}} / {{activity.time_end|date:'Hi'}}; grid-column: track1 / track6; margin-top: 50 px; background-color: {{ activity.activity_type.type_color }}">
     <button onclick="event.stopPropagation();" class="btn btn-link" hx-get="{% url 'timetable:course_details' timetable_id activity.course %}" hx-target="#dialog"><strong class="activity-text">{{ activity.course }}</strong></button> <br>
     <button onclick="event.stopPropagation();" class="btn btn-link" hx-get="{% url 'timetable:activity_type_details' activity.activity_type.id %}" hx-target="#dialog"><strong class="activity-text">{{ activity.activity_type }}</strong></button> <br>
     {% for teacher in activity.teacher.all %}

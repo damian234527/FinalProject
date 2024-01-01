@@ -6,7 +6,10 @@
 <div>
     <h2>Timetables</h2>
 </div>
-<div style="float: right;">
+<div class="btn-group" style="float: right;">
+    <button class="btn btn-primary" hx-get="{% url 'timetable:add_existing_timetable' %}" hx-target="#dialog">
+    Add existing timetable
+    </button>
     <button class="btn btn-primary" hx-get="{% url 'timetable:merge_timetable' %}" hx-target="#dialog">
     Merge timetables
     </button>
@@ -26,10 +29,16 @@
                 <i>by anonymous user</i>
                 {% endif %}
                 <div class="btn-group" style="float: right;">
+                    {% if request.user == timetable.author %}
                     <button type="submit" class="btn btn-primary" hx-get="{% url 'timetable:rename_timetable' timetable.id %}" hx-target="#dialog">Rename</button>
                     <form action="{% url 'timetable:delete_timetable' timetable.id %}">
                         <button type="submit" class="btn btn-primary">Delete</button>
                     </form>
+                    {% else %}
+                    <form action="{% url 'timetable:remove_timetable' timetable.id %}">
+                        <button type="submit" class="btn btn-primary">Remove</button>
+                    </form>
+                    {% endif %}
                     <button type="submit" class="btn btn-primary" hx-get="{% url 'timetable:share_timetable' timetable.id %}" hx-target="#dialog">Share</button>
                 </div>
             </li>

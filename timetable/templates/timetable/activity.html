@@ -7,11 +7,12 @@
         <div class="modal-body">
             <strong>{{ activity.course }} course {{ activity.activity_type }}</strong><br>
             {{ activity.description }} <br>
-            {{ activity.teacher.teacher_initials }}
+            {{ activity.teacher.teacher_initials }} <br>
+            {{activity.time_start}} - {{activity.time_end}} <br> ({{activity.time_duration}})
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-warning" data-bs-dismiss="modal" hx-confirm="Are you sure you want to delete this activity? This action cannot be undone." hx-get="{% url 'timetable:delete_activity' timetable_id activity.id %}?year={{ request.GET.year }}&month={{ request.GET.month }}&day={{ request.GET.day }}">Delete</button>
-            <button type="button" class="btn btn-primary" hx-get="{% url 'timetable:edit_activity' timetable_id activity.id %}?year={{ request.GET.year }}&month={{ request.GET.month }}&day={{ request.GET.day }}">Edit</button>
+            <button type="button" class="btn btn-warning" data-bs-dismiss="modal" hx-confirm="Are you sure you want to delete this activity? This action cannot be undone." hx-get="{% url 'timetable:delete_activity' timetable_id activity.id %}">Delete</button>
+            <button type="button" class="btn btn-primary" hx-get="{% url 'timetable:edit_activity' timetable_id activity.id %}">Edit</button>
         </div>
     </div>
 </div>

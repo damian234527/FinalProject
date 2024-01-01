@@ -46,7 +46,17 @@
             </div>
             {% endblock %}
             <div class="container mt-4">
-
+                {% if messages %}
+                  <ul class="messages">
+                    {% for message in messages %}
+                      {% if message.tags %}
+                        <li class="{{ message.tags }}">{{ message }}</li>
+                      {% else %}
+                        <li>{{ message }}</li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                {% endif %}
                 {% block content %}{% endblock %}
             </div>
             <div id="modal" class="modal fade">

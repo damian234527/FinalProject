@@ -5,10 +5,42 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
 from django.views import generic
-from .forms import ActivityForm, ActivityTypesForm, TeacherForm, CourseForm, TimetableMergingForm, TimetableRenameForm, EditActivityTypeForm, ICSFileUploadForm
+from .forms import ActivityForm, ActivityTypesForm, TeacherForm, CourseForm, TimetableMergingForm, TimetableRenameForm, EditActivityTypeForm, ICSFileUploadForm, AddExistingTimetableForm
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, Http404
 from django.contrib import messages
 from math import floor, ceil
+
+
+"""
+def check_access_permission(request, timetable_id):
+    user = request.user if request.user.is_authenticated else None
+    access = None
+    if user:
+        access = Timetable_assignment.objects.filter(Q(timetable_id=timetable_id, student=user) | Q(timetable_id=timetable_id, student=None)).exists()
+    else:
+        access = Timetable_assignment.objects.filter(timetable_id=timetable_id, student=None).exists()
+    if access:
+        return True
+    messages.error(request, "No permission to view this timetable")
+    return redirect("timetable:main")
+"""
+
+def check_access_permission(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        timetable_id = kwargs.get('timetable_id')
+        user = request.user if request.user.is_authenticated else None
+        access = None
+        if user:
+            access = Timetable_assignment.objects.filter(Q(timetable_id=timetable_id, student=user) | Q(timetable_id=timetable_id, student=None)).exists()
+        else:
+            access = Timetable_assignment.objects.filter(timetable_id=timetable_id, student=None).exists()
+        if access:
+            return view_func(request, *args, **kwargs)
+        else:
+            messages.error(request, "No permission to view this timetable")
+            return redirect("timetable:main")
+    return _wrapped_view
+
 
 # ======================================================MONTH======================================================
 
@@ -28,6 +60,7 @@ def get_month_calendar(year, month):
             next_month_days_iterator += 1
     return calendar_month
 
+@check_access_permission
 def display_month(request, timetable_id, year=None, month=None):
     current_date = datetime.now()
     current_month = False
@@ -95,7 +128,7 @@ def display_month(request, timetable_id, year=None, month=None):
                    "year": year})
 
 # ======================================================WEEK======================================================
-
+@check_access_permission
 def display_week(request, timetable_id, year=None, week=None):
     if year == None and week == None:
         current_date = datetime.now()
@@ -122,29 +155,42 @@ def display_week(request, timetable_id, year=None, week=None):
     else:
         days_to_add = week * 7 - start_date.weekday()
     first_day_of_week = start_date + timedelta(days=days_to_add)
+    last_day_of_week = start_date + timedelta(days=days_to_add+6)
     calendar_week = [(first_day_of_week + timedelta(days=i)).day for i in range(7)]
     day = first_day_of_week.day
     month = first_day_of_week.month
+    current_date = datetime.now()
+    current_year = current_date.year
+    current_month = current_date.month
+    today = None
     if calendar_week[0]>calendar_week[-1]:
-        second_month = calendar_week[-1].month
+        second_month = last_day_of_week.month
+        if (month == current_month and year == current_year) or (
+                second_month == current_month and year == current_year):
+            today = current_date.day
         return render(request, "timetable/week.html",
                       {"this_week": calendar_week,
                        "timetable_id": timetable_id,
                        "week_number": week,
+                       "day": day,
                        "month": month,
                        "second_month": second_month,
-                       "year": year})
+                       "year": year,
+                       "today": today})
+    if month == current_month and year == current_year:
+        today = current_date.day
     return render(request, "timetable/week.html",
                   {"this_week": calendar_week,
                    "timetable_id": timetable_id,
                    "week_number": week,
                    "day": day,
                    "month": month,
-                   "year": year})
+                   "year": year,
+                   "today": today})
 
 # ======================================================DAY======================================================
 
-
+@check_access_permission
 def display_day(request, timetable_id, year=None, month=None, day=None):
     if year == None and month == None and day==None:
         current_date = datetime.now()
@@ -198,14 +244,16 @@ def get_available_timetables(request):
     public_timetables = Timetable.objects.filter(id__in=not_assigned_timetables.values("timetable_id"))
     return render(request, "timetable/timetable_list.html",
                   {
-                   "username": username,
-                   "user_timetables": user_timetables,
-                   "public_timetables": public_timetables})
+                      "username": username,
+                      "user_timetables": user_timetables,
+                      "public_timetables": public_timetables})
 
+@check_access_permission
 def timetable_details(request, timetable_id):
     timetable = get_object_or_404(Timetable, pk=timetable_id)
     return render(request, "timetable/timetable_details.html", {"timetable_id": timetable_id})
 
+@check_access_permission
 def update_day(request, timetable_id, year, month, day):
     day_date = datetime(year, month, day).date()
     activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
@@ -243,8 +291,9 @@ def update_day(request, timetable_id, year, month, day):
         tracks[track_number].append(activity)
     # print(tracks)
     track_number = len(tracks)
-    track_span = int(5 / track_number)
+    track_span = None
     if track_number != 0:
+        track_span = int(5 / track_number)
         tracks = [tracks, [], []]
         if track_number != 5:
             reserve = True
@@ -259,7 +308,7 @@ def update_day(request, timetable_id, year, month, day):
             tracks[2].append(track_end)
     else:
         track_span = 1
-    print(tracks[0])
+    # print(tracks[0])
     generate_time = request.GET.get("generate", True)
     if generate_time == True:
         timetable_length = 64
@@ -281,7 +330,7 @@ def update_day(request, timetable_id, year, month, day):
                                                                 "date":day_date,
                                                                 "activity_types": activity_types})
     return render(request, "timetable/update_day.html", {
-        "activities": tracks,
+        "activities_tracks": tracks,
         "track_number": track_number,
         "track_span": track_span,
         "timetable_id": timetable_id,
@@ -318,11 +367,20 @@ def upload_new_timetable(request):
 
     return render(request, "timetable/import_ics.html", {"form": upload_new_timetable_form})
 
+@check_access_permission
 def delete_timetable(request, timetable_id):
     timetable = get_object_or_404(Timetable, pk=timetable_id)
     timetable.delete()
     return redirect("timetable:main")
 
+@check_access_permission
+def remove_timetable(request, timetable_id):
+    if request.user:
+        timetable_assignment = get_object_or_404(Timetable_assignment, timetable_id=timetable_id, student=request.user.id)
+        timetable_assignment.delete()
+    return redirect("timetable:main")
+
+@check_access_permission
 def rename_timetable(request, timetable_id):
     timetable = get_object_or_404(Timetable, pk=timetable_id)
     if request.method == "POST":
@@ -334,9 +392,45 @@ def rename_timetable(request, timetable_id):
         rename_form = TimetableRenameForm(instance=timetable)
     return render(request, "timetable/rename_timetable.html", {"rename_form": rename_form})
 
+@check_access_permission
 def share_timetable(request, timetable_id):
+    timetable = Timetable.objects.get(pk=timetable_id)
+    share_link = timetable.share_link
+    author = timetable.author
+    return render(request, "timetable/share_timetable.html", {"share_link": share_link, "author": author, "timetable_id": timetable_id})
 
-    return render(request, "timetable/share_timetable.html")
+@check_access_permission
+def publish_timetable(request, timetable_id):
+    try:
+        current_timetable_assignments = Timetable_assignment.objects.filter(timetable_id=timetable_id)
+        current_timetable_assignments.delete()
+        public_timetable_assignment = Timetable_assignment.objects.create(timetable_id=timetable_id, student_id=None)
+    except:
+        messages.error(request, "Something went wrong when publishing timetable")
+        return redirect("timetable:main")
+    messages.success(request, "Timetable published")
+    return redirect("timetable:main")
+
+def add_existing_timetable(request):
+    user = request.user if request.user.is_authenticated else None
+    if user:
+        if request.method == "POST":
+            add_timetable_form = AddExistingTimetableForm(request.POST)
+            if add_timetable_form.is_valid():
+                entered_link = add_timetable_form.cleaned_data["timetable_link"]
+                timetable = get_object_or_404(Timetable, share_link=entered_link)
+                try:
+                    Timetable_assignment.objects.create(timetable=timetable, student=user)
+                except:
+                    if Timetable_assignment.objects.filter(timetable=timetable, student=user).exists():
+                        messages.warning(request, "Given timetable already added")
+                    else:
+                        messages.error(request, "Something went wrong")
+                messages.success(request, "Timetable added successfully")
+                return HttpResponse(status=204)
+        else:
+            add_timetable_form = AddExistingTimetableForm()
+        return render(request, "timetable/add_existing_timetable.html", {"add_timetable_form": add_timetable_form})
 
 def merge_timetable(request):
     user = request.user if request.user.is_authenticated else None
@@ -357,13 +451,14 @@ def merge_timetable(request):
             for activity in both_timetables_activities:
                 new_activity = Activity.objects.create(time_start=activity.time_start, time_end=activity.time_end, description=activity.description, time_duration=activity.time_duration, timetable=merged_timetable, course=activity.course, activity_type=activity.activity_type)
                 new_activity.teacher.set(activity.teacher.all())
-            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_unchanged'})
+            return HttpResponse(status=204)
     else:
         merge_timetable_form = TimetableMergingForm(user)
     return render(request, "timetable/merge_timetable.html", {"merge_timetable_form": merge_timetable_form})
 
 # ======================================================ACTIVITY======================================================
 
+@check_access_permission
 def add_activity(request, timetable_id):
     user = request.user if request.user.is_authenticated else None
     try:
@@ -371,17 +466,19 @@ def add_activity(request, timetable_id):
     except Timetable.DoesNotExist:
         raise Http404("Timetable does not exist")
     if request.method == "POST":
-        create_new_activity_form = ActivityForm(user, request.POST)
+        create_new_activity_form = ActivityForm(user, True, request.POST)
         if create_new_activity_form.is_valid():
             activity = create_new_activity_form.save(commit=False)
+            activity.time_duration = activity.time_end - activity.time_end
             activity.timetable = timetable
             activity.save()
             return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
     else:
-        create_new_activity_form = ActivityForm(user)
+        create_new_activity_form = ActivityForm(user, True)
 
     return render(request, "timetable/add_activity.html", {"activity_form": create_new_activity_form})
 
+@check_access_permission
 def edit_activity(request, timetable_id, activity_id):
     user = request.user if request.user.is_authenticated else None
     current_activity = get_object_or_404(Activity, pk=activity_id)
@@ -389,16 +486,22 @@ def edit_activity(request, timetable_id, activity_id):
         edit_activity_form = ActivityForm(user, request.POST, instance=current_activity)
         if edit_activity_form.is_valid():
             edit_activity_form.save()
+            messages.success(request, "Activity edited successfully")
             return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+        else:
+            messages.error(request, "Something went wrong when editing activity")
     else:
-        edit_activity_form = ActivityForm(user, instance=current_activity)
+        edit_activity_form = ActivityForm(user, get_time_now=True, instance=current_activity)
+
     return render(request, "timetable/edit_activity.html", {"activity_form": edit_activity_form})
 
+@check_access_permission
 def delete_activity(request, timetable_id, activity_id):
     activity = get_object_or_404(Activity, pk=activity_id)
     activity.delete()
     return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
 
+@check_access_permission
 def activity_details(request, timetable_id, activity_id):
     # print(request.GET)
     activity = get_object_or_404(Activity, pk=activity_id)
@@ -445,10 +548,12 @@ def edit_activity_type(request, activity_type_id):
 
 
 # ======================================================COURSE======================================================
+@check_access_permission
 def course_details(request, timetable_id, course_initials):
     course = get_object_or_404(Course, course_initials = course_initials)
     return render(request, "timetable/course.html", {"course": course, "timetable_id": timetable_id})
 
+@check_access_permission
 def edit_course(request, timetable_id, course_initials):
     current_course = get_object_or_404(Course, course_initials=course_initials)
     if request.method == "POST":
@@ -462,7 +567,10 @@ def edit_course(request, timetable_id, course_initials):
         edit_course_form = CourseForm(instance=current_course)
     return render(request, "timetable/edit_course.html", {"course_form": edit_course_form})
 
+@check_access_permission
 def delete_course(request, timetable_id, course_initials):
     activity = get_object_or_404(Course, course_initials = course_initials)
     activity.delete()
-    return redirect("timetable:main")
+    return HttpResponse(status=204)
+
+

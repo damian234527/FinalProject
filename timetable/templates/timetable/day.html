@@ -4,25 +4,6 @@
 {% block title %}Day Timetable {{ day }}.{{ month }}.{{ year }}{% endblock %}
 
 {% block content %}
-<style>
-    .btn{
-        width: 6vw;
-        max-width: 100%;
-        padding: 1vw;
-    }
-
-    .btn-text{
-        font-size: .9vw;
-    }
-
-    .checkbox-text{
-        font-size: 1.2vw;
-    }
-    .text{
-        font-size: 1vw;
-        text-align: left;
-    }
-</style>
     <div class="grid-container">
         <div class="header">
             <h1>Timetable</h1>
@@ -39,28 +20,28 @@
                         </label>
                     </div>
                 {% endfor %}
-                <button type="submit" class="btn btn-info"><strong class="btn-text">Submit</strong></button>
+                <button type="submit" class="btn btn-info btn-resp"><strong class="btn-text">Submit</strong></button>
             </form>
         </div>
         <div class="calendar-navigation">
                 <form action="{% url 'timetable:display_day' timetable_id year month day %}" method="post">
                     {% csrf_token %}
                     <div class="btn-group">
-                        <button type="submit" class="btn btn-info" formaction="{% url 'timetable:details' timetable_id %}"><strong class="btn-text">Return</strong></button>
-                        <button type="submit" class="btn btn-info" formaction="{% url 'timetable:display_month' timetable_id year month %} "><strong class="btn-text">Month</strong></button>
-                        <button type="submit" class="btn btn-info" formaction="{% url 'timetable:display_week_for_day' timetable_id year %}" name="day_and_month" value={{day}}_{{month}}><strong class="btn-text">Week</strong></button>
+                        <button type="submit" class="btn btn-info btn-resp" formaction="{% url 'timetable:details' timetable_id %}"><strong class="btn-text">Return</strong></button>
+                        <button type="submit" class="btn btn-info btn-resp" formaction="{% url 'timetable:display_month' timetable_id year month %} "><strong class="btn-text">Month</strong></button>
+                        <button type="submit" class="btn btn-info btn-resp" formaction="{% url 'timetable:display_week_for_day' timetable_id year %}" name="day_and_month" value={{day}}_{{month}}><strong class="btn-text">Week</strong></button>
                     </div>
                     <br>
                     <div class="btn-group">
-                        <button type="submit" class="btn btn-primary" name="change_value" value="-7"><strong class="btn-text"><<</strong></button>
-                        <button type="submit" class="btn btn-primary" name="change_value" value="-1"><strong class="btn-text"><</strong></button>
-                        <button type="submit" class="btn btn-primary" name="change_value" value="1"><strong class="btn-text">></strong></button>
-                        <button type="submit" class="btn btn-primary" name="change_value" value="7"><strong class="btn-text">>></strong></button>
+                        <button type="submit" class="btn btn-primary btn-resp" name="change_value" value="-7"><strong class="btn-text"><<</strong></button>
+                        <button type="submit" class="btn btn-primary btn-resp" name="change_value" value="-1"><strong class="btn-text"><</strong></button>
+                        <button type="submit" class="btn btn-primary btn-resp" name="change_value" value="1"><strong class="btn-text">></strong></button>
+                        <button type="submit" class="btn btn-primary btn-resp" name="change_value" value="7"><strong class="btn-text">>></strong></button>
                     </div>
 
                     <div>
                         <br>
-                        <button class="btn btn-primary" hx-get="{% url 'timetable:add_activity' timetable_id %}" hx-target="#dialog">
+                        <button class="btn btn-primary btn-resp" hx-get="{% url 'timetable:add_activity' timetable_id %}" hx-target="#dialog">
                             <strong class="btn-text">New activity</strong>
                         </button>
                     </div>
