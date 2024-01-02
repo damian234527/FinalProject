@@ -12,16 +12,19 @@ urlpatterns = [
     # display_month
     path("timetable/<int:timetable_id>/month/", views.display_month, name="display_current_month"),
     path("timetable/<int:timetable_id>/<int:year>/<int:month>/", views.display_month, name="display_month"),
+    path("timetable/<int:timetable_id>/<int:year>/<int:month>/statistics/", views.month_stats, name="month_stats"),
     path("timetable/<int:timetable_id>/<int:year>/M/", views.display_month, name="display_month_for_week"),
 
     # display_week
     path("timetable/<int:timetable_id>/week/", views.display_week, name="display_current_week"),
     path("timetable/<int:timetable_id>/<int:year>/W<int:week>/", views.display_week, name="display_week"),
+    path("timetable/<int:timetable_id>/<int:year>/W<int:week>/statistics/", views.week_stats, name="week_stats"),
     path("timetable/<int:timetable_id>/<int:year>/W/", views.display_week, name="display_week_for_day"),
 
     # display_day
     path("timetable/<int:timetable_id>/day/", views.display_day, name="display_current_day"),
     path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/", views.display_day, name="display_day"),
+    path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/statistics/", views.day_stats, name="day_stats"),
     path("timetable/<int:timetable_id>/<int:year>/<int:month>/<int:day>/update/", views.update_day, name="update_day"),
 
     # timetable list actions

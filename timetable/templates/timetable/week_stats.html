@@ -1,0 +1,20 @@
+ <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="weekStatsModalLabel">Week statistics</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <strong>Activities total number:</strong> {{activities_total}} <br>
+            <strong>Activities total duration:</strong> {{activities_duration}} <br>
+            <strong>Specific activity types summary:</strong> <br>
+            {% for activity_type in activity_types %}
+            {{activity_type.activity_type__type_name}} - {{activity_type.activity_count}} ({{activity_type.total_duration}}) <br>
+            {% endfor %}
+        </div>
+        <div class="modal-footer">
+
+        </div>
+    </div>
+ </div>
+

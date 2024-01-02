@@ -1,7 +1,7 @@
+{% load timetable_extras %}
 {% if timetable_times %}
 {% for time in timetable_times %}
-{% load timetable_extras %}
-<div class="time-column" style="grid-row: {{time|date:'Hi'}}" >{{ time|date:'H:i'}}</div>
+<div class="time-column" style="grid-row: {{time|date:'Hi'}}; font-size: 1.2vw;" >{{ time|date:'H:i'}}</div>
 {% endfor %}
 {% endif %}
 {% for activities in activities_tracks.0 %}

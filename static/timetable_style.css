@@ -1,13 +1,15 @@
     body {
         font-family: Arial, sans-serif;
-        .btn-resp{
+    }
+
+    .btn-resp{
         width: 6vw;
         max-width: 100%;
         padding: 1vw;
     }
 
-    .button-text{
-        font-size: .9vw;
+    .btn-text{
+        font-size: 1.1vw;
     }
 
     .checkbox-text{
@@ -23,7 +25,7 @@
 
     .time-column {
         grid-column: time;
-        width: 8rem;
+        width: 6rem;
         border-right: 0.2rem solid #ddd;
     }
 
@@ -180,4 +182,20 @@
     font-size: 2vw;
     word-wrap: break-word;
     word-break: break-all;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: center;
+      padding: 10px;
+      width: 14.2857%; /* 7days in row (100/7=14.2857) */
+      height: 50px;
+      border: 2px solid #000; /* calendar borders */
+    }
+
+    .month-calendar{
+        grid-area: schedule
     }

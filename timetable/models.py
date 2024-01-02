@@ -142,7 +142,7 @@ class Activity_type(models.Model):
                    "#273BAB",
                    "#91214E",
                    "#8B9669",
-                   "#C2C042",
+                   "#495ED5",
                    "#FF0000"]
     def __str__(self):
         return self.type_name
@@ -158,7 +158,7 @@ class Activity(models.Model):
     time_start = models.DateTimeField()
     time_end = models.DateTimeField()
     description = models.CharField(max_length=255)
-    time_duration = models.DurationField()
+    time_duration = models.DurationField(blank=True)
     timetable = models.ForeignKey(Timetable, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
     activity_type = models.ForeignKey(Activity_type, on_delete=models.CASCADE, null=True, blank=True)

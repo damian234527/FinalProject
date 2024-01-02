@@ -1,17 +1,17 @@
 .aspectwrapper {
-  display: inline-block; /* shrink to fit */
-  width: 100%;           /* whatever width you like */
-  position: relative;    /* so .content can use position: absolute */
+  display: inline-block;
+  width: 100%;
+  position: relative;
 }
 .aspectwrapper::after {
-  padding-top: 100%; /* percentage of containing block _width_ */
+  padding-top: 100%;
   display: block;
   content: '';
 }
 .content {
   position: absolute;
-  top: 0; bottom: 0; right: 0; left: 0;  /* follow the parent's edges */
-  outline: thin dashed green;            /* just so you can see the box */
+  top: 0; bottom: 0; right: 0; left: 0;
+  outline: thin dashed green;
   overflow: hidden;
 }
 body {
@@ -31,32 +31,9 @@ th, td {
   border: 2px solid #000; /* calendar borders */
 }
 
-
-
-/* The animation code */
-@keyframes example {
-  0%   {background-color:rgb(255, 0, 0); left:0px; top:0px;}
-  20%  {background-color:rgb(255, 255, 0); left:400px; top:400px;}
-  40%  {background-color:rgb(255, 255, 255); left:400px; top:0px;}
-  60%  {background-color:rgb(0, 255, 255); left:0px; top:400px;}
-  80% {background-color:rgb(0, 0, 255); left:0px; top:0px;}
-  100% {background-color:rgb(255, 0, 0); left:0px; top:0px;}
-  }
-  
-  /* The element to apply the animation to */
-#animated-div {
-  width: 100px;
-  height: 100px;
-  background-color: red;
-  position: relative;
-  animation-name: example;
-  animation-duration: 6s;
-  animation-iteration-count: infinite;
-  }
-
 input[type=text], input[type=email], input[type=number] {
   border: 2px solid red;
-  border-radius: 6px; 
+  border-radius: 6px;
 }
 
 input[type=button], input[type=submit], input[type=reset] {
@@ -68,4 +45,3 @@ input[type=button], input[type=submit], input[type=reset] {
   text-decoration: none;
   margin: 4px 2px;
   cursor: pointer;
-}

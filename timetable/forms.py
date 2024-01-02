@@ -22,7 +22,9 @@ class ActivityForm(forms.ModelForm):
                   "time_end",
                   "description",
                   "course",
-                  "activity_type"]
+                  "activity_type",
+                  "time_duration"]
+        widgets = {"time_duration": forms.HiddenInput()}
 
     def __init__(self, user, *args, get_time_now=False, **kwargs):
         super(ActivityForm, self).__init__(*args, **kwargs)

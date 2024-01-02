@@ -5,38 +5,49 @@
 {% block content %}
 <div class="grid-container">
     <div class="header">
-        <h1>Timetable Week {{ week_number }} {{ year }}</h1>
+        <h1>Timetable</h1>
+        <h2>Week {{ week_number }} {{ year }}</h2>
     </div>
     <div class="calendar-settings">
-        <form id="activityTypeForm" method="GET" hx-get="{% url 'timetable:update_day' timetable_id year month day %}" hx-indicator="#loading-indicator" hx-target="#grid-day">
-            {% csrf_token %}
-            {% for activity_type in activity_types %}
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="activity_types" value="{{ activity_type.id }}" id="activity_type{{ activity_type.id }}" onchange="document.getElementById('activityTypeForm').submit()" {% if activity_type.id in selected_activity_types %}checked{% endif %}>
-                    <label class="form-check-label" for="activity_type{{ activity_type.id }}">
-                        {{ activity_type.type_name }}
-                    </label>
-                </div>
-            {% endfor %}
-        </form>
+    <form id="activityTypeForm" hx-post="{% url 'timetable:update_day' timetable_id year month day %}" hx-indicator="#loading-indicator" hx-target="#grid-week">
+        {% csrf_token %}
+        {% for activity_type in activity_types %}
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="activity_types" value="{{ activity_type.id }}" id="activity_type{{ activity_type.id }}" checked>
+                <label class="form-check-label" for="activity_type{{ activity_type.id }}">
+                    <strong class="checkbox">{{ activity_type.type_name }}</strong>
+                </label>
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-info btn-resp"><strong class="btn-text">Submit</strong></button>
+    </form>
     </div>
     <div class="calendar-navigation">
         <form action="{% url 'timetable:display_week' timetable_id year week_number %}" method="post">
             {% csrf_token %}
             <div class="btn-group">
-                <button type="submit" class="btn btn-info" formaction="{% url 'timetable:details' timetable_id %}">Return</button>
-                <button type="submit" class="btn btn-info" formaction="{% url 'timetable:display_month_for_week' timetable_id year %}" name="week_number" value={{week_number}}>Month</button>
+                <button type="submit" class="btn btn-info btn-resp" formaction="{% url 'timetable:details' timetable_id %}"><strong class="btn-text">Return</strong></button>
+                <button type="submit" class="btn btn-info btn-resp" formaction="{% url 'timetable:display_month_for_week' timetable_id year %}" name="week_number" value={{week_number}}><strong class="btn-text">Month</strong></button>
             </div>
             <br>
             <div class="btn-group">
-                <button type="submit" class="btn btn-primary" name="change_value" value="-2"><<</button>
-                <button type="submit" class="btn btn-primary" name="change_value" value="-1"><</button>
-                <button type="submit" class="btn btn-primary" name="change_value" value="1">></button>
-                <button type="submit" class="btn btn-primary" name="change_value" value="2">>></button>
+                <button type="submit" class="btn btn-primary btn-resp" name="change_value" value="-2"><strong class="btn-text"><<</strong></button>
+                <button type="submit" class="btn btn-primary btn-resp" name="change_value" value="-1"><strong class="btn-text"><</strong></button>
+                <button type="submit" class="btn btn-primary btn-resp" name="change_value" value="1"><strong class="btn-text">></strong></button>
+                <button type="submit" class="btn btn-primary btn-resp" name="change_value" value="2"><strong class="btn-text">>></strong></button>
             </div>
         </form>
+        <br>
+        <div class="btn-group">
+            <button class="btn btn-primary btn-resp" hx-get="{% url 'timetable:add_activity' timetable_id %}" hx-target="#dialog">
+                <strong class="btn-text">New activity</strong>
+            </button>
+            <button class="btn btn-primary btn-resp" hx-get="{% url 'timetable:week_stats' timetable_id year week_number %}" hx-target="#dialog">
+                <strong class="btn-text">Week stats</strong>
+            </button>
+        </div>
     </div>
-    <div class="grid-week">
+    <div class="grid-week" id="grid-week">
         <div class="week-day">Mon</div>
         <div class="week-day">Tue</div>
         <div class="week-day">Wed</div>
@@ -69,7 +80,6 @@
         {% endif %}
         {% endif %}
         </div>
-
         <div class="week-timetable">
             {% if second_month %}
             {% if day < 7 %}

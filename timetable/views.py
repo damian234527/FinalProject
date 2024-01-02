@@ -2,7 +2,7 @@ import calendar
 from datetime import datetime, timedelta, time
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Q
+from django.db.models import Q, Count, Sum
 from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
 from django.views import generic
 from .forms import ActivityForm, ActivityTypesForm, TeacherForm, CourseForm, TimetableMergingForm, TimetableRenameForm, EditActivityTypeForm, ICSFileUploadForm, AddExistingTimetableForm
@@ -127,6 +127,28 @@ def display_month(request, timetable_id, year=None, month=None):
                    "month": month,
                    "year": year})
 
+def month_stats(request, timetable_id, year, month):
+    start_date = datetime(year, month, 1)
+    if month != 12:
+        end_date = datetime(year, month + 1, 1)
+    else:
+        end_date = datetime(year + 1, 1, 1)
+    # Total number of activities
+    total_activities = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).count()
+    # Total duration of activities
+    total_duration = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).aggregate(Sum('time_duration'))['time_duration__sum']
+    # Number and duration of activities by each activity_type
+    activity_type_summary = (
+        Activity.objects
+        .filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date)
+        .values('activity_type__type_name')
+        .annotate(
+            activity_count=Count('id'),
+            total_duration=Sum('time_duration')
+        )
+    )
+    return render(request, "timetable/month_stats.html", {"activities_total": total_activities, "activities_duration":total_duration, "activity_types": activity_type_summary})
+
 # ======================================================WEEK======================================================
 @check_access_permission
 def display_week(request, timetable_id, year=None, week=None):
@@ -163,6 +185,7 @@ def display_week(request, timetable_id, year=None, week=None):
     current_year = current_date.year
     current_month = current_date.month
     today = None
+    activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
     if calendar_week[0]>calendar_week[-1]:
         second_month = last_day_of_week.month
         if (month == current_month and year == current_year) or (
@@ -176,7 +199,8 @@ def display_week(request, timetable_id, year=None, week=None):
                        "month": month,
                        "second_month": second_month,
                        "year": year,
-                       "today": today})
+                       "today": today,
+                       "activity_types": activity_types})
     if month == current_month and year == current_year:
         today = current_date.day
     return render(request, "timetable/week.html",
@@ -186,7 +210,26 @@ def display_week(request, timetable_id, year=None, week=None):
                    "day": day,
                    "month": month,
                    "year": year,
-                   "today": today})
+                   "today": today,
+                   "activity_types": activity_types})
+
+def week_stats(request, timetable_id, year, week):
+    # Assuming 'year' and 'week' are parameters in your URL
+    start_date = datetime.strptime(f'{year}-{week}-1', "%Y-%W-%w").replace()
+    end_date = start_date + timedelta(days=7)
+    total_activities = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).count()
+    total_duration = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).aggregate(Sum('time_duration'))['time_duration__sum']
+    activity_type_summary = (
+        Activity.objects
+        .filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date)
+        .values('activity_type__type_name')
+        .annotate(
+            activity_count=Count('id'),
+            total_duration=Sum('time_duration')
+        )
+    )
+    return render(request, "timetable/week_stats.html", {"activities_total": total_activities, "activities_duration":total_duration, "activity_types": activity_type_summary})
+
 
 # ======================================================DAY======================================================
 
@@ -228,6 +271,21 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
                                                                 "year": year,
                                                                 "activity_types": activity_types})
 
+def day_stats(request, timetable_id, year, month, day):
+    start_date = datetime(int(year), int(month), int(day))
+    end_date = start_date + timedelta(days=1)
+    total_activities = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).count()
+    total_duration = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).aggregate(Sum('time_duration'))['time_duration__sum']
+    activity_type_summary = (
+        Activity.objects
+        .filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date)
+        .values('activity_type__type_name')
+        .annotate(
+            activity_count=Count('id'),
+            total_duration=Sum('time_duration')
+        )
+    )
+    return render(request, "timetable/day_stats.html", {"activities_total": total_activities, "activities_duration":total_duration, "activity_types": activity_type_summary})
 
 # ======================================================TIMETABLE======================================================
 
@@ -310,6 +368,8 @@ def update_day(request, timetable_id, year, month, day):
         track_span = 1
     # print(tracks[0])
     generate_time = request.GET.get("generate", True)
+    if generate_time == "False":
+        generate_time = False
     if generate_time == True:
         timetable_length = 64
         timetable_times = [None] * timetable_length
@@ -466,15 +526,15 @@ def add_activity(request, timetable_id):
     except Timetable.DoesNotExist:
         raise Http404("Timetable does not exist")
     if request.method == "POST":
-        create_new_activity_form = ActivityForm(user, True, request.POST)
+        create_new_activity_form = ActivityForm(user, request.POST)
         if create_new_activity_form.is_valid():
             activity = create_new_activity_form.save(commit=False)
-            activity.time_duration = activity.time_end - activity.time_end
+            activity.time_duration = activity.time_end - activity.time_start
             activity.timetable = timetable
             activity.save()
             return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
     else:
-        create_new_activity_form = ActivityForm(user, True)
+        create_new_activity_form = ActivityForm(user, get_time_now=True)
 
     return render(request, "timetable/add_activity.html", {"activity_form": create_new_activity_form})
 
@@ -485,7 +545,9 @@ def edit_activity(request, timetable_id, activity_id):
     if request.method == "POST":
         edit_activity_form = ActivityForm(user, request.POST, instance=current_activity)
         if edit_activity_form.is_valid():
-            edit_activity_form.save()
+            activity = edit_activity_form.save(commit=False)
+            activity.time_duration = current_activity.time_end - current_activity.time_start
+            activity.save()
             messages.success(request, "Activity edited successfully")
             return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
         else:

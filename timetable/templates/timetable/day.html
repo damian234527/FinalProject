@@ -41,9 +41,14 @@
 
                     <div>
                         <br>
-                        <button class="btn btn-primary btn-resp" hx-get="{% url 'timetable:add_activity' timetable_id %}" hx-target="#dialog">
-                            <strong class="btn-text">New activity</strong>
-                        </button>
+                        <div class="btn-group">
+                            <button class="btn btn-primary btn-resp" hx-get="{% url 'timetable:add_activity' timetable_id %}" hx-target="#dialog">
+                                <strong class="btn-text">New activity</strong>
+                            </button>
+                            <button class="btn btn-primary btn-resp" hx-get="{% url 'timetable:day_stats' timetable_id year month day %}" hx-target="#dialog">
+                                <strong class="btn-text">Day stats</strong>
+                            </button>
+                        </div>
                     </div>
                 </form>
         </div>
