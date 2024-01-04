@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
 <h1>Select mode</h1>
 <form action="{% url 'timetable:display_current_month' timetable_id %}" method="post">
     {% csrf_token %}

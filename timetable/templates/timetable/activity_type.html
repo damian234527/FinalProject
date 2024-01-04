@@ -5,11 +5,21 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+            {% if messages %}
+              <ul class="messages">
+                {% for message in messages %}
+                  {% if message.tags %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                  {% else %}
+                    <li>{{ message }}</li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            {% endif %}
             <strong>{{ activity_type.type_name }}</strong> ({{activity_type.type_name_pl}})<br>
             <p>{{activity_type.type_description}}</p>
         </div>
         <div class="modal-footer">
-
             <button type="button" class="btn btn-primary" hx-get="{% url 'timetable:edit_activity_type' activity_type.id %}">Edit</button>
         </div>
     </div>

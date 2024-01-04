@@ -5,12 +5,23 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+            {% if messages %}
+              <ul class="messages">
+                {% for message in messages %}
+                  {% if message.tags %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                  {% else %}
+                    <li>{{ message }}</li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            {% endif %}
             <strong>{{course.course_name}}</strong>
             <br>
             ({{course.course_initials}})
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-warning" hx-get="{% url 'timetable:delete_course' timetable_id course.course_initials %}">Delete</button>
+            <button type="button" class="btn btn-warning" hx-confirm="Are you sure you want to delete this activity? This action cannot be undone." hx-get="{% url 'timetable:delete_course' timetable_id course.course_initials %}">Delete</button>
             <button type="button" class="btn btn-primary" hx-get="{% url 'timetable:edit_course' timetable_id course.course_initials %}">Edit</button>
         </div>
     </div>

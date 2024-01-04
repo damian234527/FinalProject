@@ -116,7 +116,7 @@ class Course(models.Model):
 
 class Activity_type(models.Model):
     type_name_pl = models.CharField(max_length=100, default="def")
-    type_name = models.CharField(max_length=100, default=type_name_pl, blank=True)
+    type_name = models.CharField(max_length=100, default=type_name_pl, blank=True, unique=True)
     type_description = models.CharField(max_length=255, default="This is default type when no information provided")
     type_color = models.CharField(max_length=10, default="#D7D3BA")
 

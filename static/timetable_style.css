@@ -71,13 +71,12 @@
         display: grid;
         column-gap: .1rem;
         grid-template-columns:
-        [time] .7fr
+        [time] .6fr
         [track1] 1fr
         [track2] 1fr
         [track3] 1fr
         [track4] 1fr
-        [track5] 1fr
-        [track6] .1fr;
+        [track5] 1fr;
         grid-template-rows:
         [0800] 1fr
         [0815] 1fr

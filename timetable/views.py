@@ -1,29 +1,12 @@
 import calendar
 from datetime import datetime, timedelta, time
-from django.urls import reverse, reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q, Count, Sum
 from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
-from django.views import generic
 from .forms import ActivityForm, ActivityTypesForm, TeacherForm, CourseForm, TimetableMergingForm, TimetableRenameForm, EditActivityTypeForm, ICSFileUploadForm, AddExistingTimetableForm
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib import messages
-from math import floor, ceil
 
-
-"""
-def check_access_permission(request, timetable_id):
-    user = request.user if request.user.is_authenticated else None
-    access = None
-    if user:
-        access = Timetable_assignment.objects.filter(Q(timetable_id=timetable_id, student=user) | Q(timetable_id=timetable_id, student=None)).exists()
-    else:
-        access = Timetable_assignment.objects.filter(timetable_id=timetable_id, student=None).exists()
-    if access:
-        return True
-    messages.error(request, "No permission to view this timetable")
-    return redirect("timetable:main")
-"""
 
 def check_access_permission(view_func):
     def _wrapped_view(request, *args, **kwargs):
@@ -322,7 +305,7 @@ def update_day(request, timetable_id, year, month, day):
     # print(tracks)
     track_number = len(tracks)
     tracks_width = [None] * 5
-    if track_number == 1:
+    if track_number == 1 or track_number == 0:
         tracks_width = [5, 0, 0, 0, 0]
     elif track_number == 2:
         tracks_width = [3, 2, 0, 0, 0]
@@ -332,6 +315,7 @@ def update_day(request, timetable_id, year, month, day):
         tracks_width = [2, 1, 1, 1, 0]
     else:
         tracks_width = [1, 1, 1, 1, 1]
+
     # print(tracks[0])
     timetable_length = 64
     timetable_times = [None] * timetable_length
@@ -427,15 +411,21 @@ def upload_new_timetable(request):
 
 @check_access_permission
 def delete_timetable(request, timetable_id):
-    timetable = get_object_or_404(Timetable, pk=timetable_id)
-    timetable.delete()
+    try:
+        timetable = get_object_or_404(Timetable, pk=timetable_id)
+        timetable.delete()
+    except Exception as e:
+        messages.error(request, "Something went wrong when removing timetable", e)
     return redirect("timetable:main")
 
 @check_access_permission
 def remove_timetable(request, timetable_id):
-    if request.user:
-        timetable_assignment = get_object_or_404(Timetable_assignment, timetable_id=timetable_id, student=request.user.id)
-        timetable_assignment.delete()
+    try:
+        if request.user:
+            timetable_assignment = get_object_or_404(Timetable_assignment, timetable_id=timetable_id, student=request.user.id)
+            timetable_assignment.delete()
+    except Exception as e:
+        messages.error(request, "Something went wrong when removing timetable", e)
     return redirect("timetable:main")
 
 @check_access_permission
@@ -463,8 +453,8 @@ def publish_timetable(request, timetable_id):
         current_timetable_assignments = Timetable_assignment.objects.filter(timetable_id=timetable_id)
         current_timetable_assignments.delete()
         public_timetable_assignment = Timetable_assignment.objects.create(timetable_id=timetable_id, student_id=None)
-    except:
-        messages.error(request, "Something went wrong when publishing timetable")
+    except Exception as e:
+        messages.error(request, "Something went wrong when publishing timetable", e)
         return redirect("timetable:main")
     messages.success(request, "Timetable published")
     return redirect("timetable:main")
@@ -557,9 +547,12 @@ def edit_activity(request, timetable_id, activity_id):
 
 @check_access_permission
 def delete_activity(request, timetable_id, activity_id):
-    activity = get_object_or_404(Activity, pk=activity_id)
-    activity.delete()
-    return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+    try:
+        activity = get_object_or_404(Activity, pk=activity_id)
+        activity.delete()
+        return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+    except Exception as e:
+        messages.error(request, "Something went wrong when deleting activity: ", e)
 
 @check_access_permission
 def activity_details(request, timetable_id, activity_id):
@@ -580,7 +573,7 @@ def edit_teacher(request, name_surname_initials):
         if edit_teacher_form.is_valid():
             edited_teacher = edit_teacher_form.save()
             # print(edited_teacher)
-            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_unchanged'})
+            return HttpResponse(status=204)
     else:
         edit_teacher_form = TeacherForm(instance=current_teacher)
 
@@ -620,7 +613,7 @@ def edit_course(request, timetable_id, course_initials):
         edit_course_form = CourseForm(request.POST, instance=current_course)
         if edit_course_form.is_valid():
             edit_course_form.save()
-            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_unchanged'})
+            return HttpResponse(status=204)
         else:
             messages.error(request, "Something went wrong: ", edit_course_form.errors)
     else:
@@ -629,38 +622,10 @@ def edit_course(request, timetable_id, course_initials):
 
 @check_access_permission
 def delete_course(request, timetable_id, course_initials):
-    activity = get_object_or_404(Course, course_initials = course_initials)
-    activity.delete()
-    return HttpResponse(status=204)
+    try:
+        activity = get_object_or_404(Course, course_initials = course_initials)
+        activity.delete()
+        return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+    except Exception as e:
+        messages.error(request, "Something went wrong when deleting course: ", e)
 
-
-"""
-update_week_legacy
-
-first_day = datetime(year, month, day)
-second_month = True if (first_day + timedelta(days=6)).month == first_day.month else None
-selected_activity_types = None
-if request.method == "POST":
-    selected_activity_types = request.POST.getlist('activity_types', [])
-else:
-    selected_activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
-week_day = [None] * 7
-print("1")
-if second_month:
-    in_second_month = False
-    second_month_day = 1
-    for i in range(7):
-        if not in_second_month:
-            try:
-               week_day[i] = update_day(request, timetable_id, year, month, day + i, selected_activity_types)
-            except:
-                in_second_month = True
-                week_day[i] = update_day(request, timetable_id, year, second_month, second_month_day, selected_activity_types)
-                second_month_day += 1
-        else:
-            week_day[i] = update_day(request, timetable_id, year, second_month, second_month_day, selected_activity_types)
-            second_month_day += 1
-else:
-    for i in range(7):
-        week_day[i] = update_day(request, timetable_id, year, month, day + i, selected_activity_types)
-"""

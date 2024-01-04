@@ -1,21 +1,31 @@
 {% load timetable_extras %}
-<style>
-    .grid-day {
-        grid-template-columns:
-        [time] .6fr
-        [track1] {{tracks_width.0}}fr
-        [track2] {{tracks_width.1}}fr
-        [track3] {{tracks_width.2}}fr
-        [track4] {{tracks_width.3}}fr
-        [track5] {{tracks_width.4}}fr
-        [track6] .1fr;
-    }
-</style>
 {% if generate_time %}
+    <style>
+        .grid-day {
+            grid-template-columns:
+            [time] .6fr
+            [track1] {{tracks_width.0}}fr
+            [track2] {{tracks_width.1}}fr
+            [track3] {{tracks_width.2}}fr
+            [track4] {{tracks_width.3}}fr
+            [track5] {{tracks_width.4}}fr;
+        }
+    </style>
     {% for time in timetable_times %}
     <div class="time-column" style="grid-row: {{time|date:'Hi'}}; font-size: 1.2vw;" >{{ time|date:'H:i'}}</div>
     {% endfor %}
 {% else %}
+    <style>
+        .grid-day {
+            grid-template-columns:
+            [time] 0fr
+            [track1] {{tracks_width.0}}fr
+            [track2] {{tracks_width.1}}fr
+            [track3] {{tracks_width.2}}fr
+            [track4] {{tracks_width.3}}fr
+            [track5] {{tracks_width.4}}fr;
+        }
+    </style>
     {% for time in timetable_times %}
     <div style="grid-row: {{time|date:'Hi'}};" ></div>
     {% endfor %}
