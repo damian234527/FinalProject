@@ -171,46 +171,11 @@ def display_week(request, timetable_id, year=None, week=None):
             date = datetime(year, month, day)
             week = date.isocalendar()[1]
             return redirect('timetable:display_week', timetable_id, year, week)
-    start_date = datetime(year, 1, 1)
-    if start_date.weekday() <= 3:
-        days_to_add = (week - 1) * 7 - start_date.weekday()
-    else:
-        days_to_add = week * 7 - start_date.weekday()
-    first_day_of_week = start_date + timedelta(days=days_to_add)
-    last_day_of_week = start_date + timedelta(days=days_to_add+6)
-    calendar_week = [(first_day_of_week + timedelta(days=i)).day for i in range(7)]
-    day = first_day_of_week.day
-    month = first_day_of_week.month
-    current_date = datetime.now()
-    current_year = current_date.year
-    current_month = current_date.month
-    today = None
     activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
-    if calendar_week[0]>calendar_week[-1]:
-        second_month = last_day_of_week.month
-        if (month == current_month and year == current_year) or (
-                second_month == current_month and year == current_year):
-            today = current_date.day
-        return render(request, "timetable/week.html",
-                      {"this_week": calendar_week,
-                       "timetable_id": timetable_id,
-                       "week_number": week,
-                       "day": day,
-                       "month": month,
-                       "second_month": second_month,
-                       "year": year,
-                       "today": today,
-                       "activity_types": activity_types})
-    if month == current_month and year == current_year:
-        today = current_date.day
     return render(request, "timetable/week.html",
-                  {"this_week": calendar_week,
-                   "timetable_id": timetable_id,
+                  {"timetable_id": timetable_id,
                    "week_number": week,
-                   "day": day,
-                   "month": month,
                    "year": year,
-                   "today": today,
                    "activity_types": activity_types})
 
 def week_stats(request, timetable_id, year, week):
@@ -314,12 +279,19 @@ def timetable_details(request, timetable_id):
 @check_access_permission
 def update_day(request, timetable_id, year, month, day):
     day_date = datetime(year, month, day).date()
-    activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
-    selected_activity_types = None
-    if request.method == "POST":
-        selected_activity_types = request.POST.getlist('activity_types', [])
+    generate_time = request.GET.get("generate", True)
+    if generate_time == "False":
+        generate_time = False
+    selected_activity_types = request.GET.get("types", None)
+    if selected_activity_types:
+        selected_activity_types = eval(selected_activity_types)
     else:
-        selected_activity_types = activity_types
+        activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
+        if request.method == "POST":
+            selected_activity_types = request.POST.getlist('activity_types', [])
+        else:
+            selected_activity_types = activity_types
+
     # timetable_times = [time(hour=9, minute=0), time(hour=9, minute=15), time(hour=9, minute=30), time(hour=9, minute=45), time(hour=10, minute=0)]
     day_activities = Activity.objects.filter(
         Q(timetable_id=timetable_id) & (Q(time_start__date=day_date) | Q(time_end__date=day_date)),
@@ -349,56 +321,82 @@ def update_day(request, timetable_id, year, month, day):
         tracks[track_number].append(activity)
     # print(tracks)
     track_number = len(tracks)
-    track_span = None
-    if track_number != 0:
-        track_span = int(5 / track_number)
-        tracks = [tracks, [], []]
-        if track_number != 5:
-            reserve = True
-        track_end = 0
-        for i in range(track_number):
-            track_start = track_end + 1
-            tracks[1].append(track_start)
-            if reserve:
-                track_end = track_start + ceil(track_span)
-            else:
-                track_end = track_start + floor(track_span)
-            tracks[2].append(track_end)
+    tracks_width = [None] * 5
+    if track_number == 1:
+        tracks_width = [5, 0, 0, 0, 0]
+    elif track_number == 2:
+        tracks_width = [3, 2, 0, 0, 0]
+    elif track_number == 3:
+        tracks_width = [2, 2, 1, 0, 0]
+    elif track_number == 4:
+        tracks_width = [2, 1, 1, 1, 0]
     else:
-        track_span = 1
+        tracks_width = [1, 1, 1, 1, 1]
     # print(tracks[0])
-    generate_time = request.GET.get("generate", True)
-    if generate_time == "False":
-        generate_time = False
-    if generate_time == True:
-        timetable_length = 64
-        timetable_times = [None] * timetable_length
-        i = 0
-        for hours in range(8, 24):
-            for minutes in range(0, 60, 15):
-                timetable_times[i] = time(hours, minutes)
-                i +=1
-        return render(request, "timetable/update_day.html", {
-                                                                "activities_tracks": tracks,
-                                                                "track_number": track_number,
-                                                                "track_span": track_span,
-                                                                "timetable_times": timetable_times,
-                                                                "timetable_id": timetable_id,
-                                                                "month": month,
-                                                                "day": day,
-                                                                "year": year,
-                                                                "date":day_date,
-                                                                "activity_types": activity_types})
+    timetable_length = 64
+    timetable_times = [None] * timetable_length
+    i = 0
+    for hours in range(8, 24):
+        for minutes in range(0, 60, 15):
+            timetable_times[i] = time(hours, minutes)
+            i +=1
     return render(request, "timetable/update_day.html", {
-        "activities_tracks": tracks,
-        "track_number": track_number,
-        "track_span": track_span,
-        "timetable_id": timetable_id,
-        "month": month,
-        "day": day,
-        "year": year,
-        "date": day_date,
-        "activity_types": activity_types})
+                                                            "activities_tracks": tracks,
+                                                            "track_number": track_number,
+                                                            "timetable_times": timetable_times,
+                                                            "timetable_id": timetable_id,
+                                                            "month": month,
+                                                            "day": day,
+                                                            "year": year,
+                                                            "date":day_date,
+                                                            "generate_time": generate_time,
+                                                            "tracks_width": tracks_width})
+
+@check_access_permission
+def update_week(request, timetable_id, year, week):
+    start_date = datetime(year, 1, 1)
+    if start_date.weekday() <= 3:
+        days_to_add = (week - 1) * 7 - start_date.weekday()
+    else:
+        days_to_add = week * 7 - start_date.weekday()
+    first_day_of_week = start_date + timedelta(days=days_to_add)
+    last_day_of_week = start_date + timedelta(days=days_to_add+6)
+    calendar_week = [(first_day_of_week + timedelta(days=i)).day for i in range(7)]
+    day = first_day_of_week.day
+    month = first_day_of_week.month
+    current_date = datetime.now()
+    current_year = current_date.year
+    current_month = current_date.month
+    today = None
+    activity_types = list(Activity_type.objects.filter(activity__timetable_id=timetable_id).values_list('id', flat=True).distinct())
+    if request.method == "POST":
+        selected_activity_types = request.POST.getlist('activity_types', [])
+    else:
+        selected_activity_types = activity_types
+    # print(selected_activity_types)
+    if calendar_week[0]>calendar_week[-1]:
+        second_month = last_day_of_week.month
+        if (month == current_month and year == current_year) or (
+                second_month == current_month and year == current_year):
+            today = current_date.day
+        return render(request, "timetable/update_week.html",
+                      {"this_week": calendar_week,
+                       "timetable_id": timetable_id,
+                       "day": day,
+                       "month": month,
+                       "second_month": second_month,
+                       "year": year,
+                       "today": today,
+                       "selected_activity_types": selected_activity_types})
+    if month == current_month and year == current_year:
+        today = current_date.day
+    return render(request, "timetable/update_week.html", {"this_week": calendar_week,
+                   "timetable_id": timetable_id,
+                   "day": day,
+                   "month": month,
+                   "year": year,
+                   "today": today,
+                   "selected_activity_types": selected_activity_types})
 
 def upload_new_timetable(request):
     if request.method == "POST":
@@ -603,7 +601,7 @@ def edit_activity_type(request, activity_type_id):
             edit_activity_type_form.save()
             return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
         else:
-            print(edit_activity_type_form.errors)
+            messages.error(request, "Something went wrong: ", edit_activity_type_form.errors)
     else:
         edit_activity_type_form = EditActivityTypeForm(instance=current_activity_type)
     return render(request, "timetable/edit_activity_type.html", {"activity_type_form": edit_activity_type_form})
@@ -624,7 +622,7 @@ def edit_course(request, timetable_id, course_initials):
             edit_course_form.save()
             return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_unchanged'})
         else:
-            print(edit_course_form.errors)
+            messages.error(request, "Something went wrong: ", edit_course_form.errors)
     else:
         edit_course_form = CourseForm(instance=current_course)
     return render(request, "timetable/edit_course.html", {"course_form": edit_course_form})
@@ -636,3 +634,33 @@ def delete_course(request, timetable_id, course_initials):
     return HttpResponse(status=204)
 
 
+"""
+update_week_legacy
+
+first_day = datetime(year, month, day)
+second_month = True if (first_day + timedelta(days=6)).month == first_day.month else None
+selected_activity_types = None
+if request.method == "POST":
+    selected_activity_types = request.POST.getlist('activity_types', [])
+else:
+    selected_activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
+week_day = [None] * 7
+print("1")
+if second_month:
+    in_second_month = False
+    second_month_day = 1
+    for i in range(7):
+        if not in_second_month:
+            try:
+               week_day[i] = update_day(request, timetable_id, year, month, day + i, selected_activity_types)
+            except:
+                in_second_month = True
+                week_day[i] = update_day(request, timetable_id, year, second_month, second_month_day, selected_activity_types)
+                second_month_day += 1
+        else:
+            week_day[i] = update_day(request, timetable_id, year, second_month, second_month_day, selected_activity_types)
+            second_month_day += 1
+else:
+    for i in range(7):
+        week_day[i] = update_day(request, timetable_id, year, month, day + i, selected_activity_types)
+"""

@@ -153,13 +153,13 @@
         display: grid;
         column-gap: .1rem;
         grid-template-columns:
-        [mon] fit-content(80%)
-        [tue] fit-content(80%)
-        [wed] fit-content(80%)
-        [thu] fit-content(80%)
-        [fri] fit-content(80%)
-        [sat] fit-content(80%)
-        [sun] fit-content(80%);
+        [mon]
+        [tue]
+        [wed]
+        [thu]
+        [fri]
+        [sat]
+        [sun];
         grid-template-rows:
         [day] 1fr
         [date] 1fr

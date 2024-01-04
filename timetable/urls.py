@@ -20,6 +20,7 @@ urlpatterns = [
     path("timetable/<int:timetable_id>/<int:year>/W<int:week>/", views.display_week, name="display_week"),
     path("timetable/<int:timetable_id>/<int:year>/W<int:week>/statistics/", views.week_stats, name="week_stats"),
     path("timetable/<int:timetable_id>/<int:year>/W/", views.display_week, name="display_week_for_day"),
+    path("timetable/<int:timetable_id>/<int:year>/W<int:week>/update/", views.update_week, name="update_week"),
 
     # display_day
     path("timetable/<int:timetable_id>/day/", views.display_day, name="display_current_day"),
@@ -40,7 +41,7 @@ urlpatterns = [
     # path("timetable/change/<int:timetable_id>/<str:change_value>/<int:year>/<int:month>/<int:day>/", views.change_displayed_calendar, name="change_day"),
 
     # for pop-up details windows
-    path("timetable/teacher/<slug:name_surname_initials>/", views.teacher_details, name="teacher_details"),
+    path("timetable/teacher/<str:name_surname_initials>/", views.teacher_details, name="teacher_details"),
     path("timetable/<int:timetable_id>/activity/<int:activity_id>/", views.activity_details, name="activity_details"),
     path("timetable/atype/<int:activity_type_id>/", views.activity_type_details, name="activity_type_details"),
     path("timetable/<int:timetable_id>/course/<str:course_initials>/", views.course_details, name="course_details"),
@@ -55,6 +56,6 @@ urlpatterns = [
     path("timetable/<int:timetable_id>/course/<str:course_initials>/edit/", views.edit_course, name="edit_course"),
     path("timetable/<int:timetable_id>/course/<str:course_initials>/delete/", views.delete_course, name="delete_course"),
 
-    path("timetable/teacher/<slug:name_surname_initials>/edit", views.edit_teacher, name="edit_teacher"),
+    path("timetable/teacher/<str:name_surname_initials>/edit", views.edit_teacher, name="edit_teacher"),
 
 ]
