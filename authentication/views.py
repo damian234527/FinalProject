@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from .forms import NewAccountRegistrationForm, ProfileForm, LoginForm, ChangePasswordForm
-from django.contrib.auth import authenticate, login, logout
-from .models import Student
 from django.http import HttpResponse
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password
+from .models import Student
+from .forms import NewAccountRegistrationForm, ProfileForm, LoginForm, ChangePasswordForm
+
 
 # Create your views here.
 def register(request):

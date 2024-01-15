@@ -1,0 +1,27 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+{% if public_timetables %}
+<h3> Publicly available timetables:</h3>
+<ul class="timetable-list">
+  {% for timetable in public_timetables %}
+    <li class="timetable-item">
+        <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
+        {% if timetable.author %}
+        <a href="{% url 'authentication:user_profile' timetable.author %}">by {{ timetable.author }}</a>
+        {% else %}
+        <i>by anonymous user</i>
+        {% if user.is_superuser or timetable.author %}
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary" hx-get="{% url 'timetable:rename_timetable' timetable.id %}" hx-target="#dialog">Rename</button>
+            <form action="{% url 'timetable:delete_timetable' timetable.id %}" onsubmit="return confirm('Are you sure you want to delete the timetable? This action cannot be undone.')">
+                <button type="submit" class="btn btn-primary">Delete</button>
+            </form>
+        </div>
+        {% endif %}
+        {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+<h3>No public timetables available.</h3>
+{% endif %}

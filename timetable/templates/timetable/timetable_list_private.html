@@ -1,0 +1,33 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+{% if user_timetables %}
+<h3>{{ user.username }}'s timetables:</h3>
+<ul class="timetable-list">
+    {% for timetable in user_timetables %}
+    <li class="timetable-item">
+        <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
+        {% if timetable.author %}
+        by
+        <a href="{% url 'authentication:user_profile' timetable.author %}"><i> {{ timetable.author }}</i></a>
+        {% else %}
+        <i>by anonymous user</i>
+        {% endif %}
+        <div class="btn-group" style="float: right;">
+            {% if request.user == timetable.author %}
+            <button type="submit" class="btn btn-primary" hx-get="{% url 'timetable:rename_timetable' timetable.id %}" hx-target="#dialog">Rename</button>
+            <form action="{% url 'timetable:delete_timetable' timetable.id %}" onsubmit="return confirm('Are you sure you want to delete the timetable? This action cannot be undone.')">
+                <button type="submit" class="btn btn-primary">Delete</button>
+            </form>
+            {% else %}
+            <form action="{% url 'timetable:remove_timetable' timetable.id %}" onsubmit="return confirm('Are you sure you want to remove the timetable? This action cannot be undone.')" >
+                <button type="submit" class="btn btn-primary">Remove</button>
+            </form>
+            {% endif %}
+            <button type="submit" class="btn btn-primary" hx-get="{% url 'timetable:share_timetable' timetable.id %}" hx-target="#dialog">Share</button>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<h3>Nothing here, you can add new timetables using import button.</h3>
+{% endif %}

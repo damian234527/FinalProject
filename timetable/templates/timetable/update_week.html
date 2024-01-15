@@ -1,43 +1,38 @@
-<div class="week-day">Mon</div>
-<div class="week-day">Tue</div>
-<div class="week-day">Wed</div>
-<div class="week-day">Thu</div>
-<div class="week-day">Fri</div>
-<div class="week-day">Sat</div>
-<div class="week-day">Sun</div>
+{% load timetable_extras %}
 {% for day in this_week %}
-<div>
-{% if second_month %}
-{% if day < 7 %}
-{% if day == today %}
-    <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day_for_week' timetable_id year second_month day %}"><strong style="background-color: gold;">{{ day }}</strong></a>
-{% else %}
-    <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day' timetable_id year second_month day %}">{{ day }}</a>
-{% endif %}
-{% else %}
-{% if day == today %}
-    <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day' timetable_id year month day %}"><strong style="background-color: gold;">{{ day }}</strong></a>
-{% else %}
-    <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a>
-{% endif %}
-{% endif %}
-{% else %}
-{% if day == today %}
-    <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day' timetable_id year month day %}"><strong style="background-color: gold;">{{ day }}</strong></a>
-{% else %}
-    <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a>
-{% endif %}
-{% endif %}
-</div>
-<div class="week-timetable">
-    {% if second_month %}
-    {% if day < 7 %}
-    <div class="grid-day" hx-trigger="load, timetable_changed from:body" hx-get="{% url 'timetable:update_day' timetable_id year second_month day %}?generate=False&types={{selected_activity_types}}" hx-target="this"></div>
-    {% else %}
-    <div class="grid-day" hx-trigger="load, timetable_changed from:body" hx-get="{% url 'timetable:update_day' timetable_id year month day %}?generate=False&types={{selected_activity_types}}" hx-target="this"></div>
-    {% endif %}
-    {% else %}
-    <div class="grid-day" hx-trigger="load, timetable_changed from:body" hx-get="{% url 'timetable:update_day' timetable_id year month day %}?generate=False&types={{selected_activity_types}}" hx-target="this"></div>
-    {% endif %}
-</div>
+    <div class="week-day-name">{{week_days|index:forloop.counter0}}</div>
+    <div class="week-date">
+        {% if second_month %}
+        {% if day < 7 %}
+        {% if day == today %}
+            <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day_for_week' timetable_id year second_month day %}"><strong style="background-color: gold;">{{ day }}</strong></a>
+        {% else %}
+            <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day' timetable_id year second_month day %}">{{ day }}</a>
+        {% endif %}
+        {% else %}
+        {% if day == today %}
+            <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day' timetable_id year month day %}"><strong style="background-color: gold;">{{ day }}</strong></a>
+        {% else %}
+            <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a>
+        {% endif %}
+        {% endif %}
+        {% else %}
+        {% if day == today %}
+            <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day' timetable_id year month day %}"><strong style="background-color: gold;">{{ day }}</strong></a>
+        {% else %}
+            <a style="grid-column: {{ forloop.counter }}" href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a>
+        {% endif %}
+        {% endif %}
+    </div>
+    <div class="week-timetable">
+        {% if second_month %}
+        {% if day < 7 %}
+        <div class="grid-day" hx-trigger="load, timetable_changed from:body" hx-get="{% url 'timetable:update_day' timetable_id year second_month day %}?generate=False&types={{selected_activity_types}}" hx-target="this"></div>
+        {% else %}
+        <div class="grid-day" hx-trigger="load, timetable_changed from:body" hx-get="{% url 'timetable:update_day' timetable_id year month day %}?generate=False&types={{selected_activity_types}}" hx-target="this"></div>
+        {% endif %}
+        {% else %}
+        <div class="grid-day" hx-trigger="load, timetable_changed from:body" hx-get="{% url 'timetable:update_day' timetable_id year month day %}?generate=False&types={{selected_activity_types}}" hx-target="this"></div>
+        {% endif %}
+    </div>
 {% endfor %}

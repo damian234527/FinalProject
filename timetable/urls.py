@@ -4,6 +4,8 @@ from . import views
 app_name = "timetable"
 urlpatterns = [
     path("timetable/", views.get_available_timetables, name="main"),
+    path("timetable/private/", views.user_timetables, name="user_list"),
+    path("timetable/public/", views.public_timetables, name="public_list"),
     path("timetable/import/", views.upload_new_timetable, name="import_ics_file"),
     path("timetable/merge/", views.merge_timetable, name="merge_timetable"),
     path("timetable/add/", views.add_existing_timetable, name="add_existing_timetable"),

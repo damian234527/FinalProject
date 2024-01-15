@@ -2,10 +2,10 @@
 {% load static %}
 
 {% block content %}
-
 <div>
     <h2>Timetables</h2>
 </div>
+{% if user.is_authenticated %}
 <div class="btn-group" style="float: right;">
     <button class="btn btn-primary" hx-get="{% url 'timetable:add_existing_timetable' %}" hx-target="#dialog">
     Add existing timetable
@@ -14,73 +14,21 @@
     Merge timetables
     </button>
 </div>
-<div>
-    {% if user_timetables %}
-    <div class="user_timetables">
-        <p>{{ username }}'s timetables</p>
-        <ul>
-            {% for timetable in user_timetables %}
-            <li>
-                <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
-                {% if timetable.author %}
-                by
-                <a href="{% url 'authentication:user_profile' timetable.author %}"><i> {{ timetable.author }}</i></a>
-                {% else %}
-                <i>by anonymous user</i>
-                {% endif %}
-                <div class="btn-group" style="float: right;">
-                    {% if request.user == timetable.author %}
-                    <button type="submit" class="btn btn-primary" hx-get="{% url 'timetable:rename_timetable' timetable.id %}" hx-target="#dialog">Rename</button>
-                    <form action="{% url 'timetable:delete_timetable' timetable.id %}" onsubmit="return confirm('Are you sure you want to delete the timetable? This action cannot be undone.')">
-                        <button type="submit" class="btn btn-primary">Delete</button>
-                    </form>
-                    {% else %}
-                    <form action="{% url 'timetable:remove_timetable' timetable.id %}" onsubmit="return confirm('Are you sure you want to remove the timetable? This action cannot be undone.')" >
-                        <button type="submit" class="btn btn-primary">Remove</button>
-                    </form>
-                    {% endif %}
-                    <button type="submit" class="btn btn-primary" hx-get="{% url 'timetable:share_timetable' timetable.id %}" hx-target="#dialog">Share</button>
-                </div>
-            </li>
-            <br>
-            {% endfor %}
-        </ul>
-    </div>
-    {% else %}
-    <p>Nothing here, you can add new timetables using import button.</p>
-    {% endif %}
+{% else %}
+<div style="float: right;">
+    <button class="btn btn-primary" hx-get="{% url 'timetable:merge_timetable' %}" hx-target="#dialog">
+    Merge timetables
+    </button>
+</div>
+{% endif %}
+<div class="timetable-section">
+    <div class="timetable-subsection" id="user-timetables" hx-trigger="load, timetable_changed from:body" hx-get="{% url 'timetable:user_list' %}" hx-target="this"></div>
     <div class="import_timetable">
         <form action="{% url 'timetable:import_ics_file' %}" method="post">
             {% csrf_token %}
             <input type="submit" value="Import .ics file">
         </form>
     </div>
-    {% if public_timetables %}
-    <div class="public_timetables">
-      <p> Publicly available timetables</p>
-        <ul>
-          {% for timetable in public_timetables %}
-            <li>
-                <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
-                {% if timetable.author %}
-                <a href="{% url 'authentication:user_profile' timetable.author %}">by {{ timetable.author }}</a>
-                {% else %}
-                <i>by anonymous user</i>
-                {% if user.is_superuser or timetable.author %}
-                <div class="btn-group">
-                    <button type="submit" class="btn btn-primary" hx-get="{% url 'timetable:rename_timetable' timetable.id %}" hx-target="#dialog">Rename</button>
-                    <form action="{% url 'timetable:delete_timetable' timetable.id %}" onsubmit="return confirm('Are you sure you want to delete the timetable? This action cannot be undone.')">
-                        <button type="submit" class="btn btn-primary">Delete</button>
-                    </form>
-                </div>
-                {% endif %}
-                {% endif %}
-            </li>
-          {% endfor %}
-        </ul>
-    </div>
-    {% else %}
-    <p>No public timetables available.</p>
-    {% endif %}
+    <div class="timetable-subsection" id="public-timetables" hx-trigger="load, timetable_changed from:body" hx-get="{% url 'timetable:public_list' %}" hx-target="this"></div>
 </div>
 {% endblock %}

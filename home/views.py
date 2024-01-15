@@ -1,8 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 import calendar
-# import icalendar
 from datetime import datetime
-
 
 placeholder_value = 1
 # Create your views here.

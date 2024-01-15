@@ -165,7 +165,7 @@
         [timetable] 64fr;
     }
 
-    .week-day {
+    .week-day-name {
         grid-row: day;
         font-weight: bold;
         border-top: 0.2rem solid #ddd;
@@ -176,6 +176,10 @@
     }
     .week-timetable {
         grid-row: timetable;
+        background-color: #f7f7f7;
+    }
+    .week-timetable:hover {
+        background-color: #e0e0e0;
     }
     .activity-text {
     font-size: 2vw;
@@ -197,4 +201,8 @@
 
     .month-calendar{
         grid-area: schedule
+    }
+
+    .link-plain{
+        text-decoration:none;
     }

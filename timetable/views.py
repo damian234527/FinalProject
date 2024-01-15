@@ -2,11 +2,10 @@ import calendar
 from datetime import datetime, timedelta, time
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q, Count, Sum
+from django.http import HttpResponse, Http404
+from django.contrib import messages
 from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
 from .forms import ActivityForm, ActivityTypesForm, TeacherForm, CourseForm, TimetableMergingForm, TimetableRenameForm, EditActivityTypeForm, ICSFileUploadForm, AddExistingTimetableForm
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.contrib import messages
-
 
 def check_access_permission(view_func):
     def _wrapped_view(request, *args, **kwargs):
@@ -87,11 +86,17 @@ def display_month(request, timetable_id, year=None, month=None):
     else:
         end_date = datetime(year, month, last_day).date()
     month_activities = Activity.objects.filter(Q(timetable_id=timetable_id) & (Q(time_start__range = [start_date, end_date]) | Q(time_end__range = [start_date, end_date])))
-
+    first_day = datetime(year, month, 1)
+    weeks_in_month = [None] * len(calendar_month)
+    weeks_in_month[0] = first_day.isocalendar()[1]
+    for i in range(1, len(calendar_month)):
+        weeks_in_month[i] = weeks_in_month[i-1] + 1
+    if weeks_in_month[-1] == 53:
+        weeks_in_month[-1] = 1
     #For setting current week
     if current_month or (month == current_date.month and year == current_date.year):
         day = current_date.day
-        week_number = day // 7
+        week_number = (day - 1) // 7 + 1
         if day > calendar_month[week_number][0] + 6 or calendar_month[week_number][6] < day:
             week_number += 1
         #current_week = calendar_month[week_number]
@@ -102,13 +107,15 @@ def display_month(request, timetable_id, year=None, month=None):
                        "month_name": month_name,
                        "month": month,
                        "year": year,
-                       "today": current_date.day})
+                       "today": current_date.day,
+                       "weeks_in_month": weeks_in_month})
     return render(request, "timetable/month.html",
                   {"this_month": calendar_month,
                    "timetable_id": timetable_id,
                    "month_name": month_name,
                    "month": month,
-                   "year": year})
+                   "year": year,
+                   "weeks_in_month": weeks_in_month})
 
 def month_stats(request, timetable_id, year, month):
     start_date = datetime(year, month, 1)
@@ -237,26 +244,26 @@ def day_stats(request, timetable_id, year, month, day):
 
 # ======================================================TIMETABLE======================================================
 
-def get_available_timetables(request):
-    user = None
-    username = None
-    user_timetables = None
+def user_timetables(request):
     if request.user.is_authenticated:
-        user = request.user.id
-        username = request.user.username
-        assigned_timetables = Timetable_assignment.objects.filter(student_id=user)
+        assigned_timetables = Timetable_assignment.objects.filter(student_id=request.user.id)
         user_timetables = Timetable.objects.filter(id__in=assigned_timetables.values("timetable_id"))
+        return render(request, "timetable/timetable_list_private.html", {"user_timetables": user_timetables})
+
+def public_timetables(request):
     not_assigned_timetables = Timetable_assignment.objects.filter(student_id=None)
     public_timetables = Timetable.objects.filter(id__in=not_assigned_timetables.values("timetable_id"))
-    return render(request, "timetable/timetable_list.html",
-                  {
-                      "username": username,
-                      "user_timetables": user_timetables,
-                      "public_timetables": public_timetables})
+    if public_timetables: return render(request, "timetable/timetable_list_public.html", {"public_timetables": public_timetables})
+
+def get_available_timetables(request):
+    #if request.user.is_authenticated:
+        #user_timetables(request)
+    #public_timetables(request)
+    return render(request, "timetable/timetable_list.html")
 
 @check_access_permission
 def timetable_details(request, timetable_id):
-    timetable = get_object_or_404(Timetable, pk=timetable_id)
+    # timetable = get_object_or_404(Timetable, pk=timetable_id)
     return render(request, "timetable/timetable_details.html", {"timetable_id": timetable_id})
 
 @check_access_permission
@@ -338,6 +345,7 @@ def update_day(request, timetable_id, year, month, day):
 
 @check_access_permission
 def update_week(request, timetable_id, year, week):
+    week_days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     start_date = datetime(year, 1, 1)
     if start_date.weekday() <= 3:
         days_to_add = (week - 1) * 7 - start_date.weekday()
@@ -371,16 +379,18 @@ def update_week(request, timetable_id, year, week):
                        "second_month": second_month,
                        "year": year,
                        "today": today,
-                       "selected_activity_types": selected_activity_types})
+                       "selected_activity_types": selected_activity_types,
+                       "week_days": week_days})
     if month == current_month and year == current_year:
         today = current_date.day
     return render(request, "timetable/update_week.html", {"this_week": calendar_week,
-                   "timetable_id": timetable_id,
-                   "day": day,
-                   "month": month,
-                   "year": year,
-                   "today": today,
-                   "selected_activity_types": selected_activity_types})
+                            "timetable_id": timetable_id,
+                            "day": day,
+                            "month": month,
+                            "year": year,
+                            "today": today,
+                            "selected_activity_types": selected_activity_types,
+                            "week_days": week_days})
 
 def upload_new_timetable(request):
     if request.method == "POST":

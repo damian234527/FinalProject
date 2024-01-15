@@ -107,7 +107,7 @@ class Teacher(models.Model):
         return self.teacher_initials
 
 class Course(models.Model):
-    course_initials = models.CharField(max_length=15)
+    course_initials = models.CharField(max_length=30)
     course_name = models.CharField(max_length=100)
     course_description = models.CharField(max_length=255)
     timetable = models.ManyToManyField(Timetable)
@@ -125,25 +125,29 @@ class Activity_type(models.Model):
                   "laboratories",
                   "project",
                   "seminar",
-                  "exam"]
+                  "exam",
+                  "colloquium"]
     type_names_pl = ["wyk",
                      "ćw",
                      "lab",
                      "proj",
                      "sem",
-                     "exam"]
+                     "exam",
+                     "zal"]
     type_descriptions = ["Formal presentation or discourse delivered by lecturer.",
                          "More practical activity than lecture where students receive instruction and engage in learning activities related to a particular subject.",
                          "Type of activity where students may apply theoretical knowledge through hands-on activities.",
                          "Leads students to prepare a project. Work can take place individually or in groups.",
                          "Provides an opportunity for participants to engage in interactive learning, share ideas, and explore topics in depth. Seminars are often more participatory than traditional lectures.",
-                         "Exam placeholder"]
+                         "Exam is the most demanding termination of the subject.",
+                         "Colloquium is a less demanding test than exam."]
     type_colors = ["#27AB4D",
                    "#273BAB",
                    "#91214E",
                    "#8B9669",
                    "#495ED5",
-                   "#FF0000"]
+                   "#FF0000",
+                   "#8C1D04"]
     def __str__(self):
         return self.type_name
 
