@@ -28,7 +28,7 @@
     margin-top: 1rem;
 }
 .timetable-item {
-    padding:1rem;
+    padding: 1.5vw;
     margin-bottom: .1rem;
     margin-top: 0;
     background-color: #f7f7f7;
@@ -68,3 +68,20 @@ input[type=button], input[type=submit], input[type=reset] {
   text-decoration: none;
   margin: 4px 2px;
   cursor: pointer;
+}
+.nav-text{
+        font-size: 1.5vw;
+}
+.btn-big{
+        padding: 1.5vw;
+}
+.btn-big-text{
+        font-size: 1 vw;
+}
+
+.btn-medium{
+        padding: .6vw;
+}
+.btn-medium-text{
+        font-size: .5 vw;
+}

@@ -12,9 +12,17 @@
         <i>by anonymous user</i>
         {% if user.is_superuser or timetable.author %}
         <div class="btn-group">
-            <button type="submit" class="btn btn-primary" hx-get="{% url 'timetable:rename_timetable' timetable.id %}" hx-target="#dialog">Rename</button>
+            <button type="submit" class="btn btn-primary btn-medium" hx-get="{% url 'timetable:rename_timetable' timetable.id %}" hx-target="#dialog">
+                <strong class="btn-medium-text">
+                    Rename
+                </strong>
+            </button>
             <form action="{% url 'timetable:delete_timetable' timetable.id %}" onsubmit="return confirm('Are you sure you want to delete the timetable? This action cannot be undone.')">
-                <button type="submit" class="btn btn-primary">Delete</button>
+                <button type="submit" class="btn btn-primary btn-medium">
+                    <strong class="btn-medium-text">
+                        Delete
+                    </strong>
+                </button>
             </form>
         </div>
         {% endif %}

@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "home.apps.HomeConfig",
     "authentication.apps.AuthenticationConfig",
     "timetable.apps.TimetableConfig",
+    "notes.apps.NotesConfig",
     "django_htmx",
     'django.contrib.admin',
     'django.contrib.auth',

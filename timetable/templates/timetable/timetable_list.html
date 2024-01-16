@@ -7,17 +7,23 @@
 </div>
 {% if user.is_authenticated %}
 <div class="btn-group" style="float: right;">
-    <button class="btn btn-primary" hx-get="{% url 'timetable:add_existing_timetable' %}" hx-target="#dialog">
-    Add existing timetable
+    <button class="btn btn-primary btn-big" hx-get="{% url 'timetable:add_existing_timetable' %}" hx-target="#dialog">
+        <strong class="btn-big-text">
+            Add existing timetable
+        </strong>
     </button>
-    <button class="btn btn-primary" hx-get="{% url 'timetable:merge_timetable' %}" hx-target="#dialog">
-    Merge timetables
+    <button class="btn btn-primary btn-big" hx-get="{% url 'timetable:merge_timetable' %}" hx-target="#dialog">
+        <strong class="btn-big-text">
+            Merge timetables
+        </strong>
     </button>
 </div>
 {% else %}
 <div style="float: right;">
-    <button class="btn btn-primary" hx-get="{% url 'timetable:merge_timetable' %}" hx-target="#dialog">
-    Merge timetables
+    <button class="btn btn-primary btn-big" hx-get="{% url 'timetable:merge_timetable' %}" hx-target="#dialog">
+        <strong class="btn-big-text">
+            Merge timetables
+        </strong>
     </button>
 </div>
 {% endif %}
