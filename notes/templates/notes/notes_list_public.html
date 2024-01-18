@@ -2,20 +2,22 @@
 <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
 <h3>Public notes:</h3>
 {% if notes_by_course %}
-<ul class="notes-list">
+<ul class="note-list">
     {% for key, notes in notes_by_course.items %}
     <li><h4>{{ key }}</h4></li>
     {% for note in notes %}
-    <ul>
+    <ul class="note-sublist">
         <li class="note-item">
-            <a href="{% url 'notes:details' note.id %}">{{ note.name }}</a>
-            {% if note.author %}
-            by
-            <a href="{% url 'authentication:user_profile' note.author %}"><i> {{ note.author }}</i></a>
-            {% else %}
-            <i>by anonymous user</i>
-            {% endif %}
-            on {{note.date_created}}
+            <h5>
+                <a href="{% url 'notes:details' note.id %}">{{ note.name }}</a>
+                {% if note.author %}
+                by
+                <a href="{% url 'authentication:user_profile' note.author %}"><i> {{ note.author }}</i></a>
+                {% else %}
+                <i>by anonymous user</i>
+                {% endif %}
+                on {{note.date_created|date:"d.m.Y, G:i"}}
+            </h5>
             <div class="btn-group" style="float: right;">
                 {% if request.user == note.author %}
                 <button type="submit" class="btn btn-primary btn-medium" hx-get="{% url 'notes:rename_note' note.id %}" hx-target="#dialog">
@@ -53,5 +55,5 @@
 
 </ul>
 {% else %}
-<h3>Nothing here, you can add new notes using the 'add note' button.</h3>
+<h3 class="nothing-info">Nothing here, you can add new notes using the 'add note' button.</h3>
 {% endif %}

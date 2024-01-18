@@ -9,6 +9,7 @@ class NoteForm(forms.ModelForm):
                                     required=False)
     timetable = forms.ModelChoiceField(queryset=models.Timetable.objects.none(),
                                            required=False)
+    set_as_public = forms.BooleanField(initial=False, required=False)
     class Meta:
         model = models.Note
         fields = ["name", "content", "course", "timetable"]

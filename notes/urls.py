@@ -9,6 +9,7 @@ urlpatterns = [
     path("public/", views.public_notes, name="public_list"),
     path("inactive/", views.inactive_notes, name="inactive_list"),
     path("add/", views.add_note, name="add_note"),
+    path("<int:note_id>/change/", views.change_status, name="change_status"),
     path("<int:note_id>/edit/", views.edit_note, name="edit_note"),
     path("<int:note_id>/delete/", views.delete_note, name="delete_note"),
     path("<int:note_id>/remove/", views.remove_note, name="remove_note"),

@@ -1,0 +1,16 @@
+{% extends "base_template.html" %}
+{% load static %}
+
+{% block content %}
+<h2>{{note.name}}
+    {% if note.author %}
+    by
+    <a href="{% url 'authentication:user_profile' note.author %}"><i> {{ note.author }}</i></a>
+    {% else %}
+    <i>by anonymous user</i>
+    {% endif %}
+    on {{note.date_created|date:"d.m.Y, G:i"}}
+</h2>
+<p>{{note.content}}</p>
+
+{% endblock %}

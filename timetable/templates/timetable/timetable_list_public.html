@@ -1,15 +1,16 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
-{% if public_timetables %}
 <h3> Publicly available timetables:</h3>
+{% if public_timetables %}
 <ul class="timetable-list">
   {% for timetable in public_timetables %}
     <li class="timetable-item">
         <a href="{% url 'timetable:details' timetable.id %}">{{ timetable.timetable_name }}</a>
+        by
         {% if timetable.author %}
-        <a href="{% url 'authentication:user_profile' timetable.author %}">by {{ timetable.author }}</a>
+        <a href="{% url 'authentication:user_profile' timetable.author %}">{{ timetable.author }}</a>
         {% else %}
-        <i>by anonymous user</i>
+        <i>anonymous user</i>
         {% if user.is_superuser or timetable.author %}
         <div class="btn-group">
             <button type="submit" class="btn btn-primary btn-medium" hx-get="{% url 'timetable:rename_timetable' timetable.id %}" hx-target="#dialog">
@@ -31,5 +32,5 @@
   {% endfor %}
 </ul>
 {% else %}
-<h3>No public timetables available.</h3>
+<h3 class="nothing-info">No public timetables available.</h3>
 {% endif %}

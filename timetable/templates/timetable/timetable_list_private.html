@@ -1,7 +1,7 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
-{% if user_timetables %}
 <h3>{{ user.username }}'s timetables:</h3>
+{% if user_timetables %}
 <ul class="timetable-list">
     {% for timetable in user_timetables %}
     <li class="timetable-item">
@@ -45,5 +45,5 @@
     {% endfor %}
 </ul>
 {% else %}
-<h3>Nothing here, you can add new timetables using import button.</h3>
+<h3 class="nothing-info">Nothing here, you can add new timetables using import button.</h3>
 {% endif %}

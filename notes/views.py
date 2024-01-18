@@ -14,7 +14,7 @@ def sort_by_course(assigned_notes):
         notes_for_course = assigned_notes.filter(course_id=course.id)
         notes_for_course = notes_for_course.order_by('timetable')
         notes_by_course[course] = notes_for_course
-        return notes_by_course
+    return notes_by_course
 
 def user_notes(request):
     if request.user.is_authenticated:
@@ -32,12 +32,13 @@ def public_notes(request):
 
 def inactive_notes(request):
     not_active_notes = Note_assignment.objects.filter(Q(student_id=request.user.id) | Q(student_id=None))
-    inactive_notes = Note.objects.filter(Q(id__in=not_active_notes.values("note_id")) & Q(is_active=True))
+    inactive_notes = Note.objects.filter(Q(id__in=not_active_notes.values("note_id")) & Q(is_active=False))
     notes_by_course = sort_by_course(inactive_notes)
     return render(request, "notes/notes_list_inactive.html", {"notes_by_course": notes_by_course})
 
 def details(request, note_id):
-    return render(request, "notes/details.html")
+    note = Note.objects.get(pk=note_id)
+    return render(request, "notes/details.html", {"note": note})
 
 def main(request):
     return render(request, "notes/notes.html")
@@ -47,7 +48,12 @@ def add_note(request):
     if request.method == "POST":
         new_note_form = NoteForm(user, request.POST)
         if new_note_form.is_valid():
-            new_note_form.save()
+            if user:
+                new_note = new_note_form.save(commit=False)
+                new_note.author = user
+                new_note.save()
+            else:
+                new_note_form.save()
             return HttpResponse(status=204, headers={'HX-Trigger': 'note_changed'})
     else:
         new_note_form = NoteForm(user)
@@ -108,6 +114,7 @@ def assign_note(request):
         return render(request, "notes/add_existing_note.html", {"add_note_form": add_note_form})
 
 def change_status(request, note_id):
-    note = Note.object.get_or_404(pk=note_id)
+    note = get_object_or_404(Note, pk=note_id)
     note.is_active = not note.is_active
-    return 1
+    note.save()
+    return redirect("notes:main")
