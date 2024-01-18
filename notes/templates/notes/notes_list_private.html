@@ -1,0 +1,57 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+<h3>{{ user.username }}'s notes:</h3>
+{% if notes_by_course %}
+<ul class="notes-list">
+    {% for key, notes in notes_by_course.items %}
+    <li><h4>{{ key }}</h4></li>
+    {% for note in notes %}
+    <ul>
+        <li class="note-item">
+            <a href="{% url 'notes:details' note.id %}">{{ note.name }}</a>
+            {% if note.author %}
+            by
+            <a href="{% url 'authentication:user_profile' note.author %}"><i> {{ note.author }}</i></a>
+            {% else %}
+            <i>by anonymous user</i>
+            {% endif %}
+            on {{note.date_created}}
+            <div class="btn-group" style="float: right;">
+                {% if request.user == note.author %}
+                <button type="submit" class="btn btn-primary btn-medium" hx-get="{% url 'notes:rename_note' note.id %}" hx-target="#dialog">
+                    <strong class="btn-medium-text">
+                        Rename
+                    </strong>
+                </button>
+                <form action="{% url 'notes:delete_note' note.id %}" onsubmit="return confirm('Are you sure you want to delete the note? This action cannot be undone.')">
+                    <button type="submit" class="btn btn-primary btn-medium">
+                        <strong class="btn-medium-text">
+                            Delete
+                        </strong>
+                    </button>
+                </form>
+                {% else %}
+                <form action="{% url 'notes:remove_note' note.id %}" onsubmit="return confirm('Are you sure you want to remove the note? This action cannot be undone.')" >
+                    <button type="submit" class="btn btn-primary btn-medium">
+                        <strong class="btn-medium-text">
+                            Remove
+                        </strong>
+                    </button>
+                </form>
+                {% endif %}
+                <button type="submit" class="btn btn-primary btn-medium" hx-get="{% url 'notes:share_note' note.id %}" hx-target="#dialog">
+                    <strong class="btn-medium-text">
+                        Share
+                    </strong>
+                </button>
+            </div>
+            <p>{{note.content|truncatechars:50}}</p>
+        </li>
+    </ul>
+    {% endfor %}
+    {% endfor %}
+
+</ul>
+{% else %}
+<h3>Nothing here, you can add new notes using the 'add note' button.</h3>
+{% endif %}

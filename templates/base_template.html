@@ -26,6 +26,9 @@
                     <li class="nav-item">
                         <a class="nav-link link-light nav-text" href="{% url 'timetable:main' %}">Timetables</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link link-light nav-text" href="{% url 'notes:main' %}">Notes</a>
+                    </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link link-light nav-text" href="{% url 'authentication:user_profile' user.username %}">{{ user.username }}</a>

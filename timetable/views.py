@@ -253,7 +253,7 @@ def user_timetables(request):
 def public_timetables(request):
     not_assigned_timetables = Timetable_assignment.objects.filter(student_id=None)
     public_timetables = Timetable.objects.filter(id__in=not_assigned_timetables.values("timetable_id"))
-    if public_timetables: return render(request, "timetable/timetable_list_public.html", {"public_timetables": public_timetables})
+    return render(request, "timetable/timetable_list_public.html", {"public_timetables": public_timetables})
 
 def get_available_timetables(request):
     #if request.user.is_authenticated:
@@ -467,7 +467,8 @@ def publish_timetable(request, timetable_id):
         messages.error(request, "Something went wrong when publishing timetable", e)
         return redirect("timetable:main")
     messages.success(request, "Timetable published")
-    return redirect("timetable:main")
+    return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+    #return redirect("timetable:main")
 
 def add_existing_timetable(request):
     user = request.user if request.user.is_authenticated else None

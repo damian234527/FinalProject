@@ -1,0 +1,26 @@
+<div class="modal-dialog">
+  <form hx-post="{{ request.path }}" class="modal-content">
+    {% csrf_token %}
+    <div class="modal-header">
+      <h5 class="modal-title">Add note</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            {% if message.tags %}
+              <li class="{{ message.tags }}">{{ message }}</li>
+            {% else %}
+              <li>{{ message }}</li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      {% endif %}
+      {{ new_note_form.as_p }}
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </form>
+</div>
