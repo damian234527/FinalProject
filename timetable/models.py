@@ -83,8 +83,8 @@ class Timetable(models.Model):
                     else:
                         activity_type = Activity_type.objects.create(type_name_pl=created_activity_type_name, type_name=activity_type_name_pl)
                         newly_created_types.append(created_activity_type_name)
-                course, created = Course.objects.get_or_create(course_name=course_acronym, course_initials=course_acronym)
-                timetable.course_set.add(course)
+                course, created = Course.objects.get_or_create(course_name=course_acronym, course_initials=course_acronym, timetable=timetable)
+                # timetable.course_set.add(course)
                 activity = Activity.objects.create(time_start=time_start, time_end=time_end, description=description, time_duration=time_duration, timetable=timetable, course=course, activity_type=activity_type)
                 teacher_objects = [None] * len(teachers)
                 for i, teacher in enumerate(teachers):
@@ -110,7 +110,7 @@ class Course(models.Model):
     course_initials = models.CharField(max_length=30)
     course_name = models.CharField(max_length=100)
     course_description = models.CharField(max_length=255)
-    timetable = models.ManyToManyField(Timetable)
+    timetable = models.ForeignKey(Timetable, on_delete=models.CASCADE)
     def __str__(self):
         return self.course_initials
 

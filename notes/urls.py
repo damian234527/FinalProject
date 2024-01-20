@@ -14,6 +14,7 @@ urlpatterns = [
     path("<int:note_id>/delete/", views.delete_note, name="delete_note"),
     path("<int:note_id>/remove/", views.remove_note, name="remove_note"),
     path("<int:note_id>/share/", views.share_note, name="share_note"),
+    path("<int:note_id>/publish/", views.publish_note, name="publish_note"),
     path("assign/", views.assign_note, name="assign_note"),
 
 ]

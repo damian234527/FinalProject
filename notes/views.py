@@ -59,15 +59,16 @@ def add_note(request):
         new_note_form = NoteForm(user)
         return render(request, "notes/add_note.html", {"new_note_form": new_note_form})
 def edit_note(request, note_id):
+    user = request.user if request.user.is_authenticated else None
     current_note = get_object_or_404(Note, pk=note_id)
     if request.method == "POST":
-        edit_note_form = NoteForm(request.POST, instance=current_note)
+        edit_note_form = NoteForm(user, request.POST, instance=current_note)
         if edit_note_form.is_valid():
             edit_note_form.save()
             return HttpResponse(status=204, headers={'HX-Trigger': 'note_changed'})
     else:
-        edit_note_form = NoteForm(instance=current_note)
-        return render(request, "notes/add_note.html", {"edit_note_form": edit_note_form})
+        edit_note_form = NoteForm(user, instance=current_note)
+        return render(request, "notes/add_note.html", {"new_note_form": edit_note_form})
 
 def share_note(request, note_id):
     note = Note.objects.get(pk=note_id)
@@ -78,20 +79,24 @@ def share_note(request, note_id):
 
 def delete_note(request, note_id):
     try:
-        note = get_object_or_404(Note, pk = note_id)
+        note = get_object_or_404(Note, pk=note_id)
         note.delete()
         return HttpResponse(status=204, headers={'HX-Trigger': 'note_changed'})
     except Exception as e:
         messages.error(request, "Something went wrong when deleting note: ", e)
+    return redirect("notes:main")
 
 def remove_note(request, note_id):
-    try:
-        note = get_object_or_404(Note, pk = note_id)
-        note.delete()
-        return HttpResponse(status=204, headers={'HX-Trigger': 'note_changed'})
-    except Exception as e:
-        messages.error(request, "Something went wrong when deleting note: ", e)
-
+    user = request.user if request.user.is_authenticated else None
+    if user:
+        try:
+            note = get_object_or_404(Note, pk=note_id)
+            note_assignment = get_object_or_404(Note_assignment, student=user, note=note)
+            note_assignment.delete()
+            # return HttpResponse(status=204, headers={'HX-Trigger': 'note_changed'})
+        except Exception as e:
+            messages.error(request, "Something went wrong when deleting note: ", e)
+        return redirect("notes:main")
 def assign_note(request):
     user = request.user if request.user.is_authenticated else None
     if user:
@@ -118,3 +123,15 @@ def change_status(request, note_id):
     note.is_active = not note.is_active
     note.save()
     return redirect("notes:main")
+
+def publish_note(request, note_id):
+    try:
+        current_note_assignments = Note_assignment.objects.filter(note=note_id)
+        current_note_assignments.delete()
+        public_note_assignment = Note_assignment.objects.create(note=note_id, student_id=None)
+    except Exception as e:
+        messages.error(request, "Something went wrong when publishing timetable", e)
+        return redirect("timetable:main")
+    messages.success(request, "Note published")
+    return HttpResponse(status=204, headers={'HX-Trigger': 'note_changed'})
+    #return redirect("timetable:main")

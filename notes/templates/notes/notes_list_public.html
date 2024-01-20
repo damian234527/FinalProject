@@ -8,18 +8,22 @@
     {% for note in notes %}
     <ul class="note-sublist">
         <li class="note-item">
-            <h5>
-                <a href="{% url 'notes:details' note.id %}">{{ note.name }}</a>
-                {% if note.author %}
-                by
-                <a href="{% url 'authentication:user_profile' note.author %}"><i> {{ note.author }}</i></a>
-                {% else %}
-                <i>by anonymous user</i>
-                {% endif %}
-                on {{note.date_created|date:"d.m.Y, G:i"}}
-            </h5>
+            <div style="display: flex; justify-content: space-between;">
+                <h5>
+                    <a href="{% url 'notes:details' note.id %}">{{ note.name }}</a>
+                    {% if note.author %}
+                    by
+                    <a href="{% url 'authentication:user_profile' note.author %}"><i> {{ note.author }}</i></a>
+                    {% else %}
+                    <i>by anonymous user</i>
+                    {% endif %}
+                    on {{note.date_created|date:"d.m.Y, G:i"}}
+                </h5>
+                <strong style="text-align: right">{{note.timetable}}</strong>
+            </div>
+
             <div class="btn-group" style="float: right;">
-                {% if request.user == note.author %}
+                {% if request.user.is_superuser or request.user == note.author %}
                 <button type="submit" class="btn btn-primary btn-medium" hx-get="{% url 'notes:rename_note' note.id %}" hx-target="#dialog">
                     <strong class="btn-medium-text">
                         Rename
@@ -32,22 +36,12 @@
                         </strong>
                     </button>
                 </form>
-                {% else %}
-                <form action="{% url 'notes:remove_note' note.id %}" onsubmit="return confirm('Are you sure you want to remove the note? This action cannot be undone.')" >
-                    <button type="submit" class="btn btn-primary btn-medium">
-                        <strong class="btn-medium-text">
-                            Remove
-                        </strong>
-                    </button>
-                </form>
                 {% endif %}
-                <button type="submit" class="btn btn-primary btn-medium" hx-get="{% url 'notes:share_note' note.id %}" hx-target="#dialog">
-                    <strong class="btn-medium-text">
-                        Share
-                    </strong>
-                </button>
             </div>
             <p>{{note.content|truncatechars:50}}</p>
+            {% if note.date_modified != note.date_created %}
+            <p style="text-align: right">Last modified: {{note.date_modified|date:"d.m.Y, G:i"}}</p>
+            {% endif %}
         </li>
     </ul>
     {% endfor %}

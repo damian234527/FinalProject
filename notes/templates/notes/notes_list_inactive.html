@@ -55,6 +55,9 @@
                 </button>
             </div>
             <p>{{note.content|truncatechars:50}}</p>
+            {% if note.date_modified != note.date_created %}
+            <p style="text-align: right">Last modified: {{note.date_modified|date:"d.m.Y, G:i"}}</p>
+            {% endif %}
         </li>
     </ul>
     {% endfor %}
