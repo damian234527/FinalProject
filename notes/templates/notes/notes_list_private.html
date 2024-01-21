@@ -8,16 +8,19 @@
     {% for note in notes %}
     <ul class="note-sublist">
         <li class="note-item">
-            <h5>
-                <a href="{% url 'notes:details' note.id %}">{{ note.name }}</a>
-                {% if note.author %}
-                by
-                <a href="{% url 'authentication:user_profile' note.author %}"><i> {{ note.author }}</i></a>
-                {% else %}
-                <i>by anonymous user</i>
-                {% endif %}
-                on {{note.date_created|date:"d.m.Y, G:i"}}
-            </h5>
+            <div style="display: flex; justify-content: space-between;">
+                <h5>
+                    <a href="{% url 'notes:details' note.id %}">{{ note.name }}</a>
+                    {% if note.author %}
+                    by
+                    <a href="{% url 'authentication:user_profile' note.author %}"><i> {{ note.author }}</i></a>
+                    {% else %}
+                    <i>by anonymous user</i>
+                    {% endif %}
+                    on {{note.date_created|date:"d.m.Y, G:i"}}
+                </h5>
+                <strong style="text-align: right">{{note.timetable}}</strong>
+            </div>
             <div class="btn-group" style="float: right;">
                 {% if request.user == note.author %}
                 <form action="{% url 'notes:change_status' note.id %}" onsubmit="return confirm('Are you sure you want to set this note as inactive?')">
@@ -65,5 +68,5 @@
 
 </ul>
 {% else %}
-<h3 class="nothing-info">Nothing here, you can add new notes using the 'add note' button.</h3>
+<h3 class="nothing-info">No private notes available.</h3>
 {% endif %}

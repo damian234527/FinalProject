@@ -117,3 +117,27 @@ input[type=button], input[type=submit], input[type=reset] {
     margin-top:2vw;
     margin-bottom:4vw;
 }
+
+.homepage-grid {
+    display: grid;
+    grid-template-areas:
+    'timetable-for-today my-notes'
+    'timetable-import my-notes'
+    'exam-dates my-notes';
+    grid-template-columns: 1fr 1fr;
+    column-gap: 2vw;
+
+}
+
+.timetable-for-today {
+    grid-area: timetable-for-today
+}
+.timetable-import {
+    grid-area: timetable-import
+}
+.exam-dates {
+    grid-area: exam-dates
+}
+.my-notes {
+    grid-area: my-notes
+}

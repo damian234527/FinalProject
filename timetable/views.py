@@ -5,7 +5,7 @@ from django.db.models import Q, Count, Sum
 from django.http import HttpResponse, Http404
 from django.contrib import messages
 from .models import Timetable, Activity, Activity_type, Teacher, Course, Timetable_assignment
-from .forms import ActivityForm, ActivityTypesForm, TeacherForm, CourseForm, TimetableMergingForm, TimetableRenameForm, EditActivityTypeForm, ICSFileUploadForm, AddExistingTimetableForm
+from .forms import ActivityForm, ActivityTypesForm, TeacherForm, CourseForm, TimetableMergingForm, TimetableRenameForm, EditActivityTypeForm, ICSFileUploadForm, AddExistingTimetableForm, TimetableForm
 
 def check_access_permission(view_func):
     def _wrapped_view(request, *args, **kwargs):
@@ -266,7 +266,7 @@ def timetable_details(request, timetable_id):
     # timetable = get_object_or_404(Timetable, pk=timetable_id)
     return render(request, "timetable/timetable_details.html", {"timetable_id": timetable_id})
 
-@check_access_permission
+# @check_access_permission
 def update_day(request, timetable_id, year, month, day):
     day_date = datetime(year, month, day).date()
     generate_time = request.GET.get("generate", True)
@@ -640,3 +640,33 @@ def delete_course(request, timetable_id, course_initials):
     except Exception as e:
         messages.error(request, "Something went wrong when deleting course: ", e)
 
+def get_exams(request):
+    user = request.user if request.user.is_authenticated else None
+    requested_activity_types = Activity_type.objects.filter(
+        Q(type_name="exam", type_name_pl="exam", type_color="#FF0000") | Q(type_name="colloquium",
+                                                                                   type_name_pl="zal",
+                                                                                   type_color="#8C1D04"))
+    if user:
+        exams = Activity.objects.filter(timetable=user.active_timetable, activity_type__in=requested_activity_types)
+    else:
+        timetable_assignments = Timetable_assignment.objects.filter(student_id=None)
+        available_timetables = Timetable.objects.filter(id__in=timetable_assignments.values("timetable_id"))
+        exams = Activity.objects.filter(timetable__in=available_timetables, activity_type__in=requested_activity_types)
+    print(exams)
+    return render(request, "timetable/exams.html", {"exams": exams})
+
+def select_active_timetable(request):
+    user = request.user if request.user.is_authenticated else None
+    if user:
+        if request.method == "POST":
+            timetable_form = TimetableForm(user, request.POST)
+            if timetable_form.is_valid():
+                print(user.active_timetable)
+                timetable = timetable_form.cleaned_data["timetable"]
+                user.active_timetable = timetable
+                user.save()
+        else:
+            current_timetable = user.active_timetable
+            print(current_timetable)
+            timetable_form = TimetableForm(user, current_timetable=current_timetable)
+        return render(request, "timetable/active_timetable.html", {"timetable_form": timetable_form})

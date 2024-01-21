@@ -28,4 +28,5 @@ This is the profile of the {{student.username}}
     <button type="submit" class="btn btn-primary" hx-get="{% url 'authentication:change_password' student.username %}" hx-target="#dialog">Change password</button>
     <button type="submit" class="btn btn-primary" hx-get="{% url 'authentication:edit_profile' student.username %}" hx-target="#dialog">Edit profile</button>
 </div>
+<div hx-trigger="load" hx-get="{% url 'timetable:select_active_timetable' %}" hx-target="this"></div>
 {% endif %}

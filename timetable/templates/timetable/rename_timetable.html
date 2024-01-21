@@ -1,3 +1,4 @@
+{% load crispy_forms_tags %}
 <div class="modal-dialog">
     <form hx-post="{{ request.path }}" class="modal-content">
         <div class="modal-header">
@@ -16,7 +17,7 @@
                 {% endfor %}
               </ul>
             {% endif %}
-            {{ rename_form.as_p }}
+            {{ rename_form|crispy }}
         </div>
         <div class="modal-footer">
             <button type="submit" class="btn btn-primary">Submit</button>

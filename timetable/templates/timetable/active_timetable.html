@@ -1,0 +1,6 @@
+{% load crispy_forms_tags %}
+<form method="post" hx-post="{% url 'timetable:select_active_timetable' %}" hx-trigger="submit">
+    {% csrf_token %}
+    {{ timetable_form|crispy }}
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

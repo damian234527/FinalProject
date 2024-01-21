@@ -24,9 +24,9 @@
 
             <div class="btn-group" style="float: right;">
                 {% if request.user.is_superuser or request.user == note.author %}
-                <button type="submit" class="btn btn-primary btn-medium" hx-get="{% url 'notes:rename_note' note.id %}" hx-target="#dialog">
+                <button type="submit" class="btn btn-primary btn-medium" hx-get="{% url 'notes:edit_note' note.id %}" hx-target="#dialog">
                     <strong class="btn-medium-text">
-                        Rename
+                        Edit
                     </strong>
                 </button>
                 <form action="{% url 'notes:delete_note' note.id %}" onsubmit="return confirm('Are you sure you want to delete the note? This action cannot be undone.')">
@@ -49,5 +49,5 @@
 
 </ul>
 {% else %}
-<h3 class="nothing-info">Nothing here, you can add new notes using the 'add note' button.</h3>
+<h3 class="nothing-info">No public notes available.</h3>
 {% endif %}

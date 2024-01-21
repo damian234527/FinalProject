@@ -6,12 +6,33 @@
 <h1>Main Page</h1>
 {% if user.is_authenticated %}
     <p>Hi, {{user.username}} </p>
+
+<div class="homepage-grid">
+        <div class="timetable-for-today">
+            <h3><strong>Timetable for today</strong></h3>
+            {% if user.active_timetable %}
+            <div hx-trigger="load" hx-get="{% url 'timetable:update_day' user.active_timetable.id year month day %}?generate=False" hx-target="this"></div>
+            {% else %}
+            <p>No active timetable set</p>
+            <div hx-trigger="load" hx-get="{% url 'timetable:select_active_timetable' %}" hx-target="this"></div>
+            {% endif %}
+        </div>
+        <div class="timetable-import">
+            <h3><strong>Import timetable</strong></h3>
+            <form action="{% url 'timetable:import_ics_file' %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Import .ics file">
+            </form>
+        </div>
+        <div class="exam-dates">
+            <h3><strong>Exams</strong></h3>
+            <div hx-trigger="load" hx-get="{% url 'timetable:get_exams' %}" hx-target="this"></div>
+        </div>
+        <div class="my-notes">
+            <h3><strong>Notes</strong></h3>
+    <div class="notes-subsection" id="user-notes" hx-trigger="load" hx-get="{% url 'notes:user_list' %}" hx-target="this"></div>
+        </div>
+</div>
+
 {% endif %}
-  <button hx-get="{% url 'timetable:display_current_month' 4 %}" hx-swap="innerHTML">
-    Show current month
-  </button>
-<form action="{% url 'timetable:import_ics_file' %}" method="post">
-    {% csrf_token %}
-    <input type="submit" value="Import .ics file">
-</form>
 {% endblock %}

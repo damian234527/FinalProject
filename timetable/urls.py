@@ -9,6 +9,8 @@ urlpatterns = [
     path("import/", views.upload_new_timetable, name="import_ics_file"),
     path("merge/", views.merge_timetable, name="merge_timetable"),
     path("add/", views.add_existing_timetable, name="add_existing_timetable"),
+    path("exams/", views.get_exams, name="get_exams"),
+    path("active_timetable/", views.select_active_timetable, name="select_active_timetable"),
     path("<int:timetable_id>/", views.timetable_details, name="details"),
 
     # display_month

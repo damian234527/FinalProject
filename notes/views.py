@@ -21,12 +21,13 @@ def user_notes(request):
         assigned_notes = Note_assignment.objects.filter(student_id=request.user.id)
         user_notes = Note.objects.filter(Q(id__in=assigned_notes.values("note_id")) & Q(is_active=True))
         notes_by_course = sort_by_course(user_notes)
-        print(notes_by_course)
+        # print(notes_by_course)
         return render(request, "notes/notes_list_private.html", {"notes_by_course": notes_by_course})
 
 def public_notes(request):
     not_assigned_notes = Note_assignment.objects.filter(student_id=None)
     public_notes = Note.objects.filter(Q(id__in=not_assigned_notes.values("note_id")) & Q(is_active=True))
+    # public_notes = Note.objects.filter(id__in=not_assigned_notes.values("note_id"))
     notes_by_course = sort_by_course(public_notes)
     return render(request, "notes/notes_list_public.html", {"notes_by_course": notes_by_course})
 
@@ -81,7 +82,7 @@ def delete_note(request, note_id):
     try:
         note = get_object_or_404(Note, pk=note_id)
         note.delete()
-        return HttpResponse(status=204, headers={'HX-Trigger': 'note_changed'})
+        # return HttpResponse(status=204, headers={'HX-Trigger': 'note_changed'})
     except Exception as e:
         messages.error(request, "Something went wrong when deleting note: ", e)
     return redirect("notes:main")
@@ -113,7 +114,7 @@ def assign_note(request):
                     else:
                         messages.error(request, "Something went wrong")
                 messages.success(request, "Timetable added successfully")
-                return HttpResponse(status=204)
+                return HttpResponse(status=204, headers={'HX-Trigger': 'note_changed'})
         else:
             add_note_form = AddExistingNoteForm()
         return render(request, "notes/add_existing_note.html", {"add_note_form": add_note_form})
@@ -126,9 +127,9 @@ def change_status(request, note_id):
 
 def publish_note(request, note_id):
     try:
-        current_note_assignments = Note_assignment.objects.filter(note=note_id)
+        current_note_assignments = Note_assignment.objects.filter(note_id=note_id)
         current_note_assignments.delete()
-        public_note_assignment = Note_assignment.objects.create(note=note_id, student_id=None)
+        public_note_assignment = Note_assignment.objects.create(note_id=note_id, student_id=None)
     except Exception as e:
         messages.error(request, "Something went wrong when publishing timetable", e)
         return redirect("timetable:main")
