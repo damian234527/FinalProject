@@ -1,4 +1,13 @@
-Tets
 {% for exam in exams %}
-{{exam}}
+<div class="exam">
+    <h4><strong>{{exam.course}} {{exam.activity_type}}</strong></h4>
+    <h4>{{exam.time_start|date:"d.m.Y, G:i"}} - {{exam.time_end|date:"G:i"}}</h4>
+    <p>Duration: {{exam.time_duration}}</p>
+    <p>
+        {{exam.description}}
+    </p>
+    <p>
+        {{exam.teacher}}
+    </p>
+</div>
 {% endfor %}

@@ -642,17 +642,17 @@ def delete_course(request, timetable_id, course_initials):
 
 def get_exams(request):
     user = request.user if request.user.is_authenticated else None
+    time_now = datetime.now()
     requested_activity_types = Activity_type.objects.filter(
         Q(type_name="exam", type_name_pl="exam", type_color="#FF0000") | Q(type_name="colloquium",
                                                                                    type_name_pl="zal",
                                                                                    type_color="#8C1D04"))
     if user:
-        exams = Activity.objects.filter(timetable=user.active_timetable, activity_type__in=requested_activity_types)
+        exams = Activity.objects.filter(timetable=user.active_timetable, activity_type__in=requested_activity_types, time_end__gte=time_now).order_by("time_start")
     else:
         timetable_assignments = Timetable_assignment.objects.filter(student_id=None)
         available_timetables = Timetable.objects.filter(id__in=timetable_assignments.values("timetable_id"))
-        exams = Activity.objects.filter(timetable__in=available_timetables, activity_type__in=requested_activity_types)
-    print(exams)
+        exams = Activity.objects.filter(timetable__in=available_timetables, activity_type__in=requested_activity_types, time_end__gte=time_now).order_by("time_start")
     return render(request, "timetable/exams.html", {"exams": exams})
 
 def select_active_timetable(request):
@@ -661,12 +661,10 @@ def select_active_timetable(request):
         if request.method == "POST":
             timetable_form = TimetableForm(user, request.POST)
             if timetable_form.is_valid():
-                print(user.active_timetable)
                 timetable = timetable_form.cleaned_data["timetable"]
                 user.active_timetable = timetable
                 user.save()
         else:
             current_timetable = user.active_timetable
-            print(current_timetable)
             timetable_form = TimetableForm(user, current_timetable=current_timetable)
         return render(request, "timetable/active_timetable.html", {"timetable_form": timetable_form})

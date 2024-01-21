@@ -1,3 +1,6 @@
+body {
+    font-family: Arial, sans-serif;
+}
 .aspectwrapper {
   display: inline-block;
   width: 100%;
@@ -141,3 +144,4 @@ input[type=button], input[type=submit], input[type=reset] {
 .my-notes {
     grid-area: my-notes
 }
+

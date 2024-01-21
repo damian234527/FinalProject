@@ -10,8 +10,8 @@ class ICSFileUploadForm(forms.Form):
 
 # Activity add/edit form
 class ActivityForm(forms.ModelForm):
-    course = forms.ModelChoiceField(queryset=models.Course.objects.none(), required=False, help_text="Course")
-    activity_type = forms.ModelChoiceField(queryset=models.Activity_type.objects.none(), required=False, help_text="Activity type")
+    course = forms.ModelChoiceField(queryset=models.Course.objects.none(), required=False) # help_text="Course"
+    activity_type = forms.ModelChoiceField(queryset=models.Activity_type.objects.none(), required=False) # help_text="Activity type"
 
     class Meta:
         model = models.Activity
