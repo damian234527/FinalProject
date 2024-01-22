@@ -128,6 +128,7 @@ input[type=button], input[type=submit], input[type=reset] {
     'timetable-import my-notes'
     'exam-dates my-notes';
     grid-template-columns: 1fr 1fr;
+    row-gap: 4vw;
     column-gap: 2vw;
 
 }

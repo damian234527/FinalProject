@@ -9,7 +9,7 @@ from .forms import ActivityForm, ActivityTypesForm, TeacherForm, CourseForm, Tim
 
 def check_access_permission(view_func):
     def _wrapped_view(request, *args, **kwargs):
-        timetable_id = kwargs.get('timetable_id')
+        timetable_id = kwargs.get("timetable_id")
         user = request.user if request.user.is_authenticated else None
         access = None
         if user:
@@ -54,18 +54,18 @@ def display_month(request, timetable_id, year=None, month=None):
         current_month = True
 
     # Get the month calendar for the specified year and month when using buttons
-    if request.method == 'POST':
+    if request.method == "POST":
         change_value = request.POST.get("change_value", "0")
         change_value = int(change_value)
         if change_value != 0:
             year = year + (month + change_value - 1) // 12
             month = ((month + change_value - 1) % 12) + 1
-            return redirect('timetable:display_month', timetable_id, year, month)
+            return redirect("timetable:display_month", timetable_id, year, month)
         week_number = int(request.POST.get("week_number", "0"))
         if week_number != 0:
             iso_date = datetime.strptime(f"{year}-W{week_number}-1","%Y-W%W-%w")
             month = iso_date.strftime("%m")
-            return redirect('timetable:display_month', timetable_id, year, month)
+            return redirect("timetable:display_month", timetable_id, year, month)
     calendar_month = get_month_calendar(year, month)
     month_name = calendar.month_name[month]
     first_day = calendar_month[0][0]
@@ -126,15 +126,15 @@ def month_stats(request, timetable_id, year, month):
     # Total number of activities
     total_activities = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).count()
     # Total duration of activities
-    total_duration = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).aggregate(Sum('time_duration'))['time_duration__sum']
+    total_duration = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).aggregate(Sum("time_duration"))["time_duration__sum"]
     # Number and duration of activities by each activity_type
     activity_type_summary = (
         Activity.objects
         .filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date)
-        .values('activity_type__type_name')
+        .values("activity_type__type_name")
         .annotate(
-            activity_count=Count('id'),
-            total_duration=Sum('time_duration')
+            activity_count=Count("id"),
+            total_duration=Sum("time_duration")
         )
     )
     return render(request, "timetable/month_stats.html", {"activities_total": total_activities, "activities_duration":total_duration, "activity_types": activity_type_summary})
@@ -147,20 +147,20 @@ def display_week(request, timetable_id, year=None, week=None):
         year = current_date.year
         week = current_date.isocalendar()[1]
     # Get the week calendar for the specified year and month when using buttons
-    if request.method == 'POST':
+    if request.method == "POST":
         change_value = request.POST.get("change_value", "0")
         change_value = int(change_value)
         if change_value != 0:
             year = year + (week + change_value - 1) // 52
             week = ((week + change_value - 1) % 52) + 1
             # print(f"{year} - {week}")
-            return redirect('timetable:display_week', timetable_id, year, week)
+            return redirect("timetable:display_week", timetable_id, year, week)
         day_and_month = request.POST.get("day_and_month", "")
         if day_and_month != "":
             day, month = int(day_and_month.split("_")[0]), int(day_and_month.split("_")[1])
             date = datetime(year, month, day)
             week = date.isocalendar()[1]
-            return redirect('timetable:display_week', timetable_id, year, week)
+            return redirect("timetable:display_week", timetable_id, year, week)
     activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
     return render(request, "timetable/week.html",
                   {"timetable_id": timetable_id,
@@ -169,18 +169,17 @@ def display_week(request, timetable_id, year=None, week=None):
                    "activity_types": activity_types})
 
 def week_stats(request, timetable_id, year, week):
-    # Assuming 'year' and 'week' are parameters in your URL
-    start_date = datetime.strptime(f'{year}-{week}-1', "%Y-%W-%w").replace()
+    start_date = datetime.strptime(f"{year}-{week}-1", "%Y-%W-%w").replace()
     end_date = start_date + timedelta(days=7)
     total_activities = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).count()
-    total_duration = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).aggregate(Sum('time_duration'))['time_duration__sum']
+    total_duration = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).aggregate(Sum("time_duration"))["time_duration__sum"]
     activity_type_summary = (
         Activity.objects
         .filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date)
-        .values('activity_type__type_name')
+        .values("activity_type__type_name")
         .annotate(
-            activity_count=Count('id'),
-            total_duration=Sum('time_duration')
+            activity_count=Count("id"),
+            total_duration=Sum("time_duration")
         )
     )
     return render(request, "timetable/week_stats.html", {"activities_total": total_activities, "activities_duration":total_duration, "activity_types": activity_type_summary})
@@ -197,7 +196,7 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
         day = current_date.day
 
     # Get the day calendar for the specified year and month when using buttons
-    if request.method == 'POST':
+    if request.method == "POST":
         change_value = request.POST.get("change_value", "0")
         change_value = int(change_value)
         if change_value != 0:
@@ -205,7 +204,7 @@ def display_day(request, timetable_id, year=None, month=None, day=None):
             year = new_date.year
             month = new_date.month
             day = new_date.day
-            return redirect('timetable:display_day', timetable_id, year, month, day)
+            return redirect("timetable:display_day", timetable_id, year, month, day)
 
     activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
 
@@ -230,14 +229,14 @@ def day_stats(request, timetable_id, year, month, day):
     start_date = datetime(int(year), int(month), int(day))
     end_date = start_date + timedelta(days=1)
     total_activities = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).count()
-    total_duration = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).aggregate(Sum('time_duration'))['time_duration__sum']
+    total_duration = Activity.objects.filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date).aggregate(Sum("time_duration"))["time_duration__sum"]
     activity_type_summary = (
         Activity.objects
         .filter(timetable_id=timetable_id, time_start__gte=start_date, time_end__lt=end_date)
-        .values('activity_type__type_name')
+        .values("activity_type__type_name")
         .annotate(
-            activity_count=Count('id'),
-            total_duration=Sum('time_duration')
+            activity_count=Count("id"),
+            total_duration=Sum("time_duration")
         )
     )
     return render(request, "timetable/day_stats.html", {"activities_total": total_activities, "activities_duration":total_duration, "activity_types": activity_type_summary})
@@ -278,7 +277,7 @@ def update_day(request, timetable_id, year, month, day):
     else:
         activity_types = Activity_type.objects.filter(activity__timetable_id=timetable_id).distinct()
         if request.method == "POST":
-            selected_activity_types = request.POST.getlist('activity_types', [])
+            selected_activity_types = request.POST.getlist("activity_types", [])
         else:
             selected_activity_types = activity_types
 
@@ -360,9 +359,9 @@ def update_week(request, timetable_id, year, week):
     current_year = current_date.year
     current_month = current_date.month
     today = None
-    activity_types = list(Activity_type.objects.filter(activity__timetable_id=timetable_id).values_list('id', flat=True).distinct())
+    activity_types = list(Activity_type.objects.filter(activity__timetable_id=timetable_id).values_list("id", flat=True).distinct())
     if request.method == "POST":
-        selected_activity_types = request.POST.getlist('activity_types', [])
+        selected_activity_types = request.POST.getlist("activity_types", [])
     else:
         selected_activity_types = activity_types
     # print(selected_activity_types)
@@ -445,7 +444,7 @@ def rename_timetable(request, timetable_id):
         rename_form = TimetableRenameForm(request.POST, instance=timetable)
         if rename_form.is_valid():
             rename_form.save()
-            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+            return HttpResponse(status=204, headers={"HX-Trigger": "timetable_changed"})
     else:
         rename_form = TimetableRenameForm(instance=timetable)
     return render(request, "timetable/rename_timetable.html", {"rename_form": rename_form})
@@ -467,7 +466,7 @@ def publish_timetable(request, timetable_id):
         messages.error(request, "Something went wrong when publishing timetable", e)
         return redirect("timetable:main")
     messages.success(request, "Timetable published")
-    return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+    return HttpResponse(status=204, headers={"HX-Trigger": "timetable_changed"})
     #return redirect("timetable:main")
 
 def add_existing_timetable(request):
@@ -528,10 +527,11 @@ def add_activity(request, timetable_id):
         create_new_activity_form = ActivityForm(user, request.POST)
         if create_new_activity_form.is_valid():
             activity = create_new_activity_form.save(commit=False)
+            print("tets")
             activity.time_duration = activity.time_end - activity.time_start
             activity.timetable = timetable
             activity.save()
-            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+            return HttpResponse(status=204, headers={"HX-Trigger": "timetable_changed"})
     else:
         create_new_activity_form = ActivityForm(user, get_time_now=True)
 
@@ -548,7 +548,7 @@ def edit_activity(request, timetable_id, activity_id):
             activity.time_duration = current_activity.time_end - current_activity.time_start
             activity.save()
             messages.success(request, "Activity edited successfully")
-            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+            return HttpResponse(status=204, headers={"HX-Trigger": "timetable_changed"})
         else:
             messages.error(request, "Something went wrong when editing activity")
     else:
@@ -561,7 +561,7 @@ def delete_activity(request, timetable_id, activity_id):
     try:
         activity = get_object_or_404(Activity, pk=activity_id)
         activity.delete()
-        return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+        return HttpResponse(status=204, headers={"HX-Trigger": "timetable_changed"})
     except Exception as e:
         messages.error(request, "Something went wrong when deleting activity: ", e)
 
@@ -603,7 +603,7 @@ def edit_activity_type(request, activity_type_id):
         edit_activity_type_form = EditActivityTypeForm(request.POST, instance=current_activity_type)
         if edit_activity_type_form.is_valid():
             edit_activity_type_form.save()
-            return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+            return HttpResponse(status=204, headers={"HX-Trigger": "timetable_changed"})
         else:
             messages.error(request, "Something went wrong: ", edit_activity_type_form.errors)
     else:
@@ -636,7 +636,7 @@ def delete_course(request, timetable_id, course_initials):
     try:
         activity = get_object_or_404(Course, course_initials = course_initials)
         activity.delete()
-        return HttpResponse(status=204, headers={'HX-Trigger': 'timetable_changed'})
+        return HttpResponse(status=204, headers={"HX-Trigger": "timetable_changed"})
     except Exception as e:
         messages.error(request, "Something went wrong when deleting course: ", e)
 
@@ -667,4 +667,4 @@ def select_active_timetable(request):
         else:
             current_timetable = user.active_timetable
             timetable_form = TimetableForm(user, current_timetable=current_timetable)
-        return render(request, "timetable/active_timetable.html", {"timetable_form": timetable_form})
+        return render(request, "timetable/active_timetable.html", {"timetable_form": timetable_form}, headers={"HX-Trigger": "timetable_set"})

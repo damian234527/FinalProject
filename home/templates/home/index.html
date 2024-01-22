@@ -14,7 +14,8 @@
             <div hx-trigger="load" hx-get="{% url 'timetable:update_day' user.active_timetable.id year month day %}?generate=False" hx-target="this"></div>
             {% else %}
             <p>No active timetable set</p>
-            <div hx-trigger="load" hx-get="{% url 'timetable:select_active_timetable' %}" hx-target="this"></div>
+            <div id="timetable-display" hx-trigger="load" hx-get="{% url 'timetable:select_active_timetable' %}" hx-target="this"></div>
+            <div hx-trigger="timetable_set from:body" hx-get="{% url 'timetable:update_day' user.active_timetable.id year month day %}?generate=False" hx-target="#timetable-display"></div>
             {% endif %}
         </div>
         <div class="timetable-import">

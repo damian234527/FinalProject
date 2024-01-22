@@ -10,6 +10,7 @@ class ICSFileUploadForm(forms.Form):
 
 # Activity add/edit form
 class ActivityForm(forms.ModelForm):
+    teacher = forms.CharField(max_length=255, help_text="teacher acronyms (e.g. PF, MiKa or DKostrz) separated by commma")
     course = forms.ModelChoiceField(queryset=models.Course.objects.none(), required=False) # help_text="Course"
     activity_type = forms.ModelChoiceField(queryset=models.Activity_type.objects.none(), required=False) # help_text="Activity type"
 
@@ -33,8 +34,30 @@ class ActivityForm(forms.ModelForm):
         self.set_activity_type_choices(user, assigned_timetables)
 
         if get_time_now:
-            self.fields['time_start'].initial = timezone.now()
-            self.fields['time_end'].initial = timezone.now()
+            self.fields["time_start"].initial = timezone.now()
+            self.fields["time_end"].initial = timezone.now()
+        instance = kwargs.get("instance")
+        if instance and not self.is_bound:
+            teachers = instance.teacher.all()
+            cleaned_teachers = self.clean_teachers(teachers)
+            # print(cleaned_teachers)
+            self.fields["teacher"].initial = cleaned_teachers
+        #self.check_teachers()
+    def clean_teachers(self, teachers):
+        if teachers:
+            return ", ".join([teacher.teacher_initials for teacher in teachers])
+        return ""
+
+    def check_teachers(self, teacher_initials):
+        # teacher_initials = self.cleaned_data.get("teacher", "")
+        teacher_initials_list = [initial.strip() for initial in teacher_initials.split(',') if initial.strip()]
+
+        teachers = []
+        for initial in teacher_initials_list:
+            teacher, created = models.Teacher.objects.get_or_create(teacher_initials=initial)
+            teachers.append(teacher)
+
+        return teachers
 
     def set_activity_type_choices(self, user, assigned_timetables):
         user_activities = models.Activity.objects.filter(timetable_id__in=assigned_timetables.values("timetable_id"))
@@ -64,6 +87,21 @@ class ActivityForm(forms.ModelForm):
 
         return choices
 
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.time_duration = instance.time_end - instance.time_start
+        course = self.cleaned_data.get("course")
+        instance.timetable = course.timetable
+        teachers = self.cleaned_data.get("teacher", [])
+        instance.save()
+        teachers = self.check_teachers(teachers)
+        # for i, teacher in enumerate(teachers):
+            # teacher.activity_set.add(instance)
+        instance.teacher.set(teachers)
+
+        if commit:
+            instance.save()
+        return instance
 
 
 class ActivityTypesForm(forms.Form):
@@ -110,8 +148,8 @@ class TimetableMergingForm(forms.Form):
         else:
             assigned_timetables = models.Timetable_assignment.objects.filter(student_id=None)
         user_timetables = models.Timetable.objects.filter(id__in=assigned_timetables.values("timetable_id"))
-        self.fields['timetable1'].queryset = user_timetables
-        self.fields['timetable2'].queryset = user_timetables
+        self.fields["timetable1"].queryset = user_timetables
+        self.fields["timetable2"].queryset = user_timetables
 
 class TimetableRenameForm(forms.ModelForm):
     class Meta:
