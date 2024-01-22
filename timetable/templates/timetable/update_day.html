@@ -33,10 +33,10 @@
 {% for activities in activities_tracks %}
 {% for activity in activities %}
 <div class="activity" hx-get="{% url 'timetable:activity_details' timetable_id activity.id %}" hx-target="#dialog" style="grid-row: {{activity.time_start|date:'Hi'}} / {{activity.time_end|date:'Hi'}}; grid-column: track{{forloop.parentloop.counter}}; margin-top: 50 px; background-color: {{ activity.activity_type.type_color }}">
-    <button onclick="event.stopPropagation();" class="btn btn-link" hx-get="{% url 'timetable:course_details' timetable_id activity.course %}" hx-target="#dialog"><strong class="activity-text">{{ activity.course }}</strong></button> <br>
-    <button onclick="event.stopPropagation();" class="btn btn-link" hx-get="{% url 'timetable:activity_type_details' activity.activity_type.id %}" hx-target="#dialog"><strong class="activity-text">{{ activity.activity_type }}</strong></button> <br>
+    <button onclick="event.stopPropagation();" class="btn btn-link btn-timetable" hx-get="{% url 'timetable:course_details' activity.course.timetable.id activity.course %}?activity={{activity.id}}" hx-target="#dialog"><strong class="activity-text">{{ activity.course }}</strong></button> <br>
+    <button onclick="event.stopPropagation();" class="btn btn-link btn-timetable" hx-get="{% url 'timetable:activity_type_details' activity.activity_type.id %}" hx-target="#dialog"><strong class="activity-text">{{ activity.activity_type }}</strong></button> <br>
     {% for teacher in activity.teacher.all %}
-    <button onclick="event.stopPropagation();" class="btn btn-link" hx-get="{% url 'timetable:teacher_details' teacher %}" hx-target="#dialog"><strong class="activity-text">{{ teacher }}</strong></button>
+    <button onclick="event.stopPropagation();" class="btn btn-link btn-timetable" hx-get="{% url 'timetable:teacher_details' teacher %}" hx-target="#dialog"><strong class="activity-text">{{ teacher }}</strong></button>
     {% endfor %} <br>
     <p class="activity-text">{{ activity.time_start|date:'H:i' }} - {{ activity.time_end|date:'H:i' }}</p> <br>
     <p class="activity-text">{{ activity.description }}</p>

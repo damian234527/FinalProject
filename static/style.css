@@ -145,4 +145,29 @@ input[type=button], input[type=submit], input[type=reset] {
 .my-notes {
     grid-area: my-notes
 }
-
+.exam-list {
+    margin-top: 1rem;
+}
+.exam-item {
+    padding: 1.5vw;
+    margin-bottom: .1rem;
+    margin-top: 0;
+    background-color: #f7f7f7;
+}
+.exam-item:hover {
+    background-color: #e0e0e0;
+}
+.activity {
+    color: #000;
+    border: 2px solid black;
+}
+.activity-text {
+font-size: 2vw;
+word-wrap: break-word;
+word-break: break-all;
+text-align: center;
+}
+.btn-timetable{
+margin: 0 auto;
+display: block;
+}

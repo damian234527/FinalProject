@@ -98,10 +98,10 @@ class Timetable(models.Model):
 
 class Teacher(models.Model):
     teacher_initials = models.CharField(max_length=20, unique=True)
-    teacher_first_name = models.CharField(max_length=100, null=True)
-    teacher_last_name = models.CharField(max_length=100, null=True)
-    teacher_link = models.URLField(max_length=200, null=True)
-    teacher_mail = models.EmailField(max_length=254, null=True)
+    teacher_first_name = models.CharField(max_length=100, null=True, blank=True)
+    teacher_last_name = models.CharField(max_length=100, null=True, blank=True)
+    teacher_link = models.URLField(max_length=200, null=True, blank=True)
+    teacher_mail = models.EmailField(max_length=254, null=True, blank=True)
 
     def __str__(self):
         return self.teacher_initials
@@ -142,7 +142,7 @@ class Activity_type(models.Model):
                          "Exam is the most demanding termination of the subject.",
                          "Colloquium is a less demanding test than exam."]
     type_colors = ["#27AB4D",
-                   "#273BAB",
+                   "#758AFA",
                    "#91214E",
                    "#8B9669",
                    "#49C7D5",

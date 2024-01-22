@@ -524,25 +524,29 @@ def add_activity(request, timetable_id):
     except Timetable.DoesNotExist:
         raise Http404("Timetable does not exist")
     if request.method == "POST":
-        create_new_activity_form = ActivityForm(user, request.POST)
+        create_new_activity_form = ActivityForm(timetable, user, request.POST)
         if create_new_activity_form.is_valid():
-            activity = create_new_activity_form.save(commit=False)
-            print("tets")
-            activity.time_duration = activity.time_end - activity.time_start
-            activity.timetable = timetable
-            activity.save()
+            create_new_activity_form.save()
+            # activity = create_new_activity_form.save(commit=False)
+            # activity.time_duration = activity.time_end - activity.time_start
+            # activity.timetable = timetable
+            # activity.save()
             return HttpResponse(status=204, headers={"HX-Trigger": "timetable_changed"})
     else:
-        create_new_activity_form = ActivityForm(user, get_time_now=True)
+        create_new_activity_form = ActivityForm(timetable, user, get_time_now=True)
 
     return render(request, "timetable/add_activity.html", {"activity_form": create_new_activity_form})
 
-@check_access_permission
+#@check_access_permission
 def edit_activity(request, timetable_id, activity_id):
     user = request.user if request.user.is_authenticated else None
+    try:
+        timetable = Timetable.objects.get(pk=timetable_id)
+    except Timetable.DoesNotExist:
+        raise Http404("Timetable does not exist")
     current_activity = get_object_or_404(Activity, pk=activity_id)
     if request.method == "POST":
-        edit_activity_form = ActivityForm(user, request.POST, instance=current_activity)
+        edit_activity_form = ActivityForm(timetable, user, request.POST, instance=current_activity)
         if edit_activity_form.is_valid():
             activity = edit_activity_form.save(commit=False)
             activity.time_duration = current_activity.time_end - current_activity.time_start
@@ -552,7 +556,7 @@ def edit_activity(request, timetable_id, activity_id):
         else:
             messages.error(request, "Something went wrong when editing activity")
     else:
-        edit_activity_form = ActivityForm(user, get_time_now=True, instance=current_activity)
+        edit_activity_form = ActivityForm(timetable, user, get_time_now=True, instance=current_activity)
 
     return render(request, "timetable/edit_activity.html", {"activity_form": edit_activity_form})
 
@@ -569,6 +573,7 @@ def delete_activity(request, timetable_id, activity_id):
 def activity_details(request, timetable_id, activity_id):
     # print(request.GET)
     activity = get_object_or_404(Activity, pk=activity_id)
+    timetable_id = activity.timetable.id
     return render(request, "timetable/activity.html", {"activity": activity, "timetable_id":timetable_id})
 
 # ======================================================TEACHER======================================================
@@ -614,12 +619,15 @@ def edit_activity_type(request, activity_type_id):
 # ======================================================COURSE======================================================
 @check_access_permission
 def course_details(request, timetable_id, course_initials):
-    course = get_object_or_404(Course, course_initials = course_initials)
+    activity_id = request.GET.get("activity", None)
+    activity = get_object_or_404(Activity, id=activity_id)
+    course = activity.course
     return render(request, "timetable/course.html", {"course": course, "timetable_id": timetable_id})
 
 @check_access_permission
 def edit_course(request, timetable_id, course_initials):
-    current_course = get_object_or_404(Course, course_initials=course_initials)
+    # course_id = request.GET.get("course", None)
+    current_course = get_object_or_404(Course, timetable_id=timetable_id, course_initials=course_initials)
     if request.method == "POST":
         edit_course_form = CourseForm(request.POST, instance=current_course)
         if edit_course_form.is_valid():
@@ -634,8 +642,8 @@ def edit_course(request, timetable_id, course_initials):
 @check_access_permission
 def delete_course(request, timetable_id, course_initials):
     try:
-        activity = get_object_or_404(Course, course_initials = course_initials)
-        activity.delete()
+        course = get_object_or_404(Course, timetable_id=timetable_id, course_initials = course_initials)
+        course.delete()
         return HttpResponse(status=204, headers={"HX-Trigger": "timetable_changed"})
     except Exception as e:
         messages.error(request, "Something went wrong when deleting course: ", e)
@@ -653,7 +661,12 @@ def get_exams(request):
         timetable_assignments = Timetable_assignment.objects.filter(student_id=None)
         available_timetables = Timetable.objects.filter(id__in=timetable_assignments.values("timetable_id"))
         exams = Activity.objects.filter(timetable__in=available_timetables, activity_type__in=requested_activity_types, time_end__gte=time_now).order_by("time_start")
-    return render(request, "timetable/exams.html", {"exams": exams})
+
+    teachers = [None] * len(exams)
+    for i, exam in enumerate(exams):
+        teachers[i] = exam.teacher.all()
+    print(teachers)
+    return render(request, "timetable/exams.html", {"exams": exams, "teachers": teachers})
 
 def select_active_timetable(request):
     user = request.user if request.user.is_authenticated else None

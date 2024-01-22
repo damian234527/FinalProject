@@ -1,13 +1,20 @@
-{% for exam in exams %}
-<div class="exam">
-    <h4><strong>{{exam.course}} {{exam.activity_type}}</strong></h4>
-    <h4>{{exam.time_start|date:"d.m.Y, G:i"}} - {{exam.time_end|date:"G:i"}}</h4>
-    <p>Duration: {{exam.time_duration}}</p>
-    <p>
-        {{exam.description}}
-    </p>
-    <p>
-        {{exam.teacher}}
-    </p>
+{% load timetable_extras %}
+<div class="exam-list">
+    {% for exam in exams %}
+    <div class="exam-item" hx-get="{% url 'timetable:activity_details' exam.course.timetable.id exam.id %}" hx-target="#dialog">
+        <button onclick="event.stopPropagation();" class="btn btn-link" hx-get="{% url 'timetable:course_details' exam.course.timetable.id exam.course %}?activity={{exam.id}}" hx-target="#dialog"><h4><strong>{{ exam.course }}</strong></h4></button> <br>
+        <button onclick="event.stopPropagation();" class="btn btn-link" hx-get="{% url 'timetable:activity_type_details' exam.activity_type.id %}" hx-target="#dialog"><h4><strong>{{ exam.activity_type }}</strong></h4></button> <br>
+        <h4>{{exam.time_start|date:"d.m.Y, G:i"}} - {{exam.time_end|date:"G:i"}}</h4>
+        <p>Duration: {{exam.time_duration}}</p>
+        <p>
+            Description: {{exam.description}}
+        </p>
+        <p>
+            Teachers:
+            {% for teacher in teachers|index:forloop.counter0 %}
+            <button onclick="event.stopPropagation();" class="btn btn-link" hx-get="{% url 'timetable:teacher_details' teacher %}" hx-target="#dialog"><strong class="activity-text">{{ teacher }}</strong></button>
+            {% endfor %}
+        </p>
+    </div>
+    {% endfor %}
 </div>
-{% endfor %}

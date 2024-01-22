@@ -21,8 +21,8 @@
             ({{course.course_initials}})
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-warning" hx-confirm="Are you sure you want to delete this activity? This action cannot be undone." hx-get="{% url 'timetable:delete_course' timetable_id course.course_initials %}">Delete</button>
-            <button type="button" class="btn btn-primary" hx-get="{% url 'timetable:edit_course' timetable_id course.course_initials %}">Edit</button>
+            <button type="button" class="btn btn-warning" hx-confirm="Are you sure you want to delete this course? This action cannot be undone." hx-get="{% url 'timetable:delete_course' course.timetable.id course.course_initials %}">Delete</button>
+            <button type="button" class="btn btn-primary" hx-get="{% url 'timetable:edit_course' course.timetable.id course.course_initials %}">Edit</button>
         </div>
     </div>
  </div>

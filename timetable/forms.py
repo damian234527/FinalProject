@@ -19,9 +19,9 @@ class ActivityForm(forms.ModelForm):
         fields = ["time_start", "time_end", "description", "course", "activity_type", "time_duration"]
         widgets = {"time_duration": forms.HiddenInput()}
 
-    def __init__(self, user, *args, get_time_now=False, **kwargs):
+    def __init__(self, current_timetable, user, *args, get_time_now=False, **kwargs):
         super(ActivityForm, self).__init__(*args, **kwargs)
-
+        self.current_timetable = current_timetable
         if user:
             assigned_timetables = models.Timetable_assignment.objects.filter(Q(student_id=user.id) | Q(student_id=None))
         else:
@@ -90,8 +90,7 @@ class ActivityForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super().save(commit=False)
         instance.time_duration = instance.time_end - instance.time_start
-        course = self.cleaned_data.get("course")
-        instance.timetable = course.timetable
+        instance.timetable = self.current_timetable
         teachers = self.cleaned_data.get("teacher", [])
         instance.save()
         teachers = self.check_teachers(teachers)
