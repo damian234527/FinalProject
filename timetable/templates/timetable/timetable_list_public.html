@@ -1,6 +1,6 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
-<h3> Publicly available timetables:</h3>
+<h3>Publicly available timetables:</h3>
 {% if public_timetables %}
 <ul class="timetable-list">
   {% for timetable in public_timetables %}

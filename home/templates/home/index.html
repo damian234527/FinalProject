@@ -10,12 +10,12 @@
 <div class="homepage-grid">
         <div class="timetable-for-today">
             <h3><strong>Timetable for today</strong></h3>
-            {% if user.active_timetable %}
+            {% if user.active_timetable != None %}
             <div hx-trigger="load" hx-get="{% url 'timetable:update_day' user.active_timetable.id year month day %}?generate=False" hx-target="this"></div>
             {% else %}
             <p>No active timetable set</p>
             <div id="timetable-display" hx-trigger="load" hx-get="{% url 'timetable:select_active_timetable' %}" hx-target="this"></div>
-            <div hx-trigger="timetable_set from:body" hx-get="{% url 'timetable:update_day' user.active_timetable.id year month day %}?generate=False" hx-target="#timetable-display"></div>
+            <p>The change will take effect after reloading the page. You can also change your active plan at any time from your account page.</p>
             {% endif %}
         </div>
         <div class="timetable-import">
@@ -31,9 +31,21 @@
         </div>
         <div class="my-notes">
             <h3><strong>Notes</strong></h3>
-    <div class="notes-subsection" id="user-notes" hx-trigger="load" hx-get="{% url 'notes:user_list' %}" hx-target="this"></div>
+    <div class="notes-subsection" id="user-notes" hx-trigger="load, note_changed from:body" hx-get="{% url 'notes:user_list' %}" hx-target="this"></div>
         </div>
 </div>
-
+{% else %}
+<h2>Welcome to Student Organiser website</h2>
+<h3>Create an account or log in for the full experience.</h3>
+<div class="homepage-grid">
+    <div class="timetable-for-today">
+        <h3><strong>Timetable for today</strong></h3>
+            <div class="timetable-subsection" id="public-timetables" hx-trigger="load, timetable_changed from:body" hx-get="{% url 'timetable:public_list' %}" hx-target="this"></div>
+    </div>
+    <div class="my-notes">
+        <h3><strong>Notes</strong></h3>
+        <div class="note-subsection" id="public-notes" hx-trigger="load, note_changed from:body" hx-get="{% url 'notes:public_list' %}" hx-target="this"></div>
+    </div>
+</div>
 {% endif %}
 {% endblock %}

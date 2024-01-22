@@ -1,4 +1,5 @@
 {% load timetable_extras %}
+{% if exams %}
 <div class="exam-list">
     {% for exam in exams %}
     <div class="exam-item" hx-get="{% url 'timetable:activity_details' exam.course.timetable.id exam.id %}" hx-target="#dialog">
@@ -18,3 +19,6 @@
     </div>
     {% endfor %}
 </div>
+{% else %}
+<h4 style="text-align: center;">No exams planned</h4>
+{% endif %}

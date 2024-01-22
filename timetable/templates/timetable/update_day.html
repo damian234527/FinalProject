@@ -1,4 +1,5 @@
 {% load timetable_extras %}
+{% if activities_tracks %}
 {% if generate_time %}
     <style>
         .grid-day {
@@ -43,3 +44,7 @@
 </div>
 {% endfor %}
 {% endfor %}
+
+{% else %}
+<h4 style="text-align: center; grid-column: 1/6">No activities for today</h4>
+{% endif %}

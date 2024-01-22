@@ -680,4 +680,4 @@ def select_active_timetable(request):
         else:
             current_timetable = user.active_timetable
             timetable_form = TimetableForm(user, current_timetable=current_timetable)
-        return render(request, "timetable/active_timetable.html", {"timetable_form": timetable_form}, headers={"HX-Trigger": "timetable_set"})
+        return render(request, "timetable/active_timetable.html", {"timetable_form": timetable_form})
