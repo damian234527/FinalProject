@@ -485,7 +485,7 @@ def add_existing_timetable(request):
                     else:
                         messages.error(request, "Something went wrong")
                 messages.success(request, "Timetable added successfully")
-                return HttpResponse(status=204)
+                return HttpResponse(status=204, headers={"HX-Trigger": "timetable_changed"})
         else:
             add_timetable_form = AddExistingTimetableForm()
         return render(request, "timetable/add_existing_timetable.html", {"add_timetable_form": add_timetable_form})
