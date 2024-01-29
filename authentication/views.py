@@ -74,7 +74,7 @@ def get_user_data(request, username):
     return render(request, "authentication/user_data.html", {"student": student})
 
 def user_profile(request, username):
-    get_user_data(request, username)
+    # get_user_data(request, username)
     return render(request, "authentication/user_profile.html", {"username": username})
 
 def edit_profile(request, username):

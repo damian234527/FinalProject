@@ -89,15 +89,22 @@ def display_month(request, timetable_id, year=None, month=None):
     first_day = datetime(year, month, 1)
     weeks_in_month = [None] * len(calendar_month)
     weeks_in_month[0] = first_day.isocalendar()[1]
-    for i in range(1, len(calendar_month)):
-        weeks_in_month[i] = weeks_in_month[i-1] + 1
-    if weeks_in_month[-1] == 53:
-        weeks_in_month[-1] = 1
+    if month == 12:
+        for i in range(1, len(calendar_month)):
+            weeks_in_month[i] = weeks_in_month[i-1] + 1
+        if weeks_in_month[-1] == 53 and not not calendar.isleap(year):
+            weeks_in_month[-1] = 1
+    elif month == 1:
+        for i in range(1, len(calendar_month)):
+            weeks_in_month[i] = weeks_in_month[i - 1] + 1
+    else:
+        for i in range(1, len(calendar_month)):
+            weeks_in_month[i] = weeks_in_month[i - 1] + 1
     #For setting current week
     if current_month or (month == current_date.month and year == current_date.year):
         day = current_date.day
         week_number = (day - 1) // 7 + 1
-        if day > calendar_month[week_number][0] + 6 or calendar_month[week_number][6] < day:
+        if day > calendar_month[week_number-1][0] + 6 or calendar_month[week_number-1][6] < day:
             week_number += 1
         #current_week = calendar_month[week_number]
         return render(request, "timetable/month.html",
@@ -142,10 +149,12 @@ def month_stats(request, timetable_id, year, month):
 # ======================================================WEEK======================================================
 @check_access_permission
 def display_week(request, timetable_id, year=None, week=None):
-    if year == None and week == None:
+    if (year == None and week == None):
         current_date = datetime.now()
         year = current_date.year
         week = current_date.isocalendar()[1]
+    elif week>53:
+        return redirect("timetable:display_current_week", timetable_id)
     # Get the week calendar for the specified year and month when using buttons
     if request.method == "POST":
         change_value = request.POST.get("change_value", "0")
@@ -652,9 +661,7 @@ def get_exams(request):
     user = request.user if request.user.is_authenticated else None
     time_now = datetime.now()
     requested_activity_types = Activity_type.objects.filter(
-        Q(type_name="exam", type_name_pl="exam", type_color="#FF0000") | Q(type_name="colloquium",
-                                                                                   type_name_pl="zal",
-                                                                                   type_color="#8C1D04"))
+        Q(type_name="exam", type_name_pl="exam") | Q(type_name="colloquium", type_name_pl="zal"))
     if user:
         exams = Activity.objects.filter(timetable=user.active_timetable, activity_type__in=requested_activity_types, time_end__gte=time_now).order_by("time_start")
     else:

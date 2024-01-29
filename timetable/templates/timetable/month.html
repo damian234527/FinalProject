@@ -40,7 +40,21 @@
             </tr>
             {% for week in this_month %}
             <tr>
-                <td style="border-right: 4px solid;" bgcolor="#0dcaf0"><a class="link-plain" href="{% url 'timetable:display_week' timetable_id year weeks_in_month|index:forloop.counter0 %}"><strong>{{ weeks_in_month|index:forloop.counter0 }}</strong></a></td>
+                <td style="border-right: 4px solid;" bgcolor="#0dcaf0">
+                    {% if forloop.first and weeks_in_month|index:forloop.counter0 > 51 %}
+                    <a class="link-plain" href="{% url 'timetable:display_week' timetable_id year|add:'-1' weeks_in_month|index:forloop.counter0 %}">
+                        <strong>{{ weeks_in_month|index:forloop.counter0 }}</strong>
+                    </a>
+                    {% elif forloop.last and weeks_in_month|index:forloop.counter0 < 2 %}
+                    <a class="link-plain" href="{% url 'timetable:display_week' timetable_id year|add:'1' weeks_in_month|index:forloop.counter0 %}">
+                        <strong>{{ weeks_in_month|index:forloop.counter0 }}</strong>
+                    </a>
+                    {% else %}
+                    <a class="link-plain" href="{% url 'timetable:display_week' timetable_id year weeks_in_month|index:forloop.counter0 %}">
+                        <strong>{{ weeks_in_month|index:forloop.counter0 }}</strong>
+                    </a>
+                    {% endif %}
+                </td>
                 {% if forloop.counter == this_week %}
                     {% for day in week %}
                         {% if day == today %}
@@ -49,26 +63,32 @@
                             <td bgcolor="navyblue"><a class="link-plain" href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
                         {% endif %}
                     {% endfor %}
-
                 {% else %}
                     {% for day in week %}
                         {% if forloop.parentloop.first and day > 7 %}
                             {% if month == 1 %}
-                                <td bgcolor="lightgray"><a class="link-plain" href="{% url 'timetable:display_day' timetable_id year|add:'-1' 12 day %}">{{ day }}</a></td>
+                                <td bgcolor="lightgray">
+                                    <a class="link-plain" href="{% url 'timetable:display_day' timetable_id year|add:'-1' 12 day %}">{{ day }}</a>
+                                </td>
                             {% else %}
-                                <td bgcolor="lightgray"><a class="link-plain" href="{% url 'timetable:display_day' timetable_id year month|add:'-1' day %}">{{ day }}</a></td>
+                                <td bgcolor="lightgray">
+                                    <a class="link-plain" href="{% url 'timetable:display_day' timetable_id year month|add:'-1' day %}">{{ day }}</a>
+                                </td>
                             {% endif %}
                         {% elif forloop.parentloop.last and day < 7 %}
                             {% if month == 12 %}
-                                <td bgcolor="lightgray"><a class="link-plain" href="{% url 'timetable:display_day' timetable_id year|add:'1' 1 day %}">{{ day }}</a></td>
+                                <td bgcolor="lightgray">
+                                    <a class="link-plain" href="{% url 'timetable:display_day' timetable_id year|add:'1' 1 day %}">{{ day }}</a>
+                                </td>
                             {% else %}
-                                <td bgcolor="lightgray"><a class="link-plain" href="{% url 'timetable:display_day' timetable_id year month|add:'1' day %}">{{ day }}</a></td>
+                                <td bgcolor="lightgray">
+                                    <a class="link-plain" href="{% url 'timetable:display_day' timetable_id year month|add:'1' day %}">{{ day }}</a>
+                                </td>
                             {% endif %}
                         {% else %}
                             <td><a class="link-plain" href="{% url 'timetable:display_day' timetable_id year month day %}">{{ day }}</a></td>
                         {% endif %}
                     {% endfor %}
-
                 {% endif %}
             </tr>
             {% endfor %}
