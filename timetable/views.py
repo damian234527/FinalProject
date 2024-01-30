@@ -92,10 +92,14 @@ def display_month(request, timetable_id, year=None, month=None):
     if month == 12:
         for i in range(1, len(calendar_month)):
             weeks_in_month[i] = weeks_in_month[i-1] + 1
-        if weeks_in_month[-1] == 53 and not not calendar.isleap(year):
+        if weeks_in_month[-1] == 53 and not (calendar.isleap(year) or datetime(year,12,28).date()==53):
             weeks_in_month[-1] = 1
     elif month == 1:
-        for i in range(1, len(calendar_month)):
+        start = 1
+        if weeks_in_month[0] >= 52:
+            weeks_in_month[1] = 1
+            start = 2
+        for i in range(start, len(calendar_month)):
             weeks_in_month[i] = weeks_in_month[i - 1] + 1
     else:
         for i in range(1, len(calendar_month)):
